@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi_dev.controller.ActivityController"
+            prefHeight="800"
+            prefWidth="1200"
+            style="-fx-background-color: #F5F7FA;">
+
+    <!-- LEFT SIDEBAR -->
+    <left>
+        <VBox prefWidth="260" style="-fx-background-color: white; -fx-border-color: #E1E8ED; -fx-border-width: 0 1 0 0;">
+            <!-- Logo -->
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 25;">
+                <StackPane>
+                    <Circle radius="20" fill="#0D203B"/>
+                    <Text text="RH" fill="white"
+                          style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                </StackPane>
+                <VBox spacing="2">
+                    <Label text="RH Recruit"
+                           style="-fx-text-fill: #0D203B; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Navigation Menu -->
+            <VBox spacing="5" style="-fx-padding: 0 15;">
+                <Button text="Dashboard"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+
+                <Button text="Job Offers"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+
+                <Button text="Events"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+
+                <!-- Active Button -->
+                <Button text="Activities"
+                        style="-fx-background-color: #0D203B;
+                               -fx-text-fill: white;
+                               -fx-font-size: 14px;
+                               -fx-font-weight: bold;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+
+                <!-- ADDED PROJECTS BUTTON -->
+                <Button text="Projects"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"
+                        onAction="#goToProjects"/>
+
+                <Button text="Reports"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+
+                <Button text="Settings"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- User Profile -->
+            <VBox style="-fx-padding: 20; -fx-background-color: #F8FAFC; -fx-border-color: #E1E8ED; -fx-border-width: 1 0 0 0;">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <StackPane>
+                        <Circle radius="25" fill="#0D203B"/>
+                        <Text text="OH" fill="white"
+                              style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    </StackPane>
+                    <VBox>
+                        <Label text="Omar Hamdi"
+                               style="-fx-text-fill: #0D203B; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        <Label text="Administrator"
+                               style="-fx-text-fill: #64748B; -fx-font-size: 12px;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- CENTER CONTENT -->
+    <center>
+        <VBox spacing="20" style="-fx-padding: 25;">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT">
+                <VBox spacing="5">
+                    <Label text="Activities Management"
+                           style="-fx-text-fill: #0D203B; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+                    <Label text="Track and manage employee work activities"
+                           style="-fx-text-fill: #64748B; -fx-font-size: 14px;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Main Content Area -->
+            <HBox spacing="20">
+                <!-- Form Section -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-pref-width: 400;">
+                    <Label text="Add New Activity"
+                           style="-fx-text-fill: #0D203B; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    
+                    <VBox spacing="10">
+                        <Label text="Employee" style="-fx-text-fill: #374151; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        <ComboBox fx:id="employeeCombo"
+                                  promptText="Select employee"
+                                  style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6;"/>
+                        
+                        <Label text="Date" style="-fx-text-fill: #374151; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        <DatePicker fx:id="datePicker"
+                                    style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6;"/>
+                        
+                        <Label text="Description" style="-fx-text-fill: #374151; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        <TextArea fx:id="descriptionField"
+                                  promptText="Enter activity description"
+                                  style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6; -fx-padding: 8; -fx-pref-height: 60;"/>
+                        
+                        <Label text="Hours Worked" style="-fx-text-fill: #374151; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        <TextField fx:id="hoursField"
+                                   promptText="Enter hours"
+                                   style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6; -fx-padding: 8;"/>
+                        
+                        <!-- ADDED PROJECT COMBOBOX -->
+                        <Label text="Project" style="-fx-text-fill: #374151; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        <ComboBox fx:id="projectCombo"
+                                  promptText="Select project"
+                                  style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6;"/>
+                    </VBox>
+                    
+                    <HBox spacing="10" style="-fx-padding: 10 0 0 0;">
+                        <Button text="Clear"
+                                style="-fx-background-color: transparent;
+                                       -fx-text-fill: #6B7280;
+                                       -fx-border-color: #D1D5DB;
+                                       -fx-border-width: 1;
+                                       -fx-border-radius: 6;
+                                       -fx-background-radius: 6;
+                                       -fx-padding: 8 16;"
+                                onAction="#clear"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Add Activity"
+                                style="-fx-background-color: #0D203B;
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 6;
+                                       -fx-padding: 8 20;"
+                                onAction="#addActivity"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Table Section -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-pref-width: 700;">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="Activity Records"
+                               style="-fx-text-fill: #0D203B; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <HBox spacing="8">
+                            <Button text="Update"
+                                    style="-fx-background-color: #84A2AE;
+                                           -fx-text-fill: #0D203B;
+                                           -fx-font-weight: bold;
+                                           -fx-background-radius: 6;
+                                           -fx-padding: 8 16;"
+                                    onAction="#updateActivity"/>
+                            <Button text="Delete"
+                                    style="-fx-background-color: #EF4444;
+                                           -fx-text-fill: white;
+                                           -fx-font-weight: bold;
+                                           -fx-background-radius: 6;
+                                           -fx-padding: 8 16;"
+                                    onAction="#deleteActivity"/>
+                        </HBox>
+                    </HBox>
+                    
+                    <TextField fx:id="searchField"
+                               promptText="Search by employee id, activity id, description..."
+                               style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6; -fx-padding: 8;"/>
+                    
+                    <!-- TableView -->
+                    <TableView fx:id="table" prefHeight="450">
+                        <columns>
+                            <TableColumn fx:id="colEmployee" text="Employee ID" prefWidth="120"/>
+                            <TableColumn fx:id="colDate" text="Date" prefWidth="100"/>
+                            <TableColumn fx:id="colDescription" text="Description" prefWidth="300"/>
+                            <TableColumn fx:id="colHours" text="Hours" prefWidth="80"/>
+                            <TableColumn fx:id="colProject" text="Project" prefWidth="120"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </HBox>
+
+        </VBox>
+    </center>
+</BorderPane>

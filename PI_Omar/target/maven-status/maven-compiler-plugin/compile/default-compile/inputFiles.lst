@@ -1,0 +1,8 @@
+/home/baril/PI_Omar/src/main/java/pi_dev/controller/ProjectController.java
+/home/baril/PI_Omar/src/main/java/pi_dev/MainApp.java
+/home/baril/PI_Omar/src/main/java/pi_dev/model/Project.java
+/home/baril/PI_Omar/src/main/java/pi_dev/dao/ProjectDAO.java
+/home/baril/PI_Omar/src/main/java/pi_dev/config/DBConnection.java
+/home/baril/PI_Omar/src/main/java/pi_dev/dao/ActivityDAO.java
+/home/baril/PI_Omar/src/main/java/pi_dev/model/Activity.java
+/home/baril/PI_Omar/src/main/java/pi_dev/controller/ActivityController.java

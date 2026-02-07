@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pi_dev.controller.ProjectController"
+            prefHeight="800"
+            prefWidth="1200"
+            style="-fx-background-color: #F5F7FA;">
+
+    <!-- LEFT SIDEBAR -->
+    <left>
+        <VBox prefWidth="260" style="-fx-background-color: white; -fx-border-color: #E1E8ED; -fx-border-width: 0 1 0 0;">
+            <!-- Logo -->
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 25;">
+                <StackPane>
+                    <Circle radius="20" fill="#0D203B"/>
+                    <Text text="RH" fill="white"
+                          style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                </StackPane>
+                <VBox spacing="2">
+                    <Label text="RH Recruit"
+                           style="-fx-text-fill: #0D203B; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Navigation Menu -->
+            <VBox spacing="5" style="-fx-padding: 0 15;">
+                <Button text="Dashboard"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+
+                <Button text="Job Offers"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+
+                <Button text="Events"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+
+                <!-- ADDED ACTIVITIES BUTTON -->
+                <Button text="Activities"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"
+                        onAction="#goToActivities"/>
+
+                <!-- Active Button -->
+                <Button text="Projects"
+                        style="-fx-background-color: #0D203B;
+                               -fx-text-fill: white;
+                               -fx-font-size: 14px;
+                               -fx-font-weight: bold;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+
+                <Button text="Reports"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+
+                <Button text="Settings"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-size: 14px;
+                               -fx-alignment: CENTER_LEFT;
+                               -fx-padding: 12 20;
+                               -fx-border-radius: 8;
+                               -fx-background-radius: 8;"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- User Profile -->
+            <VBox style="-fx-padding: 20; -fx-background-color: #F8FAFC; -fx-border-color: #E1E8ED; -fx-border-width: 1 0 0 0;">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <StackPane>
+                        <Circle radius="25" fill="#0D203B"/>
+                        <Text text="OH" fill="white"
+                              style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    </StackPane>
+                    <VBox>
+                        <Label text="Omar Hamdi"
+                               style="-fx-text-fill: #0D203B; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        <Label text="Administrator"
+                               style="-fx-text-fill: #64748B; -fx-font-size: 12px;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- CENTER CONTENT -->
+    <center>
+        <VBox spacing="20" style="-fx-padding: 25;">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT">
+                <VBox spacing="5">
+                    <Label text="Projects Management"
+                           style="-fx-text-fill: #0D203B; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+                    <Label text="Manage and track all company projects"
+                           style="-fx-text-fill: #64748B; -fx-font-size: 14px;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Main Content Area -->
+            <HBox spacing="20">
+                <!-- Form Section -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-pref-width: 400;">
+                    <Label text="Project Details"
+                           style="-fx-text-fill: #0D203B; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                    
+                    <VBox spacing="10">
+                        <Label text="Project Name" style="-fx-text-fill: #374151; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        <TextField fx:id="nameField"
+                                   promptText="Enter project name"
+                                   style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6; -fx-padding: 8;"/>
+                        
+                        <Label text="Description" style="-fx-text-fill: #374151; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        <TextArea fx:id="descriptionField"
+                                  promptText="Enter project description"
+                                  style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6; -fx-padding: 8; -fx-pref-height: 60;"/>
+                        
+                        <Label text="Status" style="-fx-text-fill: #374151; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        <ComboBox fx:id="statusCombo"
+                                  promptText="Select status"
+                                  style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6;" />
+                        
+                        <HBox spacing="10">
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="Start Date" style="-fx-text-fill: #374151; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                                <DatePicker fx:id="startDatePicker"
+                                            style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6;"/>
+                            </VBox>
+                            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                <Label text="End Date" style="-fx-text-fill: #374151; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                                <DatePicker fx:id="endDatePicker"
+                                            style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6;"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <Label text="Budget ($)" style="-fx-text-fill: #374151; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                        <TextField fx:id="budgetField"
+                                   promptText="Enter budget amount"
+                                   style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6; -fx-padding: 8;"/>
+                    </VBox>
+                    
+                    <HBox spacing="10" style="-fx-padding: 10 0 0 0;">
+                        <Button text="Clear"
+                                style="-fx-background-color: transparent;
+                                       -fx-text-fill: #6B7280;
+                                       -fx-border-color: #D1D5DB;
+                                       -fx-border-width: 1;
+                                       -fx-border-radius: 6;
+                                       -fx-background-radius: 6;
+                                       -fx-padding: 8 16;"
+                                onAction="#clearFields"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Add Project"
+                                style="-fx-background-color: #0D203B;
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 6;
+                                       -fx-padding: 8 20;"
+                                onAction="#addProject"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Table Section -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 12; -fx-pref-width: 700;">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="Project List"
+                               style="-fx-text-fill: #0D203B; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <HBox spacing="8">
+                            <Button text="Update"
+                                    style="-fx-background-color: #84A2AE;
+                                           -fx-text-fill: #0D203B;
+                                           -fx-font-weight: bold;
+                                           -fx-background-radius: 6;
+                                           -fx-padding: 8 16;"
+                                    onAction="#updateProject"/>
+                            <Button text="Delete"
+                                    style="-fx-background-color: #EF4444;
+                                           -fx-text-fill: white;
+                                           -fx-font-weight: bold;
+                                           -fx-background-radius: 6;
+                                           -fx-padding: 8 16;"
+                                    onAction="#deleteProject"/>
+                        </HBox>
+                    </HBox>
+                    
+                    <TextField fx:id="searchField"
+                               promptText="Search by name, status, description..."
+                               style="-fx-background-color: #F9FAFB; -fx-border-color: #D1D5DB; -fx-border-radius: 6; -fx-padding: 8;"/>
+                    
+                    <!-- TableView -->
+                    <TableView fx:id="table" prefHeight="450">
+                        <columns>
+                            <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="colName" text="Name" prefWidth="150"/>
+                            <TableColumn fx:id="colDescription" text="Description" prefWidth="200"/>
+                            <TableColumn fx:id="colStatus" text="Status" prefWidth="100"/>
+                            <TableColumn fx:id="colStartDate" text="Start Date" prefWidth="100"/>
+                            <TableColumn fx:id="colEndDate" text="End Date" prefWidth="100"/>
+                            <TableColumn fx:id="colBudget" text="Budget" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </HBox>
+
+        </VBox>
+    </center>
+</BorderPane>
