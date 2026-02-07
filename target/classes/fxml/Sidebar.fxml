@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="talentos.pidev.controllers.SidebarController"
+      prefWidth="260"
+      styleClass="sidebar">
+
+    <!-- Logo -->
+    <HBox spacing="10" styleClass="sidebar-header">
+        <StackPane>
+            <Circle radius="20"/>
+            <Text text="RH"/>
+        </StackPane>
+        <Label text="RH Recruit"/>
+    </HBox>
+
+    <!-- Navigation -->
+    <VBox spacing="5" styleClass="sidebar-menu">
+        <Button text="Dashboard" onAction="#dashboard"/>
+        <Button text="Interviews" onAction="#interviews"/>
+        <Button text="Activities" onAction="#activities"/>
+        <Button text="Projects" onAction="#projects"/>
+        <Button text="Reports" onAction="#reports"/>
+        <Button text="Settings" onAction="#settings"/>
+    </VBox>
+
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <!-- User -->
+    <HBox spacing="12" styleClass="sidebar-user">
+        <StackPane>
+            <Circle radius="22"/>
+            <Text text="SN"/>
+        </StackPane>
+        <VBox>
+            <Label text="Skander Nafti"/>
+            <Label text="RH Manager"/>
+        </VBox>
+    </HBox>
+
+</VBox>

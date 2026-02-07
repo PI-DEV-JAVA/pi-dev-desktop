@@ -1,21 +1,33 @@
 
 package talentos.pidev;
 
+import java.io.IOException;
+
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
-        Label label = new Label("JavaFX is working ");
-        Scene scene = new Scene(label, 1920, 1080);
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/fxml/MainLayout.fxml"));
 
-        stage.setTitle("JavaFX App");
-        stage.setScene(scene);
-        stage.show();
+        Scene scene;
+        try {
+            scene = new Scene(loader.load());
+            scene.getStylesheets().add(
+                getClass().getResource("/style/app.css").toExternalForm()
+        );
+            stage.setTitle("TalentOS");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static void main(String[] args) {
