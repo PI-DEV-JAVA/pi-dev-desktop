@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="talentos.pidev.controllers.InterviewController"
+      spacing="15" style="-fx-padding:20; -fx-background-color:#f5f6fa;">
+
+    <HBox spacing="10">
+        <TextField fx:id="searchField" promptText="Search by title..."/>
+        <Button text="Search" onAction="#onSearch"/>
+        <Button text="New Interview" onAction="#onCreate"/>
+    </HBox>
+
+    <TableView fx:id="table" prefHeight="400">
+        <columns>
+            <TableColumn fx:id="idCol" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="titleCol" text="Title" prefWidth="200"/>
+            <TableColumn fx:id="statusCol" text="Status" prefWidth="120"/>
+            <TableColumn fx:id="gradeCol" text="Grade" prefWidth="80"/>
+            <TableColumn fx:id="createdCol" text="Created At" prefWidth="180"/>
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="150"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="10">
+        <Button text="Edit" onAction="#onEdit"/>
+        <Button text="Delete" onAction="#onDelete"/>
+    </HBox>
+</VBox>
