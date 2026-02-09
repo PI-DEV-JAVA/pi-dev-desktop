@@ -22,7 +22,7 @@ public class InterviewDAO {
         """;
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, i.getTitle());
-            ps.setLong(2, i.getRecruiterId());
+            ps.setLong(2, 1);
             ps.setLong(3, i.getCandidateId());
             ps.setString(4, i.getStatus());
             if (i.getGeneralGrade() != null)
@@ -44,7 +44,7 @@ public class InterviewDAO {
         """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, i.getTitle());
-            ps.setLong(2, i.getRecruiterId());
+            ps.setLong(2, 1);
             ps.setLong(3, i.getCandidateId());
             ps.setString(4, i.getStatus());
             if (i.getGeneralGrade() != null)

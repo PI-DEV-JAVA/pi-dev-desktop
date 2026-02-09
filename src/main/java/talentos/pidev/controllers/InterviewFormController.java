@@ -10,8 +10,8 @@ public class InterviewFormController {
 
     @FXML
     private TextField titleField;
-    @FXML
-    private TextField recruiterField;
+    // @FXML
+    // private TextField recruiterField;
     @FXML
     private TextField candidateField;
     @FXML
@@ -32,7 +32,7 @@ public class InterviewFormController {
         this.interview = interview;
         if (interview != null) {
             titleField.setText(interview.getTitle());
-            recruiterField.setText(String.valueOf(interview.getRecruiterId()));
+            // recruiterField.setText(String.valueOf(interview.getRecruiterId()));
             candidateField.setText(String.valueOf(interview.getCandidateId()));
             statusBox.setValue(interview.getStatus());
             gradeField.setText(interview.getGeneralGrade() != null ? interview.getGeneralGrade().toString() : "");
@@ -54,7 +54,7 @@ public class InterviewFormController {
                 interview = new Interview();
 
             interview.setTitle(titleField.getText());
-            interview.setRecruiterId(Long.parseLong(recruiterField.getText()));
+            // interview.setRecruiterId(Long.parseLong(recruiterField.getText()));
             interview.setCandidateId(Long.parseLong(candidateField.getText()));
             interview.setStatus(statusBox.getValue());
             String gradeText = gradeField.getText();

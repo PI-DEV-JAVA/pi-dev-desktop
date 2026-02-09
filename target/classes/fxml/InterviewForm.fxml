@@ -14,8 +14,7 @@
     <Label text="Title"/>
     <TextField fx:id="titleField"/>
 
-    <Label text="Recruiter ID"/>
-    <TextField fx:id="recruiterField"/>
+   
 
     <Label text="Candidate ID"/>
     <TextField fx:id="candidateField"/>
