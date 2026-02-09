@@ -16,8 +16,8 @@
 
    
 
-    <Label text="Candidate ID"/>
-    <TextField fx:id="candidateField"/>
+   <Label text="Candidate"/>
+<ComboBox fx:id="candidateBox"/>
 
     <Label text="Status"/>
     <ComboBox fx:id="statusBox"/>

@@ -12,10 +12,11 @@ public class CandidateDAO {
     public Map<Long, String> getAllCandidates() {
         Map<Long, String> candidates = new LinkedHashMap<>(); 
         String sql = "SELECT id, full_name FROM user WHERE role = 'candidate'";
+        try{
+        Connection conn = DB.getConnection();
 
-        try (Connection conn = DB.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 candidates.put(rs.getLong("id"), rs.getString("full_name"));

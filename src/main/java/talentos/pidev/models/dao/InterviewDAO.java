@@ -16,11 +16,12 @@ public class InterviewDAO {
     }
 
     public void create(Interview i) {
+        System.out.println(i.getCandidateId());
         String sql = """
             INSERT INTO interview (title, recruiter_id, candidate_id, status, general_grade)
             VALUES (?, ?, ?, ?, ?)
         """;
-        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, i.getTitle());
             ps.setLong(2, 1);
             ps.setLong(3, i.getCandidateId());
@@ -38,6 +39,8 @@ public class InterviewDAO {
     }
 
     public void update(Interview i) {
+        System.out.println(i.getCandidateId());
+
         String sql = """
             UPDATE interview SET title=?, recruiter_id=?, candidate_id=?, status=?, general_grade=?
             WHERE id=?
