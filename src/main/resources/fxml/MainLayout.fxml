@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>  <!-- AJOUTE CET IMPORT -->
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="talentos.pidev.controllers.MainLayoutController"
+            prefWidth="1200"
+            prefHeight="800"
+            styleClass="root-layout">
+
+    <!-- Barre latérale -->
+    <left>
+        <fx:include source="Sidebar.fxml"/>
+    </left>
+
+    <!-- En-tête -->
+    <top>
+        <HBox styleClass="header" alignment="CENTER_LEFT" spacing="10">
+            <padding>
+                <Insets top="15" right="25" bottom="15" left="25"/>
+            </padding>
+            <Label fx:id="pageTitle" styleClass="page-title" text="TalentOS"/>
+            <Region HBox.hgrow="ALWAYS"/>
+        </HBox>
+    </top>
+
+    <!-- Contenu principal -->
+    <center>
+        <StackPane fx:id="contentPane"/>
+    </center>
+
+</BorderPane>

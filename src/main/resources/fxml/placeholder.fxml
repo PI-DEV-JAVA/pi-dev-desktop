@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+        <?import javafx.scene.layout.*?>
+        <?import javafx.scene.control.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      alignment="CENTER"
+      spacing="20"
+      prefWidth="600"
+      prefHeight="400"
+      style="-fx-padding: 40px;">
+
+    <!-- Icone -->
+    <Label text="🚧" style="-fx-font-size: 64px;"/>
+
+    <!-- Titre -->
+    <Label text="En cours de développement"
+           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1F2937;"/>
+
+    <!-- Message -->
+    <Label text="Cette section sera disponible prochainement"
+           style="-fx-font-size: 16px; -fx-text-fill: #6B7280;"/>
+
+    <Label text="Utilisez la barre latérale pour naviguer vers les sections disponibles."
+           style="-fx-font-size: 14px; -fx-text-fill: #9CA3AF;"/>
+
+    <!-- Bouton vers Offres -->
+    <Button text="Voir les offres disponibles"
+            onAction="#handleOffers"
+            style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-padding: 10 20; -fx-background-radius: 6;"/>
+
+</VBox>

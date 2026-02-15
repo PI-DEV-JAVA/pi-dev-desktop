@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+        <?import javafx.scene.control.*?>
+        <?import javafx.scene.layout.*?>
+        <?import javafx.scene.shape.Circle?>
+        <?import javafx.scene.image.*?>
+        <?import javafx.scene.text.Text?>
+        <?import javafx.geometry.Insets?>  <!-- IMPORT IMPORTANT -->
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="talentos.pidev.controllers.SidebarController"
+      prefWidth="260"
+      styleClass="sidebar"
+      spacing="0">
+
+    <!-- En-tête - Correction ici : on utilise l'attribut style directement -->
+    <HBox spacing="10" styleClass="sidebar-header" alignment="CENTER_LEFT">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        <StackPane>
+            <Circle radius="20" fill="#3B82F6"/>
+            <Text text="RH" fill="white" style="-fx-font-weight: bold;"/>
+        </StackPane>
+        <Label text="TalentOS" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+    </HBox>
+
+    <!-- Menu -->
+    <VBox spacing="2" styleClass="sidebar-menu" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets left="10" right="10" top="10" bottom="10"/>
+        </padding>
+
+        <Button text="📊 Tableau de Bord" onAction="#handleDashboard" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="📋 Offres d'emploi" onAction="#handleOffers" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="👥 Candidatures" onAction="#handleApplications" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="🎤 Interviews" onAction="#handleInterviews" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="📅 Activités" onAction="#handleActivities" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="📁 Projets" onAction="#handleProjects" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="👤 Espace candidat" onAction="#handleCandidateView" styleClass="sidebar-button"/>
+        <Separator>
+            <padding>
+                <Insets top="5" bottom="5"/>
+            </padding>
+        </Separator>
+
+        <Button text="📊 Rapports" onAction="#handleReports" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="⚙️ Paramètres" onAction="#handleSettings" styleClass="sidebar-button" maxWidth="Infinity"/>
+    </VBox>
+
+    <!-- Espace flexible -->
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <!-- Utilisateur -->
+    <HBox spacing="12" styleClass="sidebar-user" alignment="CENTER_LEFT">
+        <padding>
+            <Insets left="20" right="20" top="15" bottom="15"/>
+        </padding>
+        <StackPane>
+            <Circle radius="24" fill="white" stroke="#E5E7EB" strokeWidth="2"/>
+            <ImageView fitWidth="44" fitHeight="44" preserveRatio="true">
+                <Image url="/images/meniar.jpg"/>
+                <clip>
+                    <Circle radius="20" centerX="22" centerY="22"/>
+                </clip>
+            </ImageView>
+        </StackPane>
+        <VBox spacing="2">
+            <Label text="Meniar Mili" style="-fx-font-weight: bold;"/>
+            <Label text="RH Manager" style="-fx-font-size: 11px; -fx-text-fill: #6B7280;"/>
+        </VBox>
+    </HBox>
+
+</VBox>
