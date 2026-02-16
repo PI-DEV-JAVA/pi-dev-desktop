@@ -4,6 +4,7 @@ import javafx.animation.ScaleTransition;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -267,7 +268,7 @@ public class InterviewController {
             FXMLLoader loader =
                     new FXMLLoader(getClass().getResource("/fxml/InterviewForm.fxml"));
 
-            VBox root = loader.load();
+            Parent root = loader.load();
 
             InterviewFormController formController = loader.getController();
             formController.setInterview(interview);

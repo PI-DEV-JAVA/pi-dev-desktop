@@ -2,32 +2,102 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.text.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="talentos.pidev.controllers.InterviewFormController"
-      spacing="15" style="-fx-padding:20; -fx-background-color:white; -fx-border-radius:10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2),10,0,0,2);">
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="talentos.pidev.controllers.InterviewFormController"
+           style="-fx-background-color:#f1f5f9;">
 
-    <Label text="Interview Form" style="-fx-font-size:16px; -fx-font-weight:bold;"/>
+    <VBox spacing="25"
+          maxWidth="450"
+          style="
+              -fx-background-color:white;
+              -fx-padding:30;
+              -fx-background-radius:16;
+              -fx-border-radius:16;
+              -fx-effect:dropshadow(gaussian, rgba(0,0,0,0.15), 20,0,0,8);
+          ">
 
-    <Label text="Title"/>
-    <TextField fx:id="titleField"/>
+        <!-- Header -->
+        <Label text="Interview Details"
+               style="-fx-font-size:20px; -fx-font-weight:bold; -fx-text-fill:#0f172a;" />
 
-   
+        <!-- Form Grid -->
+        <GridPane hgap="15" vgap="18">
 
-   <Label text="Candidate"/>
-<ComboBox fx:id="candidateBox"/>
+            <columnConstraints>
+                <ColumnConstraints percentWidth="35"/>
+                <ColumnConstraints percentWidth="65"/>
+            </columnConstraints>
 
-    <Label text="Status"/>
-    <ComboBox fx:id="statusBox"/>
+            <!-- Title -->
+            <Label text="Title"
+                   style="-fx-text-fill:#334155;"
+                   GridPane.rowIndex="0" GridPane.columnIndex="0"/>
 
+            <TextField fx:id="titleField"
+                       GridPane.rowIndex="0" GridPane.columnIndex="1"
+                       style="-fx-background-radius:8; -fx-border-radius:8;
+                              -fx-border-color:#cbd5e1;"/>
 
-    <Label text="General Grade"/>
-    <TextField fx:id="gradeField"/>
+            <!-- Candidate -->
+            <Label text="Candidate"
+                   style="-fx-text-fill:#334155;"
+                   GridPane.rowIndex="1" GridPane.columnIndex="0"/>
 
-    <HBox spacing="10">
-        <Button text="Save" onAction="#onSave"/>
-        <Button text="Cancel" onAction="#onCancel"/>
-    </HBox>
-</VBox>
+            <ComboBox fx:id="candidateBox"
+                      GridPane.rowIndex="1" GridPane.columnIndex="1"
+                      style="-fx-background-radius:8; -fx-border-radius:8;
+                             -fx-border-color:#cbd5e1;"/>
+
+            <!-- Status -->
+            <Label text="Status"
+                   style="-fx-text-fill:#334155;"
+                   GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+
+            <ComboBox fx:id="statusBox"
+                      GridPane.rowIndex="2" GridPane.columnIndex="1"
+                      style="-fx-background-radius:8; -fx-border-radius:8;
+                             -fx-border-color:#cbd5e1;"/>
+
+            <!-- Grade -->
+            <Label text="General Grade"
+                   style="-fx-text-fill:#334155;"
+                   GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+
+            <TextField fx:id="gradeField"
+                       GridPane.rowIndex="3" GridPane.columnIndex="1"
+                       style="-fx-background-radius:8; -fx-border-radius:8;
+                              -fx-border-color:#cbd5e1;"/>
+
+        </GridPane>
+
+        <!-- Action Buttons -->
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+
+            <Button text="Cancel"
+                    onAction="#onCancel"
+                    style="
+                        -fx-background-color:#e2e8f0;
+                        -fx-text-fill:#0f172a;
+                        -fx-background-radius:8;
+                        -fx-padding:8 18;
+                        -fx-cursor:hand;
+                    "/>
+
+            <Button text="Save"
+                    onAction="#onSave"
+                    style="
+                        -fx-background-color:#0D203B;
+                        -fx-text-fill:white;
+                        -fx-background-radius:8;
+                        -fx-padding:8 20;
+                        -fx-font-weight:bold;
+                        -fx-cursor:hand;
+                    "/>
+
+        </HBox>
+
+    </VBox>
+
+</StackPane>
