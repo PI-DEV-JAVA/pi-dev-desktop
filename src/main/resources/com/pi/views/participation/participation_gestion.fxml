@@ -27,6 +27,13 @@
             </padding>
 
             <children>
+                <!-- Ligne de recherche par ID -->
+                <HBox spacing="10.0" alignment="CENTER">
+                    <Label text="Rechercher par ID Participation:" />
+                    <TextField fx:id="rechercheIdField" promptText="Entrez l'ID" HBox.hgrow="ALWAYS" />
+                    <Button mnemonicParsing="false" onAction="#rechercherParId" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Rechercher" />
+                </HBox>
+
                 <GridPane hgap="10.0" vgap="10.0">
                     <children>
                         <Label text="ID Participation:" GridPane.columnIndex="0" GridPane.rowIndex="0" />

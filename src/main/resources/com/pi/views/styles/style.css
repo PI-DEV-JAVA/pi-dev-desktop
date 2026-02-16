@@ -1,0 +1,269 @@
+/* style.css - Design inspiré de TalentOs */
+
+/* Variables de couleurs */
+.root {
+    -fx-primary: #2c3e50;
+    -fx-secondary: #34495e;
+    -fx-accent: #3498db;
+    -fx-success: #27ae60;
+    -fx-warning: #f39c12;
+    -fx-danger: #e74c3c;
+    -fx-light: #ecf0f1;
+    -fx-dark: #2c3e50;
+    -fx-white: #ffffff;
+    -fx-gray: #95a5a6;
+}
+
+/* Style général */
+.root {
+    -fx-font-family: 'Segoe UI', 'Arial', sans-serif;
+    -fx-background-color: -fx-light;
+}
+
+/* ========== MENU PRINCIPAL ========== */
+.menu-panel {
+    -fx-background-color: -fx-primary;
+    -fx-padding: 20 10 20 10;
+}
+
+.menu-title {
+    -fx-text-fill: -fx-white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 20 0;
+}
+
+.menu-item {
+    -fx-text-fill: -fx-light;
+    -fx-font-size: 14px;
+    -fx-padding: 10 15 10 15;
+    -fx-background-radius: 5;
+}
+
+.menu-item:hover {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: -fx-white;
+    -fx-cursor: hand;
+}
+
+.menu-item-selected {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: -fx-white;
+    -fx-font-weight: bold;
+}
+
+/* ========== DASHBOARD ========== */
+.dashboard-panel {
+    -fx-background-color: -fx-white;
+    -fx-padding: 20;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+}
+
+.dashboard-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary;
+    -fx-padding: 0 0 20 0;
+}
+
+.dashboard-subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: -fx-gray;
+    -fx-padding: 0 0 10 0;
+}
+
+/* ========== CARTES PROFIL ========== */
+.profile-card {
+    -fx-background-color: -fx-white;
+    -fx-padding: 15;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-border-color: -fx-light;
+    -fx-border-radius: 10;
+}
+
+.profile-card:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(52,152,219,0.3), 10, 0, 0, 5);
+    -fx-border-color: -fx-accent;
+}
+
+.profile-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary;
+}
+
+.profile-age {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-gray;
+}
+
+.profile-connect-btn {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: -fx-white;
+    -fx-font-size: 14px;
+    -fx-padding: 8 20 8 20;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+.profile-connect-btn:hover {
+    -fx-background-color: -fx-primary;
+}
+
+/* ========== BOUTONS ========== */
+.button-primary {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: -fx-white;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.button-primary:hover {
+    -fx-background-color: -fx-primary;
+}
+
+.button-success {
+    -fx-background-color: -fx-success;
+    -fx-text-fill: -fx-white;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.button-danger {
+    -fx-background-color: -fx-danger;
+    -fx-text-fx: -fx-white;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+/* ========== CHAMPS DE TEXTE ========== */
+.text-field, .date-picker {
+    -fx-background-color: -fx-white;
+    -fx-border-color: -fx-light;
+    -fx-border-radius: 5;
+    -fx-padding: 8 12 8 12;
+    -fx-font-size: 14px;
+}
+
+.text-field:focused, .date-picker:focused {
+    -fx-border-color: -fx-accent;
+    -fx-effect: dropshadow(three-pass-box, rgba(52,152,219,0.3), 5, 0, 0, 2);
+}
+
+/* ========== TABLEAUX ========== */
+.table-view {
+    -fx-background-color: -fx-white;
+    -fx-border-color: -fx-light;
+    -fx-border-radius: 5;
+}
+
+.table-view .column-header {
+    -fx-background-color: -fx-primary;
+    -fx-text-fill: -fx-white;
+    -fx-font-weight: bold;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -fx-white;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: -fx-light;
+}
+
+/* ========== LISTVIEW ========== */
+.list-view {
+    -fx-background-color: -fx-white;
+    -fx-border-color: -fx-light;
+    -fx-border-radius: 5;
+}
+
+.list-cell {
+    -fx-padding: 10;
+    -fx-font-size: 14px;
+}
+
+.list-cell:hover {
+    -fx-background-color: -fx-light;
+}
+
+.list-cell:selected {
+    -fx-background-color: -fx-accent;
+    -fx-text-fill: -fx-white;
+}
+
+/* ========== PROFIL ADMIN ========== */
+.admin-panel {
+    -fx-background-color: -fx-white;
+    -fx-padding: 20;
+    -fx-background-radius: 10;
+    -fx-border-color: -fx-light;
+    -fx-border-radius: 10;
+}
+
+.admin-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary;
+}
+
+.admin-role {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-gray;
+    -fx-background-color: -fx-light;
+    -fx-padding: 3 8 3 8;
+    -fx-background-radius: 12;
+}
+
+/* ========== STATUTS ========== */
+.status-actif {
+    -fx-background-color: -fx-success;
+    -fx-text-fill: -fx-white;
+    -fx-padding: 3 10 3 10;
+    -fx-background-radius: 12;
+    -fx-font-size: 12px;
+}
+
+.status-annule {
+    -fx-background-color: -fx-danger;
+    -fx-text-fill: -fx-white;
+    -fx-padding: 3 10 3 10;
+    -fx-background-radius: 12;
+    -fx-font-size: 12px;
+}
+
+.status-inscrit {
+    -fx-background-color: -fx-success;
+    -fx-text-fill: -fx-white;
+    -fx-padding: 3 10 3 10;
+    -fx-background-radius: 12;
+    -fx-font-size: 12px;
+}
+
+/* ========== TRI ========== */
+.sort-box {
+    -fx-background-color: -fx-white;
+    -fx-padding: 10;
+    -fx-background-radius: 5;
+    -fx-border-color: -fx-light;
+    -fx-border-radius: 5;
+}
+
+.sort-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-gray;
+}
+
+.sort-value {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary;
+}

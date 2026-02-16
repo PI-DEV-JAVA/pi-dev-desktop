@@ -25,6 +25,10 @@ public class ParticipationService {
         participationDAO.supprimer(id);
     }
 
+    public Participation getParticipationById(int id) throws SQLException {
+        return participationDAO.getById(id);
+    }
+
     public List<Participation> getAllParticipations() throws SQLException {
         return participationDAO.afficherToutes();
     }
@@ -43,5 +47,9 @@ public class ParticipationService {
 
     public boolean estInscrit(int idEvent, int idUser) throws SQLException {
         return participationDAO.estInscrit(idEvent, idUser);
+    }
+
+    public void supprimerParticipationsParEvent(int idEvent) throws SQLException {
+        participationDAO.supprimerParEvent(idEvent);
     }
 }

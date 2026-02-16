@@ -27,6 +27,7 @@
             </padding>
 
             <children>
+                <!-- Barre de recherche et boutons -->
                 <HBox spacing="10.0">
                     <children>
                         <TextField fx:id="rechercheField" promptText="ID Événement ou Utilisateur..." HBox.hgrow="ALWAYS" />
@@ -36,11 +37,14 @@
                     </children>
                 </HBox>
 
-                <ListView fx:id="listViewParticipations" VBox.vgrow="ALWAYS" />
+                <!-- Liste des participations -->
+                <ListView fx:id="listViewParticipations" VBox.vgrow="ALWAYS" prefHeight="400.0" />
 
+                <!-- Zone de détails -->
                 <TextField fx:id="detailField" editable="false" promptText="Cliquez sur une participation pour voir les détails" />
 
-                <Label fx:id="infoLabel" style="-fx-font-weight: bold;" />
+                <!-- Label d'information -->
+                <Label fx:id="infoLabel" text="Total: 0 participation(s)" />
             </children>
         </VBox>
     </center>
