@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pi.controllers.MainController">
+
+    <top>
+        <Label alignment="CENTER" prefHeight="100.0" text="GESTION DES ÉVÉNEMENTS RH" BorderPane.alignment="CENTER">
+            <font>
+                <Font name="System Bold" size="24.0" />
+            </font>
+        </Label>
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="ÉVÉNEMENTS" style="-fx-font-weight: bold;" />
+                <Button mnemonicParsing="false" onAction="#openEvenementGestion" prefWidth="250.0" text="Gestion des Événements" />
+                <Button mnemonicParsing="false" onAction="#openEvenementListe" prefWidth="250.0" text="Liste des Événements" />
+
+                <Label text="PARTICIPATIONS" style="-fx-font-weight: bold;" />
+                <Button mnemonicParsing="false" onAction="#openParticipationGestion" prefWidth="250.0" text="Gestion des Participations" />
+                <Button mnemonicParsing="false" onAction="#openParticipationListe" prefWidth="250.0" text="Liste des Participations" />
+
+                <Button mnemonicParsing="false" onAction="#quit" prefWidth="250.0" text="Quitter" />
+            </children>
+            <padding>
+                <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
+            </padding>
+        </VBox>
+    </center>
+</BorderPane>
