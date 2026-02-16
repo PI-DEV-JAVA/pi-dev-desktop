@@ -150,7 +150,7 @@ public class InterviewController {
 
                 /* ---------- Actions ---------- */
 
-                editBtn.setOnAction(e -> openForm(getItem()));
+                editBtn.setOnAction(e -> openDetails(getItem()));
                 deleteBtn.setOnAction(e -> confirmDelete(getItem()));
 
                 /* ---------- Double Click ---------- */
@@ -290,4 +290,15 @@ public class InterviewController {
             e.printStackTrace();
         }
     }
+
+    private void openDetails(Interview interview) {
+
+        try {
+            MainLayoutController.getInstance().navigate("InterviewDetails.fxml", "interview details");
+    
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
 }
