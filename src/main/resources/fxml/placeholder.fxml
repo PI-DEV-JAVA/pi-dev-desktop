@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-        <?import javafx.scene.layout.*?>
-        <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       alignment="CENTER"
-      spacing="20"
+      spacing="24"
+      styleClass="placeholder-container"
       prefWidth="600"
       prefHeight="400"
-      style="-fx-padding: 40px;">
+      style="-fx-padding: 50;">
 
-    <!-- Icone -->
-    <Label text="🚧" style="-fx-font-size: 64px;"/>
+    <!-- Icon -->
+    <Label text="🚧" styleClass="placeholder-icon"/>
 
-    <!-- Titre -->
-    <Label text="En cours de développement"
-           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1F2937;"/>
+    <!-- Title -->
+    <Label text="En cours de développement" styleClass="placeholder-title"/>
 
-    <!-- Message -->
-    <Label text="Cette section sera disponible prochainement"
-           style="-fx-font-size: 16px; -fx-text-fill: #6B7280;"/>
+    <!-- Subtitle -->
+    <Label text="Cette section sera disponible prochainement" styleClass="placeholder-subtitle"/>
 
     <Label text="Utilisez la barre latérale pour naviguer vers les sections disponibles."
-           style="-fx-font-size: 14px; -fx-text-fill: #9CA3AF;"/>
+           styleClass="placeholder-hint"/>
 
-    <!-- Bouton vers Offres -->
+    <!-- CTA Button -->
     <Button text="Voir les offres disponibles"
             onAction="#handleOffers"
-            style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-padding: 10 20; -fx-background-radius: 6;"/>
+            styleClass="btn-gradient"/>
 
 </VBox>

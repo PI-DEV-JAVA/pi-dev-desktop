@@ -2,7 +2,7 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>  <!-- AJOUTE CET IMPORT -->
+<?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -11,23 +11,38 @@
             prefHeight="800"
             styleClass="root-layout">
 
-    <!-- Barre latérale -->
+    <!-- Sidebar -->
     <left>
         <fx:include source="Sidebar.fxml"/>
     </left>
 
-    <!-- En-tête -->
+    <!-- Modern Header with gradient accent -->
     <top>
-        <HBox styleClass="header" alignment="CENTER_LEFT" spacing="10">
+        <HBox styleClass="header" alignment="CENTER_LEFT" spacing="16">
             <padding>
-                <Insets top="15" right="25" bottom="15" left="25"/>
+                <Insets top="14" right="30" bottom="14" left="30"/>
             </padding>
+
+            <!-- Page title -->
             <Label fx:id="pageTitle" styleClass="page-title" text="TalentOS"/>
+
             <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- Global search pill -->
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="🔍" styleClass="search-icon"/>
+                <TextField styleClass="header-search" promptText="Rechercher dans TalentOS..."/>
+            </HBox>
+
+            <Region prefWidth="16"/>
+
+            <!-- Notification & profile icons -->
+            <Label text="🔔" styleClass="header-icon-label"/>
+            <Label text="⚙️" styleClass="header-icon-label"/>
         </HBox>
     </top>
 
-    <!-- Contenu principal -->
+    <!-- Main content -->
     <center>
         <StackPane fx:id="contentPane"/>
     </center>

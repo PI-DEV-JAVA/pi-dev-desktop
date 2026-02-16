@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-        <?import javafx.scene.control.*?>
-        <?import javafx.scene.layout.*?>
-        <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -10,51 +10,52 @@
             styleClass="content">
 
     <top>
-        <VBox spacing="15" styleClass="card">
+        <VBox spacing="16" styleClass="filter-panel">
             <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
+                <Insets top="24" right="24" bottom="20" left="24"/>
             </padding>
 
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label text="📋 Gestion des candidatures" styleClass="page-title"/>
+            <!-- Title row -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="👥" style="-fx-font-size: 24px;"/>
+                <Label text="Gestion des candidatures" styleClass="page-title"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label fx:id="totalApplicationsLabel" styleClass="total-label"/>
                 <Button text="🔄 Actualiser" onAction="#loadApplications" styleClass="btn-info"/>
             </HBox>
 
-            <GridPane hgap="10" vgap="10">
-                <columnConstraints>
-                    <ColumnConstraints percentWidth="20"/>
-                    <ColumnConstraints percentWidth="30"/>
-                    <ColumnConstraints percentWidth="20"/>
-                    <ColumnConstraints percentWidth="30"/>
-                </columnConstraints>
+            <!-- Search bar -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="🔍" styleClass="search-icon"/>
+                <TextField fx:id="searchField" promptText="Rechercher par nom ou email du candidat..."
+                           styleClass="search-field" HBox.hgrow="ALWAYS"/>
+            </HBox>
 
-                <!-- Ligne 1 : Recherche -->
-                <Label text="Rechercher:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                <TextField fx:id="searchField" promptText="Nom ou email du candidat..."
-                           GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="0"/>
+            <!-- Filters row 1 -->
+            <HBox spacing="16" alignment="CENTER_LEFT">
+                <Label text="Statut" styleClass="filter-label"/>
+                <ComboBox fx:id="statusFilter" promptText="Filtrer par statut" prefWidth="180"/>
 
-                <!-- Ligne 2 : Statut et Offre -->
-                <Label text="Statut:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                <ComboBox fx:id="statusFilter" promptText="Filtrer par statut"
-                          GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Region prefWidth="8"/>
 
-                <Label text="Offre:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                <ComboBox fx:id="offerFilter" promptText="Filtrer par offre"
-                          GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+                <Label text="Offre" styleClass="filter-label"/>
+                <ComboBox fx:id="offerFilter" promptText="Filtrer par offre" prefWidth="200" HBox.hgrow="ALWAYS"/>
+            </HBox>
 
-                <!-- Ligne 3 : Dates -->
-                <Label text="Du:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-                <DatePicker fx:id="fromDatePicker" promptText="Date début"
-                            GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            <!-- Filters row 2: dates -->
+            <HBox spacing="16" alignment="CENTER_LEFT">
+                <Label text="Du" styleClass="filter-label"/>
+                <DatePicker fx:id="fromDatePicker" promptText="Date début" prefWidth="180"/>
 
-                <Label text="Au:" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
-                <HBox spacing="10" GridPane.columnIndex="3" GridPane.rowIndex="2" alignment="CENTER_RIGHT">
-                    <DatePicker fx:id="toDatePicker" promptText="Date fin" HBox.hgrow="ALWAYS"/>
-                    <Button text="Réinitialiser" onAction="#loadApplications" styleClass="btn-secondary"/>
-                </HBox>
-            </GridPane>
+                <Region prefWidth="8"/>
+
+                <Label text="Au" styleClass="filter-label"/>
+                <DatePicker fx:id="toDatePicker" promptText="Date fin" prefWidth="180"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button text="Réinitialiser" onAction="#loadApplications" styleClass="btn-secondary"/>
+            </HBox>
         </VBox>
     </top>
 
@@ -65,7 +66,7 @@
                       vgap="20"
                       alignment="TOP_CENTER">
                 <padding>
-                    <Insets top="20" right="20" bottom="20" left="20"/>
+                    <Insets top="20" right="24" bottom="24" left="24"/>
                 </padding>
             </FlowPane>
         </ScrollPane>

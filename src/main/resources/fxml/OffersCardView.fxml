@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-        <?import javafx.scene.control.*?>
-        <?import javafx.scene.layout.*?>
-        <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -10,46 +10,42 @@
             styleClass="content">
 
     <top>
-        <VBox spacing="15" styleClass="card">
+        <VBox spacing="16" styleClass="filter-panel">
             <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
+                <Insets top="24" right="24" bottom="20" left="24"/>
             </padding>
 
-            <HBox spacing="10" alignment="CENTER_LEFT">
+            <!-- Title row -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="📋" style="-fx-font-size: 24px;"/>
                 <Label text="Offres d'emploi" styleClass="page-title"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label fx:id="totalOffersLabel" styleClass="total-label"/>
                 <Button text="+ Nouvelle offre" onAction="#addNewOffer" styleClass="btn-success"/>
             </HBox>
 
-            <GridPane hgap="10" vgap="10">
-                <columnConstraints>
-                    <ColumnConstraints percentWidth="30"/>
-                    <ColumnConstraints percentWidth="20"/>
-                    <ColumnConstraints percentWidth="20"/>
-                    <ColumnConstraints percentWidth="30"/>
-                </columnConstraints>
+            <!-- Search bar -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="🔍" styleClass="search-icon"/>
+                <TextField fx:id="searchField" promptText="Rechercher par titre, description, département..."
+                           styleClass="search-field" HBox.hgrow="ALWAYS"/>
+            </HBox>
 
-                <rowConstraints>
-                    <RowConstraints prefHeight="35"/>
-                    <RowConstraints prefHeight="35"/>
-                </rowConstraints>
+            <!-- Filters row -->
+            <HBox spacing="16" alignment="CENTER_LEFT">
+                <Label text="Département" styleClass="filter-label"/>
+                <ComboBox fx:id="departmentFilter" prefWidth="180"/>
 
-                <!-- Ligne 1 -->
-                <Label text="Rechercher :" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                <TextField fx:id="searchField" promptText="Titre, description, département..."
-                           GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="0"/>
+                <Region prefWidth="8"/>
 
-                <!-- Ligne 2 -->
-                <Label text="Département :" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                <ComboBox fx:id="departmentFilter" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Label text="Statut" styleClass="filter-label"/>
+                <ComboBox fx:id="statusFilter" prefWidth="140"/>
 
-                <Label text="Statut :" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-                <HBox spacing="10" GridPane.columnIndex="3" GridPane.rowIndex="1" alignment="CENTER_RIGHT">
-                    <ComboBox fx:id="statusFilter" prefWidth="120"/>
-                    <ComboBox fx:id="sortComboBox" prefWidth="150" promptText="Trier par"/>
-                </HBox>
-            </GridPane>
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Label text="Trier par" styleClass="filter-label"/>
+                <ComboBox fx:id="sortComboBox" prefWidth="160" promptText="Trier par"/>
+            </HBox>
         </VBox>
     </top>
 
@@ -64,7 +60,7 @@
                       vgap="20"
                       alignment="TOP_CENTER">
                 <padding>
-                    <Insets top="20" right="20" bottom="20" left="20"/>
+                    <Insets top="20" right="24" bottom="24" left="24"/>
                 </padding>
             </FlowPane>
         </ScrollPane>

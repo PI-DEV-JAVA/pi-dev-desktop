@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-        <?import javafx.scene.control.*?>
-        <?import javafx.scene.layout.*?>
-        <?import javafx.scene.shape.Circle?>
-        <?import javafx.scene.image.*?>
-        <?import javafx.scene.text.Text?>
-        <?import javafx.geometry.Insets?>  <!-- IMPORT IMPORTANT -->
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
 
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -14,61 +14,69 @@
       styleClass="sidebar"
       spacing="0">
 
-    <!-- En-tête - Correction ici : on utilise l'attribut style directement -->
-    <HBox spacing="10" styleClass="sidebar-header" alignment="CENTER_LEFT">
+    <!-- Logo Header -->
+    <HBox spacing="12" styleClass="sidebar-header" alignment="CENTER_LEFT">
         <padding>
-            <Insets top="20" right="20" bottom="20" left="20"/>
+            <Insets top="24" right="20" bottom="24" left="20"/>
         </padding>
         <StackPane>
-            <Circle radius="20" fill="#3B82F6"/>
-            <Text text="RH" fill="white" style="-fx-font-weight: bold;"/>
+            <Circle radius="22" style="-fx-fill: linear-gradient(to bottom right, #6366F1, #06B6D4);"/>
+            <Text text="T" fill="white" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
         </StackPane>
-        <Label text="TalentOS" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <VBox spacing="1">
+            <Label text="TalentOS" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Label text="Gestion RH" style="-fx-font-size: 11px; -fx-text-fill: #64748B;"/>
+        </VBox>
     </HBox>
 
-    <!-- Menu -->
-    <VBox spacing="2" styleClass="sidebar-menu" VBox.vgrow="ALWAYS">
+    <!-- Navigation Menu -->
+    <VBox spacing="4" styleClass="sidebar-menu" VBox.vgrow="ALWAYS">
         <padding>
-            <Insets left="10" right="10" top="10" bottom="10"/>
+            <Insets left="12" right="12" top="16" bottom="10"/>
         </padding>
 
-        <Button text="📊 Tableau de Bord" onAction="#handleDashboard" styleClass="sidebar-button" maxWidth="Infinity"/>
-        <Button text="📋 Offres d'emploi" onAction="#handleOffers" styleClass="sidebar-button" maxWidth="Infinity"/>
-        <Button text="👥 Candidatures" onAction="#handleApplications" styleClass="sidebar-button" maxWidth="Infinity"/>
-        <Button text="🎤 Interviews" onAction="#handleInterviews" styleClass="sidebar-button" maxWidth="Infinity"/>
-        <Button text="📅 Activités" onAction="#handleActivities" styleClass="sidebar-button" maxWidth="Infinity"/>
-        <Button text="📁 Projets" onAction="#handleProjects" styleClass="sidebar-button" maxWidth="Infinity"/>
-        <Button text="👤 Espace candidat" onAction="#handleCandidateView" styleClass="sidebar-button"/>
+        <Label text="MENU PRINCIPAL" style="-fx-font-size: 10px; -fx-text-fill: #475569; -fx-font-weight: 700; -fx-padding: 8 8 8 12;"/>
+
+        <Button text="📊  Tableau de Bord" onAction="#handleDashboard" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="📋  Offres d'emploi" onAction="#handleOffers" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="👥  Candidatures" onAction="#handleApplications" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="🎤  Interviews" onAction="#handleInterviews" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="📅  Activités" onAction="#handleActivities" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="📁  Projets" onAction="#handleProjects" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="👤  Espace candidat" onAction="#handleCandidateView" styleClass="sidebar-button" maxWidth="Infinity"/>
+
         <Separator>
             <padding>
-                <Insets top="5" bottom="5"/>
+                <Insets top="10" bottom="10"/>
             </padding>
         </Separator>
 
-        <Button text="📊 Rapports" onAction="#handleReports" styleClass="sidebar-button" maxWidth="Infinity"/>
-        <Button text="⚙️ Paramètres" onAction="#handleSettings" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Label text="SYSTÈME" style="-fx-font-size: 10px; -fx-text-fill: #475569; -fx-font-weight: 700; -fx-padding: 4 8 8 12;"/>
+
+        <Button text="📊  Rapports" onAction="#handleReports" styleClass="sidebar-button" maxWidth="Infinity"/>
+        <Button text="⚙️  Paramètres" onAction="#handleSettings" styleClass="sidebar-button" maxWidth="Infinity"/>
     </VBox>
 
-    <!-- Espace flexible -->
+    <!-- Spacer -->
     <Region VBox.vgrow="ALWAYS"/>
 
-    <!-- Utilisateur -->
+    <!-- User Profile -->
     <HBox spacing="12" styleClass="sidebar-user" alignment="CENTER_LEFT">
         <padding>
-            <Insets left="20" right="20" top="15" bottom="15"/>
+            <Insets left="20" right="20" top="16" bottom="16"/>
         </padding>
         <StackPane>
-            <Circle radius="24" fill="white" stroke="#E5E7EB" strokeWidth="2"/>
-            <ImageView fitWidth="44" fitHeight="44" preserveRatio="true">
+            <Circle radius="22" style="-fx-fill: linear-gradient(to bottom right, #6366F1, #06B6D4);"/>
+            <ImageView fitWidth="40" fitHeight="40" preserveRatio="true">
                 <Image url="/images/meniar.jpg"/>
                 <clip>
-                    <Circle radius="20" centerX="22" centerY="22"/>
+                    <Circle radius="19" centerX="20" centerY="20"/>
                 </clip>
             </ImageView>
         </StackPane>
         <VBox spacing="2">
-            <Label text="Meniar Mili" style="-fx-font-weight: bold;"/>
-            <Label text="RH Manager" style="-fx-font-size: 11px; -fx-text-fill: #6B7280;"/>
+            <Label text="Meniar Mili" style="-fx-font-weight: bold; -fx-text-fill: #E2E8F0;"/>
+            <Label text="RH Manager" style="-fx-font-size: 11px; -fx-text-fill: #64748B;"/>
         </VBox>
     </HBox>
 

@@ -19,13 +19,20 @@ import java.util.ResourceBundle;
 
 public class ApplicationsCardController implements Initializable {
 
-    @FXML private TextField searchField;
-    @FXML private ComboBox<String> statusFilter;
-    @FXML private ComboBox<Offer> offerFilter;
-    @FXML private DatePicker fromDatePicker;
-    @FXML private DatePicker toDatePicker;
-    @FXML private FlowPane cardsContainer;
-    @FXML private Label totalApplicationsLabel;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ComboBox<String> statusFilter;
+    @FXML
+    private ComboBox<Offer> offerFilter;
+    @FXML
+    private DatePicker fromDatePicker;
+    @FXML
+    private DatePicker toDatePicker;
+    @FXML
+    private FlowPane cardsContainer;
+    @FXML
+    private Label totalApplicationsLabel;
 
     private final ApplicationService applicationService;
     private final OfferService offerService;
@@ -51,8 +58,7 @@ public class ApplicationsCardController implements Initializable {
     private void setupFilters() {
         // Statuts
         statusFilter.getItems().addAll(
-                "Tous", "Nouvelle", "En cours", "Acceptée", "Rejetée", "En attente"
-        );
+                "Tous", "Nouvelle", "En cours", "Acceptée", "Rejetée", "En attente");
         statusFilter.setValue("Tous");
 
         // Dates par défaut (30 derniers jours)
@@ -100,6 +106,7 @@ public class ApplicationsCardController implements Initializable {
         offerFilter.getItems().addAll(offersList);
         offerFilter.setValue(null);
     }
+
     @FXML
     private void showStatistics() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -124,7 +131,8 @@ public class ApplicationsCardController implements Initializable {
         LocalDate fromDate = fromDatePicker.getValue();
         LocalDate toDate = toDatePicker.getValue();
 
-        if ("Tous".equals(status)) status = null;
+        if ("Tous".equals(status))
+            status = null;
 
         ObservableList<Application> filtered = FXCollections.observableArrayList();
 
@@ -184,71 +192,56 @@ public class ApplicationsCardController implements Initializable {
                 .findFirst()
                 .orElse(null);
 
-        VBox card = new VBox(15);
-        card.setStyle(
-                "-fx-background-color: white;" +
-                        "-fx-background-radius: 16;" +
-                        "-fx-padding: 20;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 4);" +
-                        "-fx-border-color: #E5E7EB;" +
-                        "-fx-border-radius: 16;" +
-                        "-fx-border-width: 1;"
-        );
-        card.setPrefWidth(350);
-        card.setPrefHeight(380);
+        VBox card = new VBox(12);
+        String defaultStyle = "-fx-background-color: #1E293B;" +
+                "-fx-background-radius: 16;" +
+                "-fx-padding: 18;" +
+                "-fx-border-color: rgba(255,255,255,0.06);" +
+                "-fx-border-radius: 16;" +
+                "-fx-border-width: 1;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);";
+        String hoverStyle = "-fx-background-color: #1E293B;" +
+                "-fx-background-radius: 16;" +
+                "-fx-padding: 18;" +
+                "-fx-border-color: rgba(99,102,241,0.5);" +
+                "-fx-border-radius: 16;" +
+                "-fx-border-width: 1;" +
+                "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.25), 18, 0, 0, 5); -fx-translate-y: -2;";
+        card.setStyle(defaultStyle);
+        card.setPrefWidth(340);
+        card.setMinHeight(280);
+        card.setMaxHeight(340);
 
-        // Animation au survol
-        card.setOnMouseEntered(e ->
-                card.setStyle(
-                        "-fx-background-color: white;" +
-                                "-fx-background-radius: 16;" +
-                                "-fx-padding: 20;" +
-                                "-fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3), 20, 0, 0, 8);" +
-                                "-fx-border-color: #3B82F6;" +
-                                "-fx-border-radius: 16;" +
-                                "-fx-border-width: 2;"
-                )
-        );
-        card.setOnMouseExited(e ->
-                card.setStyle(
-                        "-fx-background-color: white;" +
-                                "-fx-background-radius: 16;" +
-                                "-fx-padding: 20;" +
-                                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 4);" +
-                                "-fx-border-color: #E5E7EB;" +
-                                "-fx-border-radius: 16;" +
-                                "-fx-border-width: 1;"
-                )
-        );
+        card.setOnMouseEntered(e -> card.setStyle(hoverStyle));
+        card.setOnMouseExited(e -> card.setStyle(defaultStyle));
 
         // En-tête avec initiales
-        HBox headerBox = new HBox(15);
+        HBox headerBox = new HBox(14);
         headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
         // Avatar avec initiales
         StackPane avatar = new StackPane();
         avatar.setStyle(
                 "-fx-background-color: " + getAvatarColor(app.getStatus()) + ";" +
-                        "-fx-background-radius: 30;" +
-                        "-fx-min-width: 50;" +
-                        "-fx-min-height: 50;" +
-                        "-fx-max-width: 50;" +
-                        "-fx-max-height: 50;"
-        );
+                        "-fx-background-radius: 24;" +
+                        "-fx-min-width: 48;" +
+                        "-fx-min-height: 48;" +
+                        "-fx-max-width: 48;" +
+                        "-fx-max-height: 48;");
 
         String initials = getInitials(app.getCandidateName());
         Label initialsLabel = new Label(initials);
-        initialsLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
+        initialsLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;");
         avatar.getChildren().add(initialsLabel);
 
         // Informations candidat
-        VBox candidateInfo = new VBox(5);
+        VBox candidateInfo = new VBox(3);
 
         Label nameLabel = new Label(app.getCandidateName());
-        nameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #111827;");
+        nameLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
 
-        Label emailLabel = new Label(app.getCandidateEmail());
-        emailLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6B7280;");
+        Label emailLabel = new Label("✉ " + app.getCandidateEmail());
+        emailLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #94A3B8;");
 
         candidateInfo.getChildren().addAll(nameLabel, emailLabel);
 
@@ -261,73 +254,61 @@ public class ApplicationsCardController implements Initializable {
 
         headerBox.getChildren().addAll(avatar, candidateInfo, spacer, statusBadge);
 
+        // Candidate details row (phone + date + score)
+        HBox detailsRow = new HBox(16);
+        detailsRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        detailsRow.setStyle("-fx-padding: 4 0 0 0;");
+
+        if (app.getCandidatePhone() != null && !app.getCandidatePhone().isEmpty()) {
+            Label phoneLabel = new Label("📞 " + app.getCandidatePhone());
+            phoneLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #94A3B8;");
+            detailsRow.getChildren().add(phoneLabel);
+        }
+
+        Label dateValue = new Label("📅 " + app.getApplicationDate().format(dateFormatter));
+        dateValue.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748B;");
+        detailsRow.getChildren().add(dateValue);
+
+        if (app.getScore() > 0) {
+            Label scoreValue = new Label(String.format("⭐ %.0f/100", app.getScore()));
+            scoreValue.setStyle(getScoreStyle(app.getScore()));
+            detailsRow.getChildren().add(scoreValue);
+        }
+
         // Informations de l'offre
-        VBox offerBox = new VBox(8);
+        VBox offerBox = new VBox(6);
         offerBox.setStyle(
-                "-fx-background-color: #F8FAFC;" +
+                "-fx-background-color: rgba(99,102,241,0.08);" +
                         "-fx-background-radius: 12;" +
-                        "-fx-padding: 12;"
-        );
+                        "-fx-padding: 10 14;" +
+                        "-fx-border-color: rgba(99,102,241,0.12);" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-border-width: 1;");
 
         Label offerTitle = new Label("📋 " + (offer != null ? offer.getTitle() : "Offre #" + app.getOfferId()));
-        offerTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #1F2937;");
+        offerTitle.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #A5B4FC;");
 
-        HBox deptBox = new HBox(10);
-        Label deptIcon = new Label("🏢");
-        deptIcon.setStyle("-fx-font-size: 12px;");
-        Label deptLabel = new Label(offer != null ? offer.getDepartment() : "N/A");
-        deptLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6B7280;");
-        deptBox.getChildren().addAll(deptIcon, deptLabel);
-
-        offerBox.getChildren().addAll(offerTitle, deptBox);
-
-        // Informations supplémentaires
-        GridPane infoGrid = new GridPane();
-        infoGrid.setHgap(10);
-        infoGrid.setVgap(8);
-        infoGrid.setPadding(new Insets(5, 0, 5, 0));
-
-        // Date de candidature
-        Label dateIcon = new Label("📅");
-        dateIcon.setStyle("-fx-font-size: 12px;");
-        Label dateValue = new Label(app.getApplicationDate().format(dateFormatter));
-        dateValue.setStyle("-fx-font-size: 12px; -fx-text-fill: #374151;");
-        infoGrid.add(dateIcon, 0, 0);
-        infoGrid.add(dateValue, 1, 0);
-
-        // Téléphone
-        if (app.getCandidatePhone() != null && !app.getCandidatePhone().isEmpty()) {
-            Label phoneIcon = new Label("📞");
-            phoneIcon.setStyle("-fx-font-size: 12px;");
-            Label phoneValue = new Label(app.getCandidatePhone());
-            phoneValue.setStyle("-fx-font-size: 12px; -fx-text-fill: #374151;");
-            infoGrid.add(phoneIcon, 0, 1);
-            infoGrid.add(phoneValue, 1, 1);
+        if (offer != null) {
+            Label deptLabel = new Label("🏢 " + offer.getDepartment()
+                    + (offer.getLocation() != null ? " • 📍 " + offer.getLocation() : ""));
+            deptLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #94A3B8;");
+            offerBox.getChildren().addAll(offerTitle, deptLabel);
+        } else {
+            offerBox.getChildren().add(offerTitle);
         }
 
-        // Score
-        if (app.getScore() > 0) {
-            HBox scoreBox = new HBox(5);
-            scoreBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-
-            Label scoreIcon = new Label("⭐");
-            scoreIcon.setStyle("-fx-font-size: 12px;");
-
-            Label scoreValue = new Label(String.format("%.1f/100", app.getScore()));
-            scoreValue.setStyle(getScoreStyle(app.getScore()));
-
-            scoreBox.getChildren().addAll(scoreIcon, scoreValue);
-            infoGrid.add(scoreBox, 0, 2, 2, 1);
-        }
+        // Separator
+        Separator sep = new Separator();
+        sep.setStyle("-fx-background-color: rgba(255,255,255,0.06);");
 
         // Boutons d'action
-        HBox actionsBox = new HBox(10);
-        actionsBox.setAlignment(javafx.geometry.Pos.CENTER);
-        actionsBox.setPadding(new Insets(10, 0, 0, 0));
+        HBox actionsBox = new HBox(8);
+        actionsBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        actionsBox.setPadding(new Insets(4, 0, 0, 0));
 
-        Button viewBtn = createActionButton("👁️ Voir", "#3B82F6");
-        Button evaluateBtn = createActionButton("📊 Évaluer", "#F59E0B");
-        Button deleteBtn = createActionButton("🗑️ Supprimer", "#EF4444");
+        Button viewBtn = createActionButton("👁 Voir", "rgba(99,102,241,0.2)", "#A5B4FC");
+        Button evaluateBtn = createActionButton("📊 Évaluer", "rgba(245,158,11,0.2)", "#FBBF24");
+        Button deleteBtn = createActionButton("🗑 Supprimer", "rgba(239,68,68,0.2)", "#F87171");
 
         viewBtn.setOnAction(e -> showApplicationDetails(app, offer));
         evaluateBtn.setOnAction(e -> showEvaluationDialog(app));
@@ -336,92 +317,74 @@ public class ApplicationsCardController implements Initializable {
         actionsBox.getChildren().addAll(viewBtn, evaluateBtn, deleteBtn);
 
         // Assemblage final
-        card.getChildren().addAll(headerBox, offerBox, infoGrid, actionsBox);
+        card.getChildren().addAll(headerBox, detailsRow, offerBox, sep, actionsBox);
 
         return card;
     }
 
-    private Button createActionButton(String text, String color) {
+    private Button createActionButton(String text, String bgColor, String textColor) {
         Button btn = new Button(text);
-        btn.setStyle(
-                "-fx-background-color: " + color + ";" +
-                        "-fx-text-fill: white;" +
-                        "-fx-padding: 8 12;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-font-size: 12px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-cursor: hand;"
-        );
-
-        // Effet hover
-        btn.setOnMouseEntered(e ->
-                btn.setStyle(
-                        "-fx-background-color: derive(" + color + ", -20%);" +
-                                "-fx-text-fill: white;" +
-                                "-fx-padding: 8 12;" +
-                                "-fx-background-radius: 8;" +
-                                "-fx-font-size: 12px;" +
-                                "-fx-font-weight: bold;" +
-                                "-fx-cursor: hand;" +
-                                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);"
-                )
-        );
-
-        btn.setOnMouseExited(e ->
-                btn.setStyle(
-                        "-fx-background-color: " + color + ";" +
-                                "-fx-text-fill: white;" +
-                                "-fx-padding: 8 12;" +
-                                "-fx-background-radius: 8;" +
-                                "-fx-font-size: 12px;" +
-                                "-fx-font-weight: bold;" +
-                                "-fx-cursor: hand;"
-                )
-        );
-
+        String normal = "-fx-background-color: " + bgColor + "; -fx-text-fill: " + textColor +
+                "; -fx-padding: 6 14; -fx-background-radius: 8; -fx-font-size: 11px; -fx-font-weight: 700; -fx-cursor: hand;";
+        String hover = "-fx-background-color: derive(" + bgColor + ", 30%); -fx-text-fill: " + textColor +
+                "; -fx-padding: 6 14; -fx-background-radius: 8; -fx-font-size: 11px; -fx-font-weight: 700; -fx-cursor: hand;";
+        btn.setStyle(normal);
+        btn.setOnMouseEntered(e -> btn.setStyle(hover));
+        btn.setOnMouseExited(e -> btn.setStyle(normal));
         return btn;
     }
 
     private String getInitials(String name) {
-        if (name == null || name.isEmpty()) return "?";
+        if (name == null || name.isEmpty())
+            return "?";
         String[] parts = name.split(" ");
-        if (parts.length == 1) return parts[0].substring(0, 1).toUpperCase();
+        if (parts.length == 1)
+            return parts[0].substring(0, 1).toUpperCase();
         return (parts[0].substring(0, 1) + parts[parts.length - 1].substring(0, 1)).toUpperCase();
     }
 
     private String getAvatarColor(String status) {
         switch (status) {
-            case "Nouvelle": return "#3B82F6";
-            case "En cours": return "#F59E0B";
-            case "Acceptée": return "#10B981";
-            case "Rejetée": return "#EF4444";
-            case "En attente": return "#8B5CF6";
-            default: return "#6B7280";
+            case "Nouvelle":
+                return "linear-gradient(to bottom right, #6366F1, #06B6D4)";
+            case "En cours":
+                return "linear-gradient(to bottom right, #F59E0B, #EF4444)";
+            case "Acceptée":
+                return "linear-gradient(to bottom right, #10B981, #06B6D4)";
+            case "Rejetée":
+                return "linear-gradient(to bottom right, #EF4444, #EC4899)";
+            case "En attente":
+                return "linear-gradient(to bottom right, #8B5CF6, #6366F1)";
+            default:
+                return "#475569";
         }
     }
 
     private String getStatusStyle(String status) {
         switch (status) {
             case "Nouvelle":
-                return "-fx-background-color: #DBEAFE; -fx-text-fill: #1E40AF; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
+                return "-fx-background-color: rgba(99,102,241,0.15); -fx-text-fill: #A5B4FC; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
             case "En cours":
-                return "-fx-background-color: #FEF3C7; -fx-text-fill: #92400E; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
+                return "-fx-background-color: rgba(245,158,11,0.15); -fx-text-fill: #FBBF24; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
             case "Acceptée":
-                return "-fx-background-color: #D1FAE5; -fx-text-fill: #065F46; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
+                return "-fx-background-color: rgba(16,185,129,0.15); -fx-text-fill: #34D399; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
             case "Rejetée":
-                return "-fx-background-color: #FEE2E2; -fx-text-fill: #991B1B; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
+                return "-fx-background-color: rgba(239,68,68,0.15); -fx-text-fill: #F87171; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
             case "En attente":
-                return "-fx-background-color: #EDE9FE; -fx-text-fill: #6D28D9; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
+                return "-fx-background-color: rgba(139,92,246,0.15); -fx-text-fill: #C4B5FD; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
             default:
-                return "-fx-background-color: #F3F4F6; -fx-text-fill: #374151; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
+                return "-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: #94A3B8; -fx-padding: 4 12; -fx-background-radius: 20; -fx-font-size: 11px; -fx-font-weight: bold;";
         }
     }
 
     private String getScoreStyle(double score) {
-        if (score >= 70) return "-fx-text-fill: #10B981; -fx-font-weight: bold; -fx-font-size: 12px;";
-        if (score >= 50) return "-fx-text-fill: #F59E0B; -fx-font-weight: bold; -fx-font-size: 12px;";
-        if (score > 0) return "-fx-text-fill: #EF4444; -fx-font-weight: bold; -fx-font-size: 12px;";
-        return "-fx-text-fill: #6B7280; -fx-font-size: 12px;";
+        if (score >= 70)
+            return "-fx-text-fill: #34D399; -fx-font-weight: bold; -fx-font-size: 12px;";
+        if (score >= 50)
+            return "-fx-text-fill: #FBBF24; -fx-font-weight: bold; -fx-font-size: 12px;";
+        if (score > 0)
+            return "-fx-text-fill: #F87171; -fx-font-weight: bold; -fx-font-size: 12px;";
+        return "-fx-text-fill: #64748B; -fx-font-size: 12px;";
     }
 
     private void showNoResultsMessage() {
@@ -431,16 +394,17 @@ public class ApplicationsCardController implements Initializable {
         messageBox.setPrefHeight(400);
 
         Label icon = new Label("🔍");
-        icon.setStyle("-fx-font-size: 48px;");
+        icon.setStyle("-fx-font-size: 56px;");
 
         Label title = new Label("Aucune candidature trouvée");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #6B7280;");
+        title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #94A3B8;");
 
         Label subtitle = new Label("Essayez de modifier vos filtres de recherche");
-        subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #9CA3AF;");
+        subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748B;");
 
         Button resetBtn = new Button("Réinitialiser les filtres");
-        resetBtn.setStyle("-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-padding: 10 20; -fx-background-radius: 8;");
+        resetBtn.setStyle(
+                "-fx-background-color: rgba(99,102,241,0.2); -fx-text-fill: #A5B4FC; -fx-padding: 10 24; -fx-background-radius: 12; -fx-font-weight: bold; -fx-cursor: hand;");
         resetBtn.setOnAction(e -> {
             searchField.clear();
             statusFilter.setValue("Tous");
@@ -478,8 +442,7 @@ public class ApplicationsCardController implements Initializable {
                 app.getApplicationDate().format(dateFormatter),
                 app.getStatus(),
                 app.getScore(),
-                app.getNotes() != null ? app.getNotes() : "Aucune note"
-        );
+                app.getNotes() != null ? app.getNotes() : "Aucune note");
 
         alert.setContentText(content);
         alert.showAndWait();
