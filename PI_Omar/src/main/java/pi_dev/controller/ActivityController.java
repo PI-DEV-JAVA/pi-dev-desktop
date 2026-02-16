@@ -1,23 +1,20 @@
 package pi_dev.controller;
 
 import javafx.collections.*;
-import javafx.collections.transformation.FilteredList;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.*;
 import pi_dev.dao.ActivityDAO;
 import pi_dev.dao.ProjectDAO;
 import pi_dev.model.Activity;
 import pi_dev.model.Project;
 import pi_dev.MainApp;
 import pi_dev.config.DBConnection;
-
+import javafx.scene.input.KeyEvent;
 import java.sql.*;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ActivityController {
 
@@ -25,347 +22,245 @@ public class ActivityController {
     @FXML private ComboBox<Project> projectCombo;
     @FXML private DatePicker datePicker;
     @FXML private TextArea descriptionField;
-    @FXML private TextField hoursField;
-    @FXML private TextField searchField;
-
-    @FXML private TableView<Activity> table;
-    @FXML private TableColumn<Activity, Integer> colEmployee;
-    @FXML private TableColumn<Activity, String> colProject;
-    @FXML private TableColumn<Activity, LocalDate> colDate;
-    @FXML private TableColumn<Activity, String> colDescription;
-    @FXML private TableColumn<Activity, Integer> colHours;
+    @FXML private TextField hoursField, searchField;
+    @FXML private VBox listContainer;
+    @FXML private Button submitBtn;
 
     private final ActivityDAO activityDAO = new ActivityDAO();
     private final ProjectDAO projectDAO = new ProjectDAO();
     private final ObservableList<Activity> masterList = FXCollections.observableArrayList();
-    private FilteredList<Activity> filteredList;
-
-    private Activity selectedActivity;
+    private Activity selectedActivity = null;
     private final Map<Integer, String> userEmails = new HashMap<>();
 
     @FXML
     private void initialize() {
-        // Set up table columns
-        colEmployee.setCellValueFactory(new PropertyValueFactory<>("employeeId"));
-        colDate.setCellValueFactory(new PropertyValueFactory<>("date"));
-        colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
-        colHours.setCellValueFactory(new PropertyValueFactory<>("hours"));
-        
-        // Custom cell value factory for project column (show project name)
-        colProject.setCellValueFactory(cellData -> {
-            Activity activity = cellData.getValue();
-            if (activity != null) {
-                Project project = getProjectById(activity.getProjectId());
-                return new SimpleStringProperty(project != null ? project.getName() : "Unknown");
-            }
-            return new SimpleStringProperty("");
-        });
-
-        // Initialize filtered list
-        filteredList = new FilteredList<>(masterList, p -> true);
-        table.setItems(filteredList);
-
-        // Search functionality
-        searchField.textProperty().addListener((obs, oldValue, newValue) ->
-            filteredList.setPredicate(activity -> {
-                if (newValue == null || newValue.isEmpty()) {
-                    return true;
-                }
-                
-                String lowerCaseFilter = newValue.toLowerCase();
-                
-                // Search by employee ID
-                if (String.valueOf(activity.getEmployeeId()).contains(lowerCaseFilter)) {
-                    return true;
-                }
-                
-                // Search by description
-                if (activity.getDescription().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                }
-                
-                // Search by project name
-                Project project = getProjectById(activity.getProjectId());
-                if (project != null && project.getName().toLowerCase().contains(lowerCaseFilter)) {
-                    return true;
-                }
-                
-                return false;
-            })
-        );
-
-        // Table selection listener
-        table.getSelectionModel().selectedItemProperty().addListener(
-            (obs, oldVal, newVal) -> {
-                selectedActivity = newVal;
-                if (newVal != null) {
-                    populateForm(newVal);
-                }
-            }
-        );
-
-        // Load initial data
         loadUsers();
         loadProjects();
         loadAllActivities();
+
+        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+            String filter = newVal == null ? "" : newVal.toLowerCase();
+            List<Activity> filtered = masterList.stream()
+                .filter(a -> {
+                    String email = userEmails.getOrDefault(a.getEmployeeId(), "").toLowerCase();
+                    Project p = getProjectById(a.getProjectId());
+                    String projName = (p != null) ? p.getName().toLowerCase() : "";
+                    return email.contains(filter) || projName.contains(filter) || a.getDescription().toLowerCase().contains(filter);
+                })
+                .collect(Collectors.toList());
+            displayActivities(filtered);
+        });
     }
 
     private void loadUsers() {
         ObservableList<Integer> ids = FXCollections.observableArrayList();
         String sql = "SELECT id_user, email FROM users";
-
         try (Connection c = DBConnection.getConnection();
              Statement st = c.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
-
             while (rs.next()) {
                 int userId = rs.getInt("id_user");
-                String email = rs.getString("email");
+                userEmails.put(userId, rs.getString("email"));
                 ids.add(userId);
-                userEmails.put(userId, email);
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to load users: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
-
+        } catch (Exception e) { e.printStackTrace(); }
+    
         employeeCombo.setItems(ids);
-        employeeCombo.setCellFactory(cb -> new ListCell<Integer>() {
-            @Override
-            protected void updateItem(Integer id, boolean empty) {
-                super.updateItem(id, empty);
-                if (empty || id == null) {
-                    setText(null);
-                } else {
-                    String email = userEmails.get(id);
-                    setText(email != null ? email : "User #" + id);
-                }
-            }
-        });
+        employeeCombo.setEditable(true); // Allow typing
         
-        employeeCombo.setButtonCell(new ListCell<Integer>() {
-            @Override
-            protected void updateItem(Integer id, boolean empty) {
-                super.updateItem(id, empty);
-                if (empty || id == null) {
-                    setText(null);
-                } else {
-                    String email = userEmails.get(id);
-                    setText(email != null ? email : "User #" + id);
-                }
-            }
-        });
+        // Custom display logic for the list and the editor
+        setupSearchableCombo(employeeCombo, userEmails);
     }
 
     private void loadProjects() {
         List<Project> projects = projectDAO.getAll();
-        ObservableList<Project> projectList = FXCollections.observableArrayList(projects);
-        projectCombo.setItems(projectList);
+        projectCombo.setItems(FXCollections.observableArrayList(projects));
+        projectCombo.setEditable(true);
+    
+        // Create a map for project names to satisfy the search utility
+        Map<Integer, String> projectMap = projects.stream()
+                .collect(Collectors.toMap(Project::getId, Project::getName));
         
-        // Set cell factory to show project names
-        projectCombo.setCellFactory(cb -> new ListCell<Project>() {
-            @Override
-            protected void updateItem(Project project, boolean empty) {
-                super.updateItem(project, empty);
-                setText(empty || project == null ? null : project.getName());
+        setupSearchableCombo(projectCombo, projectMap);
+    }
+    private <T> void setupSearchableCombo(ComboBox<T> combo, Map<Integer, String> dataMap) {
+        // This helper filters the list as you type
+        combo.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || newVal.isEmpty()) {
+                combo.hide();
+                return;
+            }
+    
+            // Filter items based on the text
+            ObservableList<T> filteredList = combo.getItems().filtered(item -> {
+                String displayString = "";
+                if (item instanceof Integer) displayString = dataMap.get(item);
+                else if (item instanceof Project) displayString = ((Project) item).getName();
+                
+                return displayString.toLowerCase().contains(newVal.toLowerCase());
+            });
+    
+            if (!filteredList.isEmpty()) {
+                combo.show();
             }
         });
-        
-        projectCombo.setButtonCell(new ListCell<Project>() {
-            @Override
-            protected void updateItem(Project project, boolean empty) {
-                super.updateItem(project, empty);
-                setText(empty || project == null ? null : project.getName());
-            }
-        });
-        
-        // Listener for project selection
-        projectCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                loadActivitiesByProject(newVal.getId());
+    
+        // Formatting how the items look in the dropdown
+        combo.setCellFactory(lv -> new ListCell<T>() {
+            @Override protected void updateItem(T item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) setText(null);
+                else {
+                    if (item instanceof Integer) setText(dataMap.get(item));
+                    else if (item instanceof Project) setText(((Project) item).getName());
+                }
             }
         });
     }
 
-    private void loadAllActivities() {
-        List<Activity> activities = activityDAO.getAll();
-        masterList.setAll(activities);
+    private Project getProjectById(int id) {
+        return projectDAO.getAll().stream().filter(p -> p.getId() == id).findFirst().orElse(null);
     }
 
-    private void loadActivitiesByProject(int projectId) {
-        List<Activity> activities = activityDAO.getByProjectId(projectId);
-        masterList.setAll(activities);
+    @FXML
+    public void loadAllActivities() {
+        masterList.setAll(activityDAO.getAll());
+        displayActivities(masterList);
     }
 
-    private Project getProjectById(int projectId) {
-        List<Project> projects = projectDAO.getAll();
-        return projects.stream()
-                .filter(p -> p.getId() == projectId)
-                .findFirst()
-                .orElse(null);
-    }
-
-    private void populateForm(Activity activity) {
-        if (activity != null) {
-            employeeCombo.setValue(activity.getEmployeeId());
-            
-            // Find and set the project
-            Project project = getProjectById(activity.getProjectId());
-            if (project != null) {
-                projectCombo.setValue(project);
-            }
-            
-            datePicker.setValue(activity.getDate());
-            descriptionField.setText(activity.getDescription());
-            hoursField.setText(String.valueOf(activity.getHours()));
+    private void displayActivities(List<Activity> activities) {
+        listContainer.getChildren().clear();
+        for (Activity activity : activities) {
+            listContainer.getChildren().add(buildActivityCard(activity));
         }
+    }
+
+    private HBox buildActivityCard(Activity activity) {
+        HBox card = new HBox(20);
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setStyle("-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; " +
+                     "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);");
+    
+        // 1. Employee & Project Info
+        VBox mainInfo = new VBox(4);
+        mainInfo.setPrefWidth(200);
+        Label userLbl = new Label(userEmails.getOrDefault(activity.getEmployeeId(), "Unknown User").toUpperCase());
+        userLbl.setStyle("-fx-font-weight: 900; -fx-font-size: 11px; -fx-text-fill: #94A3B8; -fx-letter-spacing: 1px;");
+        
+        Project p = getProjectById(activity.getProjectId());
+        Label projLbl = new Label(p != null ? p.getName() : "General Task");
+        projLbl.setStyle("-fx-text-fill: #0D203B; -fx-font-weight: bold; -fx-font-size: 15px;");
+        
+        mainInfo.getChildren().addAll(userLbl, projLbl);
+    
+        VBox descContainer = new VBox(5);
+        HBox.setHgrow(descContainer, Priority.ALWAYS);
+        descContainer.setStyle("-fx-background-color: #F8FAFC; -fx-padding: 12; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10;");
+        
+        Label descHeader = new Label("TASK DESCRIPTION");
+        descHeader.setStyle("-fx-font-size: 9px; -fx-font-weight: 800; -fx-text-fill: #64748B;");
+        
+        Label descText = new Label(activity.getDescription());
+        descText.setStyle("-fx-text-fill: #334155; -fx-font-size: 13px; -fx-line-spacing: 1.5;");
+        descText.setWrapText(true);
+        
+        descContainer.getChildren().addAll(descHeader, descText);
+    
+        // 3. Stats Block (Hours & Date)
+        VBox stats = new VBox(2);
+        stats.setAlignment(Pos.CENTER_RIGHT);
+        stats.setMinWidth(80);
+        
+        Label hoursLbl = new Label(activity.getHours() + "h");
+        hoursLbl.setStyle("-fx-font-weight: 900; -fx-font-size: 18px; -fx-text-fill: #0D203B;");
+        
+        Label dateLbl = new Label(activity.getDate().toString());
+        dateLbl.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 11px; -fx-font-weight: bold;");
+        
+        stats.getChildren().addAll(hoursLbl, dateLbl);
+    
+        // 4. Action Buttons
+        VBox actions = new VBox(8);
+        actions.setAlignment(Pos.CENTER);
+        
+        Button editBtn = new Button("✎");
+        editBtn.setTooltip(new Tooltip("Edit Record"));
+        editBtn.setStyle("-fx-background-color: #F1F5F9; -fx-text-fill: #0D203B; -fx-background-radius: 8; -fx-cursor: hand;");
+        editBtn.setOnAction(e -> populateForm(activity));
+    
+        Button delBtn = new Button("🗑");
+        delBtn.setTooltip(new Tooltip("Delete Record"));
+        delBtn.setStyle("-fx-background-color: #FFF1F2; -fx-text-fill: #EF4444; -fx-background-radius: 8; -fx-cursor: hand;");
+        delBtn.setOnAction(e -> handleDelete(activity));
+        
+        actions.getChildren().addAll(editBtn, delBtn);
+    
+        card.getChildren().addAll(mainInfo, descContainer, stats, actions);
+        return card;
+    }
+    private void populateForm(Activity activity) {
+        selectedActivity = activity;
+        employeeCombo.setValue(activity.getEmployeeId());
+        projectCombo.setValue(getProjectById(activity.getProjectId()));
+        datePicker.setValue(activity.getDate());
+        descriptionField.setText(activity.getDescription());
+        hoursField.setText(String.valueOf(activity.getHours()));
+        
+        submitBtn.setText("Update Record");
+        submitBtn.setStyle("-fx-background-color: #84A2AE; -fx-text-fill: #0D203B; -fx-font-weight: bold; -fx-background-radius: 10;");
+        submitBtn.setOnAction(e -> updateActivity());
     }
 
     @FXML
     private void addActivity() {
-        if (!validate()) {
-            showAlert("Validation Error", "Please fill all fields correctly", Alert.AlertType.WARNING);
-            return;
-        }
-
-        try {
-            // FIXED: Correct constructor call based on your Activity model
-            Activity activity = new Activity(
-                employeeCombo.getValue(),
-                projectCombo.getValue().getId(),  // projectId parameter
-                datePicker.getValue(),
-                descriptionField.getText(),
-                Integer.parseInt(hoursField.getText())
-            );
-
-            activityDAO.add(activity);
-            loadAllActivities();  // Reload all activities
-            clear();
-            showAlert("Success", "Activity added successfully", Alert.AlertType.INFORMATION);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to add activity: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
+        if (!validate()) return;
+        activityDAO.add(new Activity(employeeCombo.getValue(), projectCombo.getValue().getId(), 
+                                    datePicker.getValue(), descriptionField.getText(), Integer.parseInt(hoursField.getText())));
+        loadAllActivities();
+        clear();
     }
 
-    @FXML
     private void updateActivity() {
-        if (selectedActivity == null) {
-            showAlert("No Selection", "Please select an activity to update", Alert.AlertType.WARNING);
-            return;
-        }
-
-        if (!validate()) {
-            showAlert("Validation Error", "Please fill all fields correctly", Alert.AlertType.WARNING);
-            return;
-        }
-
-        try {
-            selectedActivity.setEmployeeId(employeeCombo.getValue());
-            selectedActivity.setProjectId(projectCombo.getValue().getId());
-            selectedActivity.setDate(datePicker.getValue());
-            selectedActivity.setDescription(descriptionField.getText());
-            selectedActivity.setHours(Integer.parseInt(hoursField.getText()));
-
-            activityDAO.update(selectedActivity);
-            table.refresh();
-            clear();
-            showAlert("Success", "Activity updated successfully", Alert.AlertType.INFORMATION);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to update activity: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
-    }
-
-    @FXML
-    private void deleteActivity() {
-        if (selectedActivity == null) {
-            showAlert("No Selection", "Please select an activity to delete", Alert.AlertType.WARNING);
-            return;
-        }
-
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Confirm Delete");
-        confirmAlert.setHeaderText("Delete Activity");
-        confirmAlert.setContentText("Are you sure you want to delete this activity?");
+        if (selectedActivity == null || !validate()) return;
+        selectedActivity.setEmployeeId(employeeCombo.getValue());
+        selectedActivity.setProjectId(projectCombo.getValue().getId());
+        selectedActivity.setDate(datePicker.getValue());
+        selectedActivity.setDescription(descriptionField.getText());
+        selectedActivity.setHours(Integer.parseInt(hoursField.getText()));
         
-        if (confirmAlert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            try {
-                activityDAO.delete(selectedActivity.getIdActivity());
-                loadAllActivities();  // Reload all activities
-                clear();
-                showAlert("Success", "Activity deleted successfully", Alert.AlertType.INFORMATION);
-                
-            } catch (Exception e) {
-                e.printStackTrace();
-                showAlert("Error", "Failed to delete activity: " + e.getMessage(), Alert.AlertType.ERROR);
-            }
+
+        activityDAO.update(selectedActivity); 
+        loadAllActivities();
+        clear();
+    }
+
+    private void handleDelete(Activity activity) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Delete this record?", ButtonType.YES, ButtonType.NO);
+        if (alert.showAndWait().get() == ButtonType.YES) {
+            activityDAO.delete(activity.getIdActivity());
+            loadAllActivities();
         }
     }
 
     @FXML
-    public void clear() {
+    private void clear() {
         employeeCombo.setValue(null);
         projectCombo.setValue(null);
         datePicker.setValue(null);
         descriptionField.clear();
         hoursField.clear();
         selectedActivity = null;
-        table.getSelectionModel().clearSelection();
+        submitBtn.setText("Log Activity");
+        submitBtn.setStyle("-fx-background-color: #0D203B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;");
+        submitBtn.setOnAction(e -> addActivity());
     }
 
     private boolean validate() {
-        // Check employee
-        if (employeeCombo.getValue() == null) {
-            return false;
-        }
-        
-        // Check project
-        if (projectCombo.getValue() == null) {
-            return false;
-        }
-        
-        // Check date
-        if (datePicker.getValue() == null) {
-            return false;
-        }
-        
-        // Check description
-        if (descriptionField.getText() == null || descriptionField.getText().trim().isEmpty()) {
-            return false;
-        }
-        
-        // Check hours
-        String hoursText = hoursField.getText();
-        if (hoursText == null || hoursText.trim().isEmpty()) {
-            return false;
-        }
-        
         try {
-            int hours = Integer.parseInt(hoursText);
-            if (hours <= 0) {
-                return false;
-            }
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        
-        return true;
+            return employeeCombo.getValue() != null && projectCombo.getValue() != null && 
+                   datePicker.getValue() != null && Integer.parseInt(hoursField.getText()) > 0;
+        } catch (Exception e) { return false; }
     }
 
-    private void showAlert(String title, String message, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-        // Navigation method
-    @FXML
-    private void goToProjects() {
-        MainApp.loadProjectsView();
-    }
+    @FXML private void goToProjects() { MainApp.loadProjectsView(); }
 }

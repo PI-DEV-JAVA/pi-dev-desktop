@@ -18,10 +18,8 @@ public class DBConnection {
         try {
             if (connection == null || connection.isClosed()) {
                 connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("Database connected");
             }
         } catch (SQLException e) {
-            System.err.println("Database connection failed");
             e.printStackTrace();
         }
         return connection;
