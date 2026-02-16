@@ -17,13 +17,14 @@ public class InterviewDetailsController {
     private Interview interview;
 
     @FXML private Label titleLabel;
-    @FXML private Label recruiterLabel;
-    @FXML private Label candidateLabel;
+    // @FXML private Label recruiterLabel;
+    // @FXML private Label candidateLabel;
     @FXML private Label gradeLabel;
     @FXML private Label statusLabel;
     @FXML private Label createdAtLabel;
 
     @FXML private VBox sessionsContainer; 
+
     public void setInterview(Interview interview) {
         this.interview = interview;
         updateUI();
@@ -33,8 +34,8 @@ public class InterviewDetailsController {
     private void updateUI() {
         if (interview != null) {
             titleLabel.setText(interview.getTitle());
-            recruiterLabel.setText(String.valueOf(interview.getRecruiterId()));
-            candidateLabel.setText(String.valueOf(interview.getCandidateId()));
+            // recruiterLabel.setText(String.valueOf(interview.getRecruiterId()));
+            // candidateLabel.setText(String.valueOf(interview.getCandidateId()));
             gradeLabel.setText(interview.getGeneralGrade() != null ? interview.getGeneralGrade() + " / 20" : "—");
             statusLabel.setText(interview.getStatus());
             createdAtLabel.setText(interview.getCreatedAt().toString());
@@ -103,5 +104,10 @@ public class InterviewDetailsController {
             case "IN_PROGRESS" -> "#3b82f6";
             default -> "#000000";
         };
+    }
+
+    @FXML
+    public void onBack(){
+        MainLayoutController.getInstance().navigate("InterviewView.fxml", "Interviews");
     }
 }

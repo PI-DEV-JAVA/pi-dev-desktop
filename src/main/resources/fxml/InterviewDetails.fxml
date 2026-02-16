@@ -10,7 +10,6 @@
             fx:controller="talentos.pidev.controllers.InterviewDetailsController"
             xmlns:fx="http://javafx.com/fxml/1">
 
-    <!-- ===== TOP HEADER ===== -->
     <top>
     <VBox spacing="15" style="-fx-background-color: linear-gradient(to right, #1e293b, #0f172a);">
         <padding>
@@ -18,9 +17,9 @@
         </padding>
 
         <HBox spacing="20" alignment="CENTER_LEFT">
-            <!-- Back Button -->
             <Button text="←" 
                     style="-fx-font-size: 20px; -fx-background-color: transparent; -fx-text-fill: white;"
+                    onAction="#onBack"
                     />
 
             <Label text="Interview Details"
@@ -41,7 +40,6 @@
     </VBox>
 </top>
 
-    <!-- ===== MAIN CONTENT ===== -->
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background: #f8fafc;">
             <VBox spacing="30">
@@ -49,7 +47,6 @@
                     <Insets top="40" right="40" bottom="40" left="40"/>
                 </padding>
 
-                <!-- ===== INTERVIEW INFO CARD ===== -->
                 <VBox spacing="20"
                       style="-fx-background-color: white; 
                              -fx-background-radius: 12; 
@@ -65,22 +62,21 @@
                             style="-fx-font-weight: bold;"
                             GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                        <Label text="Recruiter ID:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <!-- <Label text="Recruiter ID:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <Label fx:id="recruiterLabel" text="1024" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
                         <Label text="Candidate ID:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                        <Label fx:id="candidateLabel" text="5689" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label fx:id="candidateLabel" text="5689" GridPane.rowIndex="2" GridPane.columnIndex="1"/> -->
 
-                        <Label text="General Grade:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <Label text="General Grade:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <Label fx:id="gradeLabel" text="16.5 / 20" style="-fx-text-fill: #2563eb; -fx-font-weight: bold;"
-                            GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                            GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                        <Label text="Status:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                        <Label fx:id="statusLabel" text="ACTIVE" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                        <Label text="Status:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <Label fx:id="statusLabel" text="ACTIVE" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
                     </GridPane>
                 </VBox>
 
-                <!-- ===== MEETINGS CARD LIST ===== -->
                 <VBox spacing="20"
                       style="-fx-background-color: white; 
                              -fx-background-radius: 12; 
@@ -98,7 +94,6 @@
                                        -fx-padding: 8 16 8 16;"/>
                     </HBox>
 
-                    <!-- === Individual Session Cards === -->
                     <VBox fx:id="sessionsContainer" spacing="15">
                     </VBox>
 

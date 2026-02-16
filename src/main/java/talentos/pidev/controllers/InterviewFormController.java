@@ -57,37 +57,66 @@ public class InterviewFormController {
     }
 
     @FXML
-    private void onSave() {
-        try {
-            if (interview == null)
-                interview = new Interview();
-
-            interview.setTitle(titleField.getText());
-            interview.setStatus(statusBox.getValue());
-            String gradeText = gradeField.getText();
-            interview.setGeneralGrade(gradeText.isEmpty() ? null : Double.parseDouble(gradeText));
-
-            String selectedCandidate = candidateBox.getValue();
-            if (selectedCandidate != null) {
-                for (Map.Entry<Long, String> entry : candidatesMap.entrySet()) {
-                    if (entry.getValue().equals(selectedCandidate)) {
-                        interview.setCandidateId(entry.getKey());
-                        break;
-                    }
-                }
-            }
-
-            if (interview.getId() == 0)
-                dao.create(interview);
-            else
-                dao.update(interview);
-
-            parentController.refresh();
-            close();
-        } catch (Exception e) {
-            e.printStackTrace();
+private void onSave() {
+    try {
+        String title = titleField.getText().trim();
+        if (title.isEmpty()) {
+            showAlert("Title cannot be empty.");
+            return;
         }
+
+        String selectedCandidate = candidateBox.getValue();
+        if (selectedCandidate == null || selectedCandidate.isEmpty()) {
+            showAlert("Please select a candidate.");
+            return;
+        }
+
+        String status = statusBox.getValue();
+        if (status == null || status.isEmpty()) {
+            showAlert("Please select a status.");
+            return;
+        }
+
+        String gradeText = gradeField.getText().trim();
+        Double grade = null;
+        if (!gradeText.isEmpty()) {
+            try {
+                grade = Double.parseDouble(gradeText);
+                if (grade < 0 || grade > 100) { 
+                    showAlert("Grade must be between 0 and 100.");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showAlert("Grade must be a valid number.");
+                return;
+            }
+        }
+
+        if (interview == null) interview = new Interview();
+
+        interview.setTitle(title);
+        interview.setStatus(status);
+        interview.setGeneralGrade(grade);
+
+        for (Map.Entry<Long, String> entry : candidatesMap.entrySet()) {
+            if (entry.getValue().equals(selectedCandidate)) {
+                interview.setCandidateId(entry.getKey());
+                break;
+            }
+        }
+
+        if (interview.getId() == 0) dao.create(interview);
+        else dao.update(interview);
+
+        parentController.refresh();
+        close();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        showAlert("An unexpected error occurred: " + e.getMessage());
     }
+}
+
 
     @FXML
     private void onCancel() {
@@ -97,5 +126,13 @@ public class InterviewFormController {
     private void close() {
         Stage stage = (Stage) titleField.getScene().getWindow();
         stage.close();
+    }
+
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Validation Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

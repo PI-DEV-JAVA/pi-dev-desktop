@@ -18,11 +18,9 @@
               -fx-effect:dropshadow(gaussian, rgba(0,0,0,0.15), 20,0,0,8);
           ">
 
-        <!-- Header -->
         <Label text="Interview Details"
                style="-fx-font-size:20px; -fx-font-weight:bold; -fx-text-fill:#0f172a;" />
 
-        <!-- Form Grid -->
         <GridPane hgap="15" vgap="18">
 
             <columnConstraints>
@@ -30,7 +28,6 @@
                 <ColumnConstraints percentWidth="65"/>
             </columnConstraints>
 
-            <!-- Title -->
             <Label text="Title"
                    style="-fx-text-fill:#334155;"
                    GridPane.rowIndex="0" GridPane.columnIndex="0"/>
@@ -40,7 +37,6 @@
                        style="-fx-background-radius:8; -fx-border-radius:8;
                               -fx-border-color:#cbd5e1;"/>
 
-            <!-- Candidate -->
             <Label text="Candidate"
                    style="-fx-text-fill:#334155;"
                    GridPane.rowIndex="1" GridPane.columnIndex="0"/>
@@ -50,7 +46,6 @@
                       style="-fx-background-radius:8; -fx-border-radius:8;
                              -fx-border-color:#cbd5e1;"/>
 
-            <!-- Status -->
             <Label text="Status"
                    style="-fx-text-fill:#334155;"
                    GridPane.rowIndex="2" GridPane.columnIndex="0"/>
@@ -60,7 +55,6 @@
                       style="-fx-background-radius:8; -fx-border-radius:8;
                              -fx-border-color:#cbd5e1;"/>
 
-            <!-- Grade -->
             <Label text="General Grade"
                    style="-fx-text-fill:#334155;"
                    GridPane.rowIndex="3" GridPane.columnIndex="0"/>
@@ -72,7 +66,6 @@
 
         </GridPane>
 
-        <!-- Action Buttons -->
         <HBox spacing="15" alignment="CENTER_RIGHT">
 
             <Button text="Cancel"

@@ -21,6 +21,7 @@
             <!-- Back Button -->
             <Button text="←" 
                     style="-fx-font-size: 20px; -fx-background-color: transparent; -fx-text-fill: white;"
+                    onAction="#onBack"
                     />
 
             <Label text="Interview Details"
@@ -65,18 +66,18 @@
                             style="-fx-font-weight: bold;"
                             GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                        <Label text="Recruiter ID:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <!-- <Label text="Recruiter ID:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <Label fx:id="recruiterLabel" text="1024" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
                         <Label text="Candidate ID:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                        <Label fx:id="candidateLabel" text="5689" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label fx:id="candidateLabel" text="5689" GridPane.rowIndex="2" GridPane.columnIndex="1"/> -->
 
-                        <Label text="General Grade:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <Label text="General Grade:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <Label fx:id="gradeLabel" text="16.5 / 20" style="-fx-text-fill: #2563eb; -fx-font-weight: bold;"
-                            GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                            GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                        <Label text="Status:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                        <Label fx:id="statusLabel" text="ACTIVE" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                        <Label text="Status:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <Label fx:id="statusLabel" text="ACTIVE" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
                     </GridPane>
                 </VBox>
 

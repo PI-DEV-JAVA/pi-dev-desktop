@@ -34,9 +34,7 @@ public class InterviewController {
         setupListView();
     }
 
-    /* ===============================
-       DATA LOADING
-    =============================== */
+  
 
     private void loadData() {
         List<Interview> list = dao.list(searchField.getText(), true);
@@ -57,9 +55,7 @@ public class InterviewController {
         loadData();
     }
 
-    /* ===============================
-       LIST VIEW SETUP (Modern Cards)
-    =============================== */
+   
 
     private void setupListView() {
 
@@ -81,13 +77,11 @@ public class InterviewController {
             private final DropShadow shadow = new DropShadow();
 
             {
-                /* ---------- Typography ---------- */
 
                 title.setStyle("-fx-font-size:17px; -fx-font-weight:600; -fx-text-fill:#0f172a;");
                 grade.setStyle("-fx-text-fill:#475569;");
                 created.setStyle("-fx-text-fill:#94a3b8; -fx-font-size:11px;");
 
-                /* ---------- Buttons ---------- */
 
                 editBtn.setStyle("""
                         -fx-background-color:#0D203B;
@@ -103,7 +97,6 @@ public class InterviewController {
                         -fx-cursor:hand;
                         """);
 
-                /* ---------- Layout ---------- */
 
                 topRow.getChildren().addAll(title);
                 HBox.setHgrow(title, Priority.ALWAYS);
@@ -119,14 +112,12 @@ public class InterviewController {
                         -fx-border-color:#e2e8f0;
                         """);
 
-                /* ---------- Shadow ---------- */
 
                 shadow.setRadius(8);
                 shadow.setOffsetY(2);
                 shadow.setColor(Color.rgb(0,0,0,0.08));
                 card.setEffect(shadow);
 
-                /* ---------- Hover Animation ---------- */
 
                 card.setOnMouseEntered(e -> {
                     ScaleTransition st = new ScaleTransition(Duration.millis(120), card);
@@ -148,17 +139,15 @@ public class InterviewController {
                     shadow.setColor(Color.rgb(0,0,0,0.08));
                 });
 
-                /* ---------- Actions ---------- */
 
-                editBtn.setOnAction(e -> openDetails(getItem()));
+                editBtn.setOnAction(e -> openForm(getItem()));
                 deleteBtn.setOnAction(e -> confirmDelete(getItem()));
 
-                /* ---------- Double Click ---------- */
 
                 card.setOnMouseClicked(event -> {
                     if (event.getButton() == MouseButton.PRIMARY
                             && event.getClickCount() == 2) {
-                        openForm(getItem());
+                                openDetails(getItem());
                     }
                 });
             }
@@ -184,9 +173,7 @@ public class InterviewController {
         });
     }
 
-    /* ===============================
-       STATUS BADGE STYLE
-    =============================== */
+ 
 
     private String getStatusStyle(String status) {
 
@@ -234,9 +221,7 @@ public class InterviewController {
         }
     }
 
-    /* ===============================
-       DELETE CONFIRMATION
-    =============================== */
+   
 
     private void confirmDelete(Interview interview) {
 
@@ -258,9 +243,7 @@ public class InterviewController {
         });
     }
 
-    /* ===============================
-       OPEN FORM
-    =============================== */
+
 
     private void openForm(Interview interview) {
 
