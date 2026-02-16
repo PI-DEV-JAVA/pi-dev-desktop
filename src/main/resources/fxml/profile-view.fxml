@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="talentospidev.controllers.ProfileViewController"
+      stylesheets="@/style/app.css" style="-fx-background-color: #f0f2f5;">
+
+    <!-- ======= LEFT SIDEBAR ======= -->
+    <VBox styleClass="sidebar">
+        <Label text="✦  Talentos" styleClass="sidebar-logo"/>
+        <Label text="Talent Management" styleClass="sidebar-subtitle"/>
+
+        <Separator style="-fx-opacity: 0.1;"/>
+        
+        <Label text="MAIN" styleClass="sidebar-section-label"/>
+        <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleBackToDashboard"/>
+        <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handlePlaceholder"/>
+        <Button text="📚  Courses" styleClass="sidebar-button" onAction="#handlePlaceholder"/>
+        <Button text="📅  Events" styleClass="sidebar-button" onAction="#handlePlaceholder"/>
+        <Button text="✅  To Do" styleClass="sidebar-button" onAction="#handlePlaceholder"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
+        <Button text="👤  My Profile" styleClass="sidebar-button-active" onAction="#handlePlaceholder"/>
+        <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
+    </VBox>
+
+    <!-- ======= MAIN CONTENT ======= -->
+    <VBox HBox.hgrow="ALWAYS">
+
+        <!-- Top Bar -->
+        <HBox alignment="CENTER_LEFT" spacing="16" styleClass="top-bar">
+            <VBox>
+                <Label text="My Profile" styleClass="page-title"/>
+                <Label text="View and manage your professional profile" styleClass="page-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        <!-- Body -->
+        <VBox alignment="TOP_CENTER" spacing="24" styleClass="content-area" VBox.vgrow="ALWAYS">
+
+            <!-- Profile Card -->
+            <VBox maxWidth="800" styleClass="card" style="-fx-padding: 0;">
+
+                <!-- Header with gradient banner -->
+                <VBox style="-fx-background-color: linear-gradient(to right, #0D203B, #1e40af); -fx-background-radius: 12 12 0 0; -fx-padding: 32; -fx-alignment: CENTER;">
+                    <Label fx:id="avatarLabel" styleClass="avatar-large"/>
+                    <Text fx:id="nameText" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: white;" text="Loading..."/>
+                    <Text fx:id="titleText" style="-fx-font-size: 14px; -fx-fill: rgba(255,255,255,0.75);" text="..."/>
+                </VBox>
+
+                <!-- Contact Info -->
+                <HBox spacing="24" alignment="CENTER" style="-fx-padding: 16; -fx-background-color: #f9fafb;">
+                    <Label fx:id="locationLabel" text="Location" style="-fx-text-fill: #6b7280; -fx-font-size: 12px;"/>
+                    <Label text="•" style="-fx-text-fill: #d1d5db;"/>
+                    <Label fx:id="phoneLabel" text="Phone" style="-fx-text-fill: #6b7280; -fx-font-size: 12px;"/>
+                    <Label text="•" style="-fx-text-fill: #d1d5db;"/>
+                    <Label fx:id="emailLabel" text="Email" style="-fx-text-fill: #6b7280; -fx-font-size: 12px;"/>
+                </HBox>
+
+                <Separator/>
+
+                <!-- Details -->
+                <VBox spacing="20" style="-fx-padding: 24;">
+                    <VBox spacing="6">
+                        <Label text="About" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                        <Text fx:id="summaryText" style="-fx-font-size: 13px; -fx-fill: #4b5563; -fx-wrapping-width: 700;" text="..."/>
+                    </VBox>
+
+                    <HBox spacing="48">
+                        <VBox spacing="4">
+                            <Label text="Experience" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #9ca3af;"/>
+                            <Label fx:id="experienceLabel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #111827;" text="0 Years"/>
+                        </VBox>
+                        <VBox spacing="4">
+                            <Label text="Member Since" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #9ca3af;"/>
+                            <Label fx:id="joinDateLabel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #111827;" text="—"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Actions -->
+                <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 16 24; -fx-background-color: #fafbfc; -fx-background-radius: 0 0 12 12;">
+                    <Button text="Edit Profile" styleClass="primary-button" onAction="#handleEdit"/>
+                    <Button text="Delete Profile" styleClass="action-button-danger" onAction="#handleDelete"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </VBox>
+</HBox>

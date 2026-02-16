@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentospidev.controllers.LoginController"
+            stylesheets="@/style/app.css"
+            style="-fx-background-color: linear-gradient(to bottom right, #eef2ff, #f0f2f5, #ede9fe);">
+
+    <!-- ===== CENTER CARD ===== -->
+    <center>
+        <VBox fx:id="rootCard"
+              spacing="18"
+              alignment="CENTER"
+              styleClass="login-card"
+              maxWidth="420"
+              maxHeight="520">
+
+            <padding>
+                <Insets top="36" right="48" bottom="36" left="48"/>
+            </padding>
+
+            <!-- Logo -->
+            <ImageView fitHeight="60" preserveRatio="true" pickOnBounds="true">
+                <image>
+                    <Image url="@/images/logo.png"/>
+                </image>
+            </ImageView>
+
+            <!-- Header -->
+            <Text text="WELCOME BACK" styleClass="title-text"/>
+            <Label text="Sign in to your TalentOs account" style="-fx-text-fill: #9ca3af; -fx-font-size: 12px;"/>
+
+            <!-- Inline error banner (hidden by default) -->
+            <Label fx:id="loginError" styleClass="error-banner" text="" visible="false" managed="false" maxWidth="320"/>
+
+            <!-- Form -->
+            <VBox spacing="12" maxWidth="320" alignment="CENTER">
+
+                <VBox spacing="2">
+                    <HBox spacing="2" alignment="CENTER_LEFT">
+                        <Label text="E-mail" styleClass="field-label"/>
+                        <Label text="*" styleClass="required-star"/>
+                    </HBox>
+                    <TextField fx:id="emailField"
+                               promptText="Enter your email"
+                               styleClass="input-field"/>
+                </VBox>
+
+                <VBox spacing="2">
+                    <HBox spacing="2" alignment="CENTER_LEFT">
+                        <Label text="Password" styleClass="field-label"/>
+                        <Label text="*" styleClass="required-star"/>
+                    </HBox>
+                    <PasswordField fx:id="passwordField"
+                                   promptText="Enter your password"
+                                   styleClass="input-field"/>
+                </VBox>
+
+                <!-- Reset Password -->
+                <HBox alignment="CENTER_RIGHT">
+                    <Hyperlink text="Forgot password?" styleClass="reset-link"/>
+                </HBox>
+
+                <!-- Login Button -->
+                <Button text="LOGIN"
+                        styleClass="primary-button"
+                        maxWidth="Infinity"
+                        onAction="#handleLogin"/>
+
+                <!-- Divider -->
+                <HBox alignment="CENTER" spacing="10">
+                    <Separator prefWidth="80"/>
+                    <Label text="OR" styleClass="divider-text"/>
+                    <Separator prefWidth="80"/>
+                </HBox>
+
+                <!-- Google Login -->
+                <Button text="Continue with Google"
+                        styleClass="google-button"
+                        maxWidth="Infinity"/>
+
+            </VBox>
+        </VBox>
+    </center>
+
+    <!-- ===== FOOTER ===== -->
+    <bottom>
+        <HBox spacing="10"
+              alignment="CENTER"
+              styleClass="footer">
+
+            <padding>
+                <Insets top="16" right="20" bottom="16" left="20"/>
+            </padding>
+
+            <Label text="New around here?" styleClass="footer-text"/>
+            <Hyperlink text="Register" styleClass="footer-link" onAction="#goToRegister"/>
+
+        </HBox>
+    </bottom>
+
+</BorderPane>
