@@ -292,10 +292,9 @@ public class InterviewController {
     }
 
     private void openDetails(Interview interview) {
-
         try {
-            MainLayoutController.getInstance().navigate("InterviewDetails.fxml", "interview details");
-    
+            InterviewDetailsController controller = MainLayoutController.getInstance().navigatewithDependencieInjection("InterviewDetails.fxml", "Interview Details");
+            controller.setInterview(interview); 
         } catch (Exception e) {
             e.printStackTrace();
         }

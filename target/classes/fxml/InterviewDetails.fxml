@@ -7,6 +7,7 @@
 
 <BorderPane prefWidth="1100" prefHeight="720"
             xmlns="http://javafx.com/javafx/17"
+            fx:controller="talentos.pidev.controllers.InterviewDetailsController"
             xmlns:fx="http://javafx.com/fxml/1">
 
     <!-- ===== TOP HEADER ===== -->
@@ -35,8 +36,8 @@
                           -fx-font-weight: bold;"/>
         </HBox>
 
-        <Label text="Created at: 2025-02-15 14:30"
-               style="-fx-text-fill: #cbd5e1; -fx-font-size: 13px;"/>
+        <Label fx:id="createdAtLabel" text="Created at: 2025-02-15 14:30"
+       style="-fx-text-fill: #cbd5e1; -fx-font-size: 13px;"/>
     </VBox>
 </top>
 
@@ -59,24 +60,23 @@
                            style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
 
                     <GridPane hgap="40" vgap="20">
-
                         <Label text="Title:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                        <Label text="Senior Backend Developer Interview"
-                               style="-fx-font-weight: bold;"
-                               GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <Label fx:id="titleLabel" text="Senior Backend Developer Interview"
+                            style="-fx-font-weight: bold;"
+                            GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
                         <Label text="Recruiter ID:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                        <Label text="1024"
-                               GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Label fx:id="recruiterLabel" text="1024" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
                         <Label text="Candidate ID:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                        <Label text="5689"
-                               GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label fx:id="candidateLabel" text="5689" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
                         <Label text="General Grade:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                        <Label text="16.5 / 20"
-                               style="-fx-text-fill: #2563eb; -fx-font-weight: bold;"
-                               GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        <Label fx:id="gradeLabel" text="16.5 / 20" style="-fx-text-fill: #2563eb; -fx-font-weight: bold;"
+                            GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                        <Label text="Status:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <Label fx:id="statusLabel" text="ACTIVE" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
                     </GridPane>
                 </VBox>
 
