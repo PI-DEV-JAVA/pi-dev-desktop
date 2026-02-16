@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentos.pidev.controllers.formations.InscriptionsRHController"
+            styleClass="content-area">
+
+    <top>
+        <VBox spacing="12" styleClass="card">
+            <Label fx:id="titleLabel" text="Inscriptions" styleClass="page-title"/>
+
+            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="sort-toolbar">
+                <TextField fx:id="searchField" promptText="Rechercher candidat..." onKeyReleased="#onSearch"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Rafraîchir" onAction="#onRefresh" styleClass="secondary-button"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true">
+            <content>
+                <FlowPane fx:id="cardsContainer" hgap="15" vgap="15" prefWrapLength="900">
+                    <padding>
+                        <Insets top="15" right="15" bottom="15" left="15"/>
+                    </padding>
+                </FlowPane>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

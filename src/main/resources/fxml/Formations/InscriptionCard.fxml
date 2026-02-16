@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentos.pidev.controllers.formations.InscriptionCardController"
+            prefWidth="340" prefHeight="140"
+            styleClass="card">
+
+    <children>
+        <VBox spacing="10" AnchorPane.topAnchor="12" AnchorPane.leftAnchor="12"
+              AnchorPane.rightAnchor="12" AnchorPane.bottomAnchor="12">
+
+            <Label fx:id="nomLabel" text="Nom" styleClass="page-title"/>
+            <Label fx:id="emailLabel" text="Email" styleClass="subtitle-text"/>
+
+            <HBox spacing="8">
+                <Label fx:id="statutLabel" text="EN_ATTENTE" styleClass="badge badge-gray"/>
+                <Label fx:id="scoreLabel" text="Score: -" styleClass="badge badge-blue"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Supprimer" fx:id="deleteBtn" onAction="#onDelete" styleClass="action-button-danger"/>
+            </HBox>
+
+        </VBox>
+    </children>
+</AnchorPane>

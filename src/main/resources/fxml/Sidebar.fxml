@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="talentos.pidev.controllers.SidebarController"
+      spacing="12"
+      prefWidth="240"
+      styleClass="sidebar" >
+
+    <padding>
+        <Insets top="20" right="15" bottom="20" left="15"/>
+    </padding>
+
+
+    <Label text="TalentOS" styleClass="sidebar-logo"/>
+    <Label text="Recrutement Intelligent" styleClass="sidebar-subtitle"/>
+
+    <Label text="MODULES" styleClass="sidebar-section-label"/>
+
+    <Separator/>
+
+    <Button text="📚 Formations (RH)" onAction="#goFormationsRH" styleClass="sidebar-button"/>
+    <Button text="🎓 Formations (Candidat)" onAction="#goFormationsCandidat" styleClass="sidebar-button"/>
+    <Button text="📝 Inscriptions (RH)" onAction="#goInscriptionsRH" styleClass="sidebar-button"/>
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <Separator/>
+    <Region VBox.vgrow="ALWAYS"/>
+</VBox>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentos.pidev.controllers.formations.FormationsRHController"
+            styleClass="content">
+
+    <top>
+        <VBox spacing="12" styleClass="card">
+            <Label text="Gestion des formations (RH)" styleClass="page-title"/>
+
+            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="sort-toolbar">
+                <TextField fx:id="searchField" promptText="Rechercher..." onKeyReleased="#onSearch"/>
+
+                <ComboBox fx:id="triCombo" onAction="#onTriChanged" prefWidth="220"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button text="Ajouter" onAction="#onAdd" styleClass="primary-button"/>
+                <Button text="Rafraîchir" onAction="#onRefresh" styleClass="secondary-button"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="card-scroll">
+            <content>
+                <FlowPane fx:id="cardsContainer" hgap="20" vgap="20" alignment="TOP_CENTER">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+                </FlowPane>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

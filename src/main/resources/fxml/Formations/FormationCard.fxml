@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentos.pidev.controllers.formations.FormationCardController"
+            prefWidth="340" prefHeight="220"
+            styleClass="card">
+
+    <VBox spacing="10">
+
+        <Label fx:id="nomLabel" text="Nom formation" styleClass="page-title"/>
+
+        <HBox spacing="8">
+            <Label fx:id="statutLabel" text="OUVERTE" styleClass="badge badge-green"/>
+            <Label fx:id="categorieLabel" text="Catégorie" styleClass="badge badge-blue"/>
+            <Label fx:id="difficulteLabel" text="AVANCE" styleClass="badge badge-purple"/>
+        </HBox>
+
+        <Label fx:id="datesLabel" text="Du ... au ..." styleClass="subtitle-text"/>
+        <Label fx:id="formateurLabel" text="Formateur : ..." styleClass="subtitle-text"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button fx:id="inscriptionsBtn" text="Inscriptions" onAction="#onInscriptions" styleClass="action-button"/>
+            <Button fx:id="editBtn" text="Modifier" onAction="#onEdit" styleClass="action-button"/>
+            <Button fx:id="deleteBtn" text="Supprimer" onAction="#onDelete" styleClass="action-button-danger"/>
+            <Button fx:id="inscrireBtn" text="S'inscrire" onAction="#onInscrire" styleClass="primary-button"/>
+        </HBox>
+
+    </VBox>
+</AnchorPane>

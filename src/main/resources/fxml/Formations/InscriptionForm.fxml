@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="talentos.pidev.controllers.formations.InscriptionFormController"
+      spacing="10" prefWidth="420">
+
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <Label fx:id="titleLabel" text="Inscription" styleClass="page-title"/>
+
+    <TextField fx:id="nomField" promptText="Nom complet"/>
+    <TextField fx:id="emailField" promptText="Email"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Annuler" onAction="#onCancel"/>
+        <Button text="Valider" onAction="#onSubmit"/>
+    </HBox>
+
+    <Label fx:id="errorLabel" text="" styleClass="error-text" wrapText="true"/>
+
+</VBox>
