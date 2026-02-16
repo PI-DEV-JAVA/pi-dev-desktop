@@ -99,62 +99,7 @@
                     </HBox>
 
                     <!-- === Individual Session Cards === -->
-                    <VBox spacing="15">
-                        <!-- Session Card 1 -->
-                        <HBox spacing="20">
-                            <padding>
-                                <Insets top="16" right="16" bottom="16" left="16"/>
-                            </padding>
-                            <style>
-                                -fx-background-color: #f1f5f9; 
-                                -fx-background-radius: 10;
-                            </style>
-
-                            <VBox>
-                                <Label text="UUID" style="-fx-font-size: 12; -fx-text-fill: #64748b;"/>
-                                <Label text="550e8400-e29b-41d4-a716-446655440000" style="-fx-font-weight: bold;"/>
-                            </VBox>
-                            <VBox>
-                                <Label text="Scheduled At" style="-fx-font-size: 12; -fx-text-fill: #64748b;"/>
-                                <Label text="2025-02-20 10:00" style="-fx-font-weight: bold;"/>
-                            </VBox>
-                            <VBox>
-                                <Label text="Status" style="-fx-font-size: 12; -fx-text-fill: #64748b;"/>
-                                <Label text="COMPLETED" style="-fx-text-fill: #16a34a; -fx-font-weight: bold;"/>
-                            </VBox>
-                            <VBox>
-                                <Label text="Grade" style="-fx-font-size: 12; -fx-text-fill: #64748b;"/>
-                                <Label text="15.5" style="-fx-font-weight: bold;"/>
-                            </VBox>
-                        </HBox>
-
-                        <!-- Session Card 2 -->
-                        <HBox spacing="20">
-                            <padding>
-                                <Insets top="16" right="16" bottom="16" left="16"/>
-                            </padding>
-                            <style>
-                                -fx-background-color: #f8fafc; 
-                                -fx-background-radius: 10;
-                            </style>
-
-                            <VBox>
-                                <Label text="UUID" style="-fx-font-size: 12; -fx-text-fill: #64748b;"/>
-                                <Label text="550e8400-e29b-41d4-a716-446655440001" style="-fx-font-weight: bold;"/>
-                            </VBox>
-                            <VBox>
-                                <Label text="Scheduled At" style="-fx-font-size: 12; -fx-text-fill: #64748b;"/>
-                                <Label text="2025-02-22 14:30" style="-fx-font-weight: bold;"/>
-                            </VBox>
-                            <VBox>
-                                <Label text="Status" style="-fx-font-size: 12; -fx-text-fill: #64748b;"/>
-                                <Label text="PENDING" style="-fx-text-fill: #f59e0b; -fx-font-weight: bold;"/>
-                            </VBox>
-                            <VBox>
-                                <Label text="Grade" style="-fx-font-size: 12; -fx-text-fill: #64748b;"/>
-                                <Label text="—" style="-fx-font-weight: bold;"/>
-                            </VBox>
-                        </HBox>
+                    <VBox fx:id="sessionsContainer" spacing="15">
                     </VBox>
 
                 </VBox>
