@@ -33,6 +33,11 @@ public class ApplicationsCardController implements Initializable {
     private FlowPane cardsContainer;
     @FXML
     private Label totalApplicationsLabel;
+    @FXML
+    private void refreshTable() {
+        loadApplications();
+        showAlert("Info", "Liste des candidatures actualisée", Alert.AlertType.INFORMATION);
+    }
 
     private final ApplicationService applicationService;
     private final OfferService offerService;
@@ -51,8 +56,9 @@ public class ApplicationsCardController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupFilters();
-        loadApplications();
         loadOffers();
+        loadApplications();
+
     }
 
     private void setupFilters() {
@@ -191,6 +197,11 @@ public class ApplicationsCardController implements Initializable {
                 .filter(o -> o.getId() == app.getOfferId())
                 .findFirst()
                 .orElse(null);
+        if (offer == null) {
+            System.out.println("   ❌ Offre NON trouvée pour offerId: " + app.getOfferId());
+        } else {
+            System.out.println("   ✅ Offre trouvée: " + offer.getTitle());
+        }
 
         VBox card = new VBox(12);
         String defaultStyle = "-fx-background-color: #1E293B;" +
@@ -284,9 +295,15 @@ public class ApplicationsCardController implements Initializable {
                         "-fx-border-color: rgba(99,102,241,0.12);" +
                         "-fx-border-radius: 12;" +
                         "-fx-border-width: 1;");
-
-        Label offerTitle = new Label("📋 " + (offer != null ? offer.getTitle() : "Offre #" + app.getOfferId()));
+        String offerDisplayText;
+        if (offer != null) {
+            offerDisplayText = "📋 " + offer.getTitle();
+        } else {
+            offerDisplayText = "📋 Offre supprimée"; // Message plus clair si l'offre n'existe plus
+        }
+        Label offerTitle = new Label(offerDisplayText);
         offerTitle.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #A5B4FC;");
+        offerTitle.setWrapText(true);
 
         if (offer != null) {
             Label deptLabel = new Label("🏢 " + offer.getDepartment()
@@ -448,10 +465,301 @@ public class ApplicationsCardController implements Initializable {
         alert.showAndWait();
     }
 
-    private void showEvaluationDialog(Application app) {
-        // À implémenter - dialogue d'évaluation
-        showAlert("Évaluation", "Fonctionnalité d'évaluation à implémenter", Alert.AlertType.INFORMATION);
+private void showEvaluationDialog(Application app) {
+        // Trouver l'offre associée
+        Offer offer = offersList.stream()
+                .filter(o -> o.getId() == app.getOfferId())
+                .findFirst()
+                .orElse(null);
+
+        // Créer le dialogue
+        Dialog<Application> dialog = new Dialog<>();
+        dialog.setTitle("Évaluation de candidature");
+        dialog.setHeaderText("Évaluation de " + app.getCandidateName());
+
+        // Style du dialogue
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setPrefWidth(550);
+        dialogPane.setPrefHeight(600);
+        dialogPane.setStyle("-fx-background-color: #0F172A; -fx-background-radius: 16;");
+
+        ButtonType saveButtonType = new ButtonType("Enregistrer l'évaluation", ButtonBar.ButtonData.OK_DONE);
+        dialogPane.getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        // Conteneur principal
+        VBox content = new VBox(20);
+        content.setStyle("-fx-padding: 20; -fx-background-color: #0F172A;");
+        content.setAlignment(javafx.geometry.Pos.TOP_CENTER);
+
+        // ========== EN-TÊTE AVATAR ==========
+        HBox headerBox = new HBox(15);
+        headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        // Avatar avec initiales
+        StackPane avatar = new StackPane();
+        avatar.setStyle(
+                "-fx-background-color: " + getAvatarColor(app.getStatus()) + ";" +
+                        "-fx-background-radius: 40;" +
+                        "-fx-min-width: 70;" +
+                        "-fx-min-height: 70;" +
+                        "-fx-max-width: 70;" +
+                        "-fx-max-height: 70;");
+
+        String initials = getInitials(app.getCandidateName());
+        Label initialsLabel = new Label(initials);
+        initialsLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
+        avatar.getChildren().add(initialsLabel);
+
+        // Informations candidat
+        VBox candidateInfo = new VBox(5);
+
+        Label nameLabel = new Label(app.getCandidateName());
+        nameLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Label emailLabel = new Label("✉ " + app.getCandidateEmail());
+        emailLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #94A3B8;");
+
+        if (app.getCandidatePhone() != null && !app.getCandidatePhone().isEmpty()) {
+            Label phoneLabel = new Label("📞 " + app.getCandidatePhone());
+            phoneLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #94A3B8;");
+            candidateInfo.getChildren().addAll(nameLabel, emailLabel, phoneLabel);
+        } else {
+            candidateInfo.getChildren().addAll(nameLabel, emailLabel);
+        }
+
+        headerBox.getChildren().addAll(avatar, candidateInfo);
+
+        // ========== INFORMATIONS OFFRE ==========
+        if (offer != null) {
+            VBox offerInfoBox = new VBox(8);
+            offerInfoBox.setStyle(
+                    "-fx-background-color: rgba(99,102,241,0.08);" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-padding: 15;" +
+                            "-fx-border-color: rgba(99,102,241,0.2);" +
+                            "-fx-border-radius: 12;" +
+                            "-fx-border-width: 1;");
+
+            Label offerTitleLabel = new Label("📋 " + offer.getTitle());
+            offerTitleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #A5B4FC;");
+
+            HBox offerDetailsRow = new HBox(20);
+            offerDetailsRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+            Label deptLabel = new Label("🏢 " + offer.getDepartment());
+            deptLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #94A3B8;");
+
+            Label contractLabel = new Label("📄 " + offer.getContractType());
+            contractLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #94A3B8;");
+
+            Label expLabel = new Label("📊 " + offer.getExperienceLevel());
+            expLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #94A3B8;");
+
+            offerDetailsRow.getChildren().addAll(deptLabel, contractLabel, expLabel);
+
+            offerInfoBox.getChildren().addAll(offerTitleLabel, offerDetailsRow);
+            content.getChildren().add(offerInfoBox);
+        }
+
+        // ========== FORMULAIRE D'ÉVALUATION ==========
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setStyle("-fx-padding: 10 0;");
+        grid.setAlignment(javafx.geometry.Pos.CENTER);
+
+        // Largeur des colonnes
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(30);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(70);
+        grid.getColumnConstraints().addAll(col1, col2);
+
+        int row = 0;
+
+        // 1. Score avec Slider
+        Label scoreLabel = new Label("Score (0-100):");
+        scoreLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #F1F5F9;");
+
+        HBox scoreBox = new HBox(15);
+        scoreBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        Slider scoreSlider = new Slider(0, 100, app.getScore());
+        scoreSlider.setShowTickLabels(true);
+        scoreSlider.setShowTickMarks(true);
+        scoreSlider.setMajorTickUnit(25);
+        scoreSlider.setBlockIncrement(5);
+        scoreSlider.setStyle(
+                "-fx-control-inner-background: #1E293B;" +
+                        "-fx-track-background: #334155;");
+
+        Label scoreValue = new Label(String.format("%.0f", app.getScore()));
+        scoreValue.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #A5B4FC; -fx-min-width: 40;");
+
+        scoreSlider.valueProperty().addListener((obs, old, newVal) ->
+                scoreValue.setText(String.format("%.0f", newVal)));
+
+        scoreBox.getChildren().addAll(scoreSlider, scoreValue);
+
+        grid.add(scoreLabel, 0, row);
+        grid.add(scoreBox, 1, row++);
+
+        // 2. Statut
+        Label statusLabel = new Label("Statut:");
+        statusLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #F1F5F9;");
+
+        ComboBox<String> statusCombo = new ComboBox<>();
+        statusCombo.getItems().addAll("Nouvelle", "En cours", "Acceptée", "Rejetée", "En attente");
+        statusCombo.setValue(app.getStatus());
+        statusCombo.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-border-color: #334155;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: #F1F5F9;");
+
+        // Couleur du texte dans la liste déroulante
+        statusCombo.setCellFactory(param -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item);
+                    setStyle("-fx-background-color: #1E293B; -fx-text-fill: #F1F5F9;");
+                }
+            }
+        });
+
+        grid.add(statusLabel, 0, row);
+        grid.add(statusCombo, 1, row++);
+
+        // 3. Interviewer
+        Label interviewerLabel = new Label("Interviewer:");
+        interviewerLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #F1F5F9;");
+
+        TextField interviewerField = new TextField(app.getInterviewer());
+        interviewerField.setPromptText("Nom de l'interviewer");
+        interviewerField.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-border-color: #334155;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: #F1F5F9;" +
+                        "-fx-prompt-text-fill: #64748B;");
+
+        grid.add(interviewerLabel, 0, row);
+        grid.add(interviewerField, 1, row++);
+
+        // 4. Date interview
+        Label interviewDateLabel = new Label("Date interview:");
+        interviewDateLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #F1F5F9;");
+
+        DatePicker interviewDatePicker = new DatePicker(
+                app.getInterviewDate() != null ? app.getInterviewDate() : LocalDate.now()
+        );
+        interviewDatePicker.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-border-color: #334155;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: #F1F5F9;");
+
+        grid.add(interviewDateLabel, 0, row);
+        grid.add(interviewDatePicker, 1, row++);
+
+        // 5. Résultat
+        Label resultLabel = new Label("Résultat:");
+        resultLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #F1F5F9;");
+
+        TextArea resultArea = new TextArea(app.getInterviewResult());
+        resultArea.setPromptText("Résultat de l'interview...");
+        resultArea.setPrefRowCount(3);
+        resultArea.setWrapText(true);
+        resultArea.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-border-color: #334155;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: #F1F5F9;" +
+                        "-fx-prompt-text-fill: #64748B;");
+
+        grid.add(resultLabel, 0, row);
+        grid.add(resultArea, 1, row++);
+
+        // 6. Notes d'évaluation
+        Label notesLabel = new Label("Notes:");
+        notesLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #F1F5F9;");
+
+        TextArea notesArea = new TextArea(app.getNotes());
+        notesArea.setPromptText("Notes d'évaluation...");
+        notesArea.setPrefRowCount(4);
+        notesArea.setWrapText(true);
+        notesArea.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-border-color: #334155;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-text-fill: #F1F5F9;" +
+                        "-fx-prompt-text-fill: #64748B;");
+
+        grid.add(notesLabel, 0, row);
+        grid.add(notesArea, 1, row);
+
+        content.getChildren().addAll(headerBox, new Separator(), grid);
+
+        // Ajouter le contenu dans un ScrollPane
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: #0F172A; -fx-background-color: #0F172A; -fx-border-color: transparent;");
+        dialogPane.setContent(scrollPane);
+
+        // Style des boutons
+        Button saveButton = (Button) dialogPane.lookupButton(saveButtonType);
+        saveButton.setStyle(
+                "-fx-background-color: #6366F1;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-padding: 10 20;" +
+                        "-fx-background-radius: 8;");
+
+        Button cancelButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
+        cancelButton.setStyle(
+                "-fx-background-color: #475569;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-padding: 10 20;" +
+                        "-fx-background-radius: 8;");
+
+        // Validation de base (optionnelle)
+        saveButton.setDisable(false);
+
+        // Résultat
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                app.setScore(scoreSlider.getValue());
+                app.setStatus(statusCombo.getValue());
+                app.setInterviewer(interviewerField.getText());
+                app.setInterviewDate(interviewDatePicker.getValue());
+                app.setInterviewResult(resultArea.getText());
+                app.setNotes(notesArea.getText());
+                return app;
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(updatedApp -> {
+            if (applicationService.updateApplication(updatedApp)) {
+                refreshTable();
+                showAlert("Succès", "Évaluation enregistrée avec succès!", Alert.AlertType.INFORMATION);
+            } else {
+                showAlert("Erreur", "Erreur lors de l'enregistrement", Alert.AlertType.ERROR);
+            }
+        });
     }
+
 
     private void deleteApplication(Application app) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
