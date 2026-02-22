@@ -4,6 +4,7 @@
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/controllers/InterviewFormController.java
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/models/schema/Interview.java
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/controllers/MainLayoutController.java
+/home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/utils/generator.java
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/models/schema/User.java
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/controllers/SidebarController.java
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/utils/DB.java
