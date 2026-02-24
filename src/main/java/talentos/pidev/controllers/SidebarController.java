@@ -29,6 +29,12 @@ public class SidebarController {
     }
 
     @FXML
+    private void meet() {
+        MainLayoutController.getInstance()
+                .navigate("videoPreview.fxml", "RTC");
+    }
+
+    @FXML
     private void reports() {}
 
     @FXML
