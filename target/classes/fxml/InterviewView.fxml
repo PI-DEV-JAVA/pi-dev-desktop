@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentos.pidev.controllers.interviews.InterviewController"
+      spacing="20"
+      style="-fx-padding:25; -fx-background-color:#f8fafc;">
+
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <Label text="Interviews"
+               style="-fx-font-size:22px; -fx-font-weight:bold; -fx-text-fill:#0f172a;" />
+
+        <Pane HBox.hgrow="ALWAYS"/>
+
+        <TextField fx:id="searchField"
+                   promptText="Search by title..."
+                   prefWidth="250"
+                   style="-fx-background-radius:8; -fx-border-radius:8;
+                          -fx-border-color:#cbd5e1;" />
+
+        <Button text="Search"
+                onAction="#onSearch"
+                style="-fx-background-color:#0D203B;
+                       -fx-text-fill:white;
+                       -fx-background-radius:8;" />
+
+        <Button text="+ New"
+                onAction="#onCreate"
+                style="-fx-background-color:#22c55e;
+                       -fx-text-fill:white;
+                       -fx-background-radius:8;" />
+    </HBox>
+
+    <ListView fx:id="listView"
+              VBox.vgrow="ALWAYS"
+              style="-fx-background-color:transparent;" />
+
+</VBox>
