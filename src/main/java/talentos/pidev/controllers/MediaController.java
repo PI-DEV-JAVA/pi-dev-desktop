@@ -1,39 +1,72 @@
 package talentos.pidev.controllers;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.TilePane;
 import talentos.pidev.services.MediaService;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MediaController {
 
-    @FXML
-    private ImageView cameraView;
-
-    private MediaService videoService;
+    @FXML private TilePane videoGrid;
+    private final ConcurrentHashMap<Integer, MediaService> activeServices = new ConcurrentHashMap<>();
 
     @FXML
     public void initialize() {
-        // Initialize the service with the ImageView from FXML
-        videoService = new MediaService(cameraView);
+        startDiscoveryListener();
     }
 
-    @FXML
-    public void startCamera() {
-        // This starts the thread that connects to your Python script
-        videoService.start();
+    private void startDiscoveryListener() {
+        Thread discovery = new Thread(() -> {
+            try (ServerSocket server = new ServerSocket(8888)) {
+                System.out.println("Java Discovery Server active on port 8888...");
+                while (true) {
+                    try (Socket client = server.accept();
+                         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()))) {
+                        
+                        String msg = in.readLine(); // Expects "NEW_PORT:9991"
+                        if (msg != null && msg.startsWith("NEW_PORT:")) {
+                            int port = Integer.parseInt(msg.split(":")[1]);
+                            addStream(port);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        discovery.setDaemon(true);
+        discovery.start();
     }
 
-    @FXML
-    public void stopCamera() {
-        videoService.stop();
+    private void addStream(int port) {
+        if (activeServices.containsKey(port)) return;
+
+        Platform.runLater(() -> {
+            ImageView iv = new ImageView();
+            iv.setFitWidth(320);
+            iv.setPreserveRatio(true);
+            iv.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);");
+
+            videoGrid.getChildren().add(iv);
+
+            MediaService service = new MediaService(iv, port);
+            service.start();
+            activeServices.put(port, service);
+        });
     }
 
     @FXML
     private void stopAll() {
-        stopCamera();
+        activeServices.values().forEach(MediaService::stop);
+        activeServices.clear();
+        videoGrid.getChildren().clear();
     }
-    
-    // Placeholder for Mic - you'd handle audio similarly or via different logic
-    @FXML public void startMic() {}
-    @FXML public void stopMic() {}
 }
