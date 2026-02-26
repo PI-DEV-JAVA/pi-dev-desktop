@@ -1,51 +1,39 @@
 package talentos.pidev.controllers;
 
-
 import javafx.fxml.FXML;
 import javafx.scene.image.ImageView;
-import talentos.pidev.services.GStreamerService;
+import talentos.pidev.services.MediaService;
 
 public class MediaController {
 
     @FXML
     private ImageView cameraView;
 
-    private GStreamerService mediaService;
+    private MediaService videoService;
 
     @FXML
     public void initialize() {
-        mediaService = new GStreamerService(cameraView);
+        // Initialize the service with the ImageView from FXML
+        videoService = new MediaService(cameraView);
     }
-
-    @FXML
-    private void stopAll() {
-        mediaService.stopCamera();
-        mediaService.stopMic();
-    }
-
-    // @FXML
-    // private void stopMedia() {
-    //     mediaService.startCamera();
-    // }
 
     @FXML
     public void startCamera() {
-        mediaService.startCamera();
-        
+        // This starts the thread that connects to your Python script
+        videoService.start();
     }
 
     @FXML
     public void stopCamera() {
-        mediaService.stopCamera();
+        videoService.stop();
     }
 
     @FXML
-    public void startMic() {
-        mediaService.startMicrophone();
+    private void stopAll() {
+        stopCamera();
     }
-
-    @FXML
-    public void stopMic() {
-        mediaService.stopMic();
-    }
+    
+    // Placeholder for Mic - you'd handle audio similarly or via different logic
+    @FXML public void startMic() {}
+    @FXML public void stopMic() {}
 }
