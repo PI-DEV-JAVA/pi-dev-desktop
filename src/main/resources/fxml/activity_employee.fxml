@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="talentos.pidev.controllers.Activities.EmployeeActivityController"
+      spacing="0" style="-fx-background-color: #F1F5F9;">
+
+    <!-- Header with gradient effect -->
+    <StackPane style="-fx-background-color: linear-gradient(to right, #0D203B, #1a3650); -fx-padding: 25 30 25 30;">
+        <HBox alignment="CENTER_LEFT" spacing="15">
+            <Circle radius="20" style="-fx-fill: rgba(255,255,255,0.2);"/>
+            <VBox spacing="5">
+                <Label text="My Activities Dashboard" 
+                       style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Label fx:id="welcomeLabel" text="Welcome, Employee" 
+                       style="-fx-font-size: 14px; -fx-text-fill: #CBD5E0;"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Today" 
+                   style="-fx-font-size: 14px; -fx-text-fill: #CBD5E0; -fx-background-color: rgba(255,255,255,0.1); -fx-padding: 8 15; -fx-background-radius: 20;"/>
+        </HBox>
+    </StackPane>
+
+    <!-- Main Content -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-width: 0;">
+        <VBox spacing="25" style="-fx-background-color: #F1F5F9; -fx-padding: 25 30 30 30;">
+            
+            <!-- Statistics Cards in Grid -->
+            <GridPane hgap="20" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="200" prefWidth="200"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="200" prefWidth="200"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="200" prefWidth="200"/>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="200" prefWidth="200"/>
+                </columnConstraints>
+                
+                <!-- Total Hours Card -->
+                <StackPane style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 5);" GridPane.columnIndex="0">
+                    <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20;">
+                        <Label text="⏱️" style="-fx-font-size: 32px;"/>
+                        <Label text="Total Hours" style="-fx-font-size: 14px; -fx-text-fill: #718096;"/>
+                        <Label fx:id="totalHoursLabel" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+                    </VBox>
+                </StackPane>
+                
+                <!-- Activities Count Card -->
+                <StackPane style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 5);" GridPane.columnIndex="1">
+                    <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20;">
+                        <Label text="📊" style="-fx-font-size: 32px;"/>
+                        <Label text="Activities" style="-fx-font-size: 14px; -fx-text-fill: #718096;"/>
+                        <Label fx:id="totalActivitiesLabel" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+                    </VBox>
+                </StackPane>
+                
+                <!-- Projects Count Card -->
+                <StackPane style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 5);" GridPane.columnIndex="2">
+                    <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20;">
+                        <Label text="📁" style="-fx-font-size: 32px;"/>
+                        <Label text="Projects" style="-fx-font-size: 14px; -fx-text-fill: #718096;"/>
+                        <Label fx:id="projectsCountLabel" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+                    </VBox>
+                </StackPane>
+                
+                <!-- Average Hours Card -->
+                <StackPane style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 5);" GridPane.columnIndex="3">
+                    <VBox spacing="10" alignment="CENTER" style="-fx-padding: 20;">
+                        <Label text="📈" style="-fx-font-size: 32px;"/>
+                        <Label text="Avg/Day" style="-fx-font-size: 14px; -fx-text-fill: #718096;"/>
+                        <Label fx:id="avgHoursLabel" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+                    </VBox>
+                </StackPane>
+            </GridPane>
+            
+            <!-- Filters Section -->
+            <VBox spacing="15">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="🔍" style="-fx-font-size: 18px;"/>
+                    <Label text="Filter Activities" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+                </HBox>
+                
+                <HBox spacing="15">
+                    <TextField fx:id="searchField" promptText="Search by description..." 
+                             HBox.hgrow="ALWAYS"
+                             style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12 15; -fx-border-width: 0; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 5, 0, 0, 2);">
+                        <font>
+                            <Font size="13"/>
+                        </font>
+                    </TextField>
+                    
+                    <ComboBox fx:id="filterProjectCombo" promptText="All Projects" 
+                             style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 5; -fx-border-width: 0; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 5, 0, 0, 2);"
+                             prefWidth="200"/>
+                    
+                    <DatePicker fx:id="filterDatePicker" promptText="Select date"
+                              style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 5, 0, 0, 2);"
+                              prefWidth="180"/>
+                    
+                    <Button fx:id="clearFilterBtn" text="Clear Filters"
+                           style="-fx-background-color: #CBD5E0; -fx-text-fill: #2D3748; -fx-background-radius: 10; -fx-padding: 12 20; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+            
+            <!-- Activities List -->
+            <VBox spacing="15">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="📋" style="-fx-font-size: 18px;"/>
+                    <Label text="Your Activities" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="activitiesCountLabel" text="Showing 0 activities" 
+                           style="-fx-text-fill: #718096; -fx-font-size: 13px;"/>
+                </HBox>
+                
+                <!-- Activities Cards Container -->
+                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;" prefHeight="400">
+                    <VBox fx:id="activitiesContainer" spacing="15" style="-fx-background-color: transparent;">
+                        <!-- Activity cards will be dynamically added here -->
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</VBox>

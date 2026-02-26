@@ -1,72 +1,113 @@
 package talentos.pidev.models.schema.Activity;
-import javafx.beans.property.*;
+
 import java.time.LocalDate;
 
 public class Activity {
+    private int idActivity;
+    private int employeeId;
+    private int projectId;
+    private LocalDate activityDate;
+    private String description;
+    private double hoursWorked;
 
-    private final IntegerProperty idActivity = new SimpleIntegerProperty();
-    private final IntegerProperty employeeId = new SimpleIntegerProperty();
-    private final IntegerProperty projectId = new SimpleIntegerProperty();
-    private final ObjectProperty<LocalDate> date = new SimpleObjectProperty<>();
-    private final StringProperty description = new SimpleStringProperty();
-    private final IntegerProperty hours = new SimpleIntegerProperty();
-
-    // ===== CONSTRUCTORS =====
-
+    // Default constructor
     public Activity() {}
 
-    public Activity(int employeeId, int projectId, LocalDate date, String description, int hours) {
-        this.employeeId.set(employeeId);
-        this.projectId.set(projectId);
-        this.date.set(date);
-        this.description.set(description);
-        this.hours.set(hours);
+    // Constructor for new activity (without id)
+    public Activity(int employeeId, int projectId, LocalDate activityDate, String description, double hoursWorked) {
+        this.employeeId = employeeId;
+        this.projectId = projectId;
+        this.activityDate = activityDate;
+        this.description = description;
+        this.hoursWorked = hoursWorked;
     }
 
-    public Activity(int idActivity, int employeeId, int projectId,
-                    LocalDate date, String description, int hours) {
-        this.idActivity.set(idActivity);
-        this.employeeId.set(employeeId);
-        this.projectId.set(projectId);
-        this.date.set(date);
-        this.description.set(description);
-        this.hours.set(hours);
+    // Constructor for existing activity (with id)
+    public Activity(int idActivity, int employeeId, int projectId, LocalDate activityDate, String description, double hoursWorked) {
+        this.idActivity = idActivity;
+        this.employeeId = employeeId;
+        this.projectId = projectId;
+        this.activityDate = activityDate;
+        this.description = description;
+        this.hoursWorked = hoursWorked;
     }
 
-    // ===== GETTERS / SETTERS =====
+    // Getters and Setters
+    public int getIdActivity() {
+        return idActivity;
+    }
 
-    public int getIdActivity() { return idActivity.get(); }
-    public void setIdActivity(int id) { this.idActivity.set(id); }
-    public IntegerProperty idActivityProperty() { return idActivity; }
+    public void setIdActivity(int idActivity) {
+        this.idActivity = idActivity;
+    }
 
-    public int getEmployeeId() { return employeeId.get(); }
-    public void setEmployeeId(int id) { this.employeeId.set(id); }
-    public IntegerProperty employeeIdProperty() { return employeeId; }
+    public int getEmployeeId() {
+        return employeeId;
+    }
 
-    public int getProjectId() { return projectId.get(); }
-    public void setProjectId(int id) { this.projectId.set(id); }
-    public IntegerProperty projectIdProperty() { return projectId; }
+    public void setEmployeeId(int employeeId) {
+        this.employeeId = employeeId;
+    }
 
-    public LocalDate getDate() { return date.get(); }
-    public void setDate(LocalDate d) { this.date.set(d); }
-    public ObjectProperty<LocalDate> dateProperty() { return date; }
+    public int getProjectId() {
+        return projectId;
+    }
 
-    public String getDescription() { return description.get(); }
-    public void setDescription(String d) { this.description.set(d); }
-    public StringProperty descriptionProperty() { return description; }
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
 
-    public int getHours() { return hours.get(); }
-    public void setHours(int h) { this.hours.set(h); }
-    public IntegerProperty hoursProperty() { return hours; }
+    public LocalDate getActivityDate() {
+        return activityDate;
+    }
+
+    public void setActivityDate(LocalDate activityDate) {
+        this.activityDate = activityDate;
+    }
+
+    // Alias for backward compatibility
+    public LocalDate getDate() {
+        return activityDate;
+    }
+
+    public void setDate(LocalDate activityDate) {
+        this.activityDate = activityDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public double getHoursWorked() {
+        return hoursWorked;
+    }
+
+    public void setHoursWorked(double hoursWorked) {
+        this.hoursWorked = hoursWorked;
+    }
+
+    // Alias for backward compatibility
+    public int getHours() {
+        return (int) hoursWorked;
+    }
+
+    public void setHours(int hoursWorked) {
+        this.hoursWorked = hoursWorked;
+    }
 
     @Override
     public String toString() {
         return "Activity{" +
-                "id=" + getIdActivity() +
-                ", emp=" + getEmployeeId() +
-                ", project=" + getProjectId() +
-                ", date=" + getDate() +
-                ", hours=" + getHours() +
+                "idActivity=" + idActivity +
+                ", employeeId=" + employeeId +
+                ", projectId=" + projectId +
+                ", activityDate=" + activityDate +
+                ", description='" + description + '\'' +
+                ", hoursWorked=" + hoursWorked +
                 '}';
     }
 }

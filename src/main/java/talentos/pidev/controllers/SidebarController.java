@@ -27,6 +27,11 @@ public class SidebarController {
         MainLayoutController.getInstance()
                 .navigate("projects.fxml", "Projects");
     }
+    @FXML
+    private void ToDoList() {
+        MainLayoutController.getInstance()
+                .navigate("activity_employee.fxml", "ToDoList");
+    }
 
     @FXML
     private void reports() {}

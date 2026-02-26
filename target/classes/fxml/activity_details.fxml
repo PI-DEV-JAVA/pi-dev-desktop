@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="talentos.pidev.controllers.Activities.ActivityDetailsController"
+      spacing="20" style="-fx-background-color: white; -fx-background-radius: 15;"
+      prefWidth="600" prefHeight="500">
+
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="📋" style="-fx-font-size: 32px;"/>
+        <VBox spacing="5">
+            <Label fx:id="activityTitleLabel" text="Activity Details" 
+                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+            <Label fx:id="projectNameLabel" text="Project" 
+                   style="-fx-font-size: 14px; -fx-text-fill: #718096;"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="closeBtn" text="✕" 
+                style="-fx-background-color: transparent; -fx-font-size: 18px; -fx-cursor: hand; -fx-text-fill: #718096;"/>
+    </HBox>
+
+    <Separator/>
+
+    <!-- Activity Info -->
+    <GridPane hgap="20" vgap="15">
+        <columnConstraints>
+            <ColumnConstraints minWidth="100" prefWidth="100"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+        
+        <!-- Date -->
+        <Label text="Date:" style="-fx-font-weight: bold; -fx-text-fill: #4A5568;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <Label fx:id="dateLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        
+        <!-- Hours -->
+        <Label text="Hours:" style="-fx-font-weight: bold; -fx-text-fill: #4A5568;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <Label fx:id="hoursLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        
+        <!-- Status -->
+        <Label text="Status:" style="-fx-font-weight: bold; -fx-text-fill: #4A5568;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <Label fx:id="statusLabel" text="-" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        
+        <!-- Description -->
+        <Label text="Description:" style="-fx-font-weight: bold; -fx-text-fill: #4A5568;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextArea fx:id="descriptionArea" editable="false" wrapText="true" prefRowCount="3"
+                  style="-fx-background-color: #F7FAFC; -fx-background-radius: 8;" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <!-- Files Section -->
+    <VBox spacing="15">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="📎" style="-fx-font-size: 18px;"/>
+            <Label text="Attached Files" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="uploadFileBtn" text="+ Upload File"
+                    style="-fx-background-color: #0D203B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15; -fx-background-radius: 8; -fx-cursor: hand;"/>
+        </HBox>
+        
+        <!-- Files List -->
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" prefHeight="150">
+            <VBox fx:id="filesContainer" spacing="10" style="-fx-background-color: transparent;">
+                <!-- Files will be added dynamically -->
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
+    <!-- Work Notes Section -->
+    <VBox spacing="10">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="📝" style="-fx-font-size: 18px;"/>
+            <Label text="Work Notes" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+        </HBox>
+        <TextArea fx:id="workNotesArea" promptText="Add your work notes here..." 
+                  wrapText="true" prefRowCount="4"
+                  style="-fx-background-color: #F7FAFC; -fx-background-radius: 8; -fx-padding: 10;"/>
+    </VBox>
+
+    <!-- Footer Buttons -->
+    <HBox alignment="CENTER_RIGHT" spacing="15">
+        <Button fx:id="markCompleteBtn" text="Mark as Complete"
+                style="-fx-background-color: #38A169; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+        <Button fx:id="saveNotesBtn" text="Save Notes"
+                style="-fx-background-color: #0D203B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+    </HBox>
+</VBox>

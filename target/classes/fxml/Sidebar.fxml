@@ -23,6 +23,7 @@
         <Button text="Dashboard" onAction="#dashboard"/>
         <Button text="Interviews" onAction="#interviews"/>
         <Button text="Activities" onAction="#activities"/>
+        <Button text="To do list" onAction="#ToDoList"/>
         <Button text="Projects" onAction="#projects"/>
         <Button text="Reports" onAction="#reports"/>
         <Button text="Settings" onAction="#settings"/>

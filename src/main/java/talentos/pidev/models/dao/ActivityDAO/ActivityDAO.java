@@ -207,4 +207,5 @@ public class ActivityDAO {
         a.setHours(rs.getInt("hours_worked"));
         return a;
     }
+    
 }
