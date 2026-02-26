@@ -1,12 +1,12 @@
 package talentos.pidev.models.dao.ActivityDAO;
 
-
 import talentos.pidev.utils.DB;
 import talentos.pidev.models.schema.Activity.Activity;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
 public class ActivityDAO {
 
@@ -25,9 +25,9 @@ public class ActivityDAO {
 
             ps.setInt(1, a.getEmployeeId());
             ps.setInt(2, a.getProjectId());
-            ps.setDate(3, Date.valueOf(a.getDate()));
+            ps.setDate(3, Date.valueOf(a.getActivityDate()));
             ps.setString(4, a.getDescription());
-            ps.setInt(5, a.getHours());
+            ps.setDouble(5, a.getHoursWorked()); // Using getHoursWorked() which returns double
 
             ps.executeUpdate();
 
@@ -47,7 +47,7 @@ public class ActivityDAO {
        ========================= */
     public List<Activity> getAll() {
         List<Activity> list = new ArrayList<>();
-        String sql = "SELECT * FROM activities";
+        String sql = "SELECT * FROM activities ORDER BY activity_date DESC";
 
         try (Connection c = DB.getConnection();
              Statement st = c.createStatement();
@@ -113,9 +113,9 @@ public class ActivityDAO {
 
             ps.setInt(1, a.getEmployeeId());
             ps.setInt(2, a.getProjectId());
-            ps.setDate(3, Date.valueOf(a.getDate()));
+            ps.setDate(3, Date.valueOf(a.getActivityDate()));
             ps.setString(4, a.getDescription());
-            ps.setInt(5, a.getHours());
+            ps.setDouble(5, a.getHoursWorked()); // Using getHoursWorked() which returns double
             ps.setInt(6, a.getIdActivity());
 
             ps.executeUpdate();
@@ -195,6 +195,83 @@ public class ActivityDAO {
     }
 
     /* =========================
+       GET ACTIVITIES BY DATE RANGE
+       ========================= */
+    public List<Activity> getByDateRange(LocalDate startDate, LocalDate endDate) {
+        List<Activity> list = new ArrayList<>();
+        String sql = """
+            SELECT * FROM activities
+            WHERE activity_date BETWEEN ? AND ?
+            ORDER BY activity_date DESC
+        """;
+
+        try (Connection c = DB.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setDate(1, Date.valueOf(startDate));
+            ps.setDate(2, Date.valueOf(endDate));
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSet(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    /* =========================
+       GET TOTAL HOURS BY EMPLOYEE
+       ========================= */
+    public double getTotalHoursByEmployee(int employeeId) {
+        String sql = "SELECT SUM(hours_worked) as total FROM activities WHERE employee_id = ?";
+        double total = 0;
+
+        try (Connection c = DB.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setInt(1, employeeId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                total = rs.getDouble("total");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return total;
+    }
+
+    /* =========================
+       GET TOTAL HOURS BY PROJECT
+       ========================= */
+    public double getTotalHoursByProject(int projectId) {
+        String sql = "SELECT SUM(hours_worked) as total FROM activities WHERE project_id = ?";
+        double total = 0;
+
+        try (Connection c = DB.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setInt(1, projectId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                total = rs.getDouble("total");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return total;
+    }
+
+    /* =========================
        MAPPER (CLEAN & REUSABLE)
        ========================= */
     private Activity mapResultSet(ResultSet rs) throws SQLException {
@@ -202,10 +279,9 @@ public class ActivityDAO {
         a.setIdActivity(rs.getInt("id_activity"));
         a.setEmployeeId(rs.getInt("employee_id"));
         a.setProjectId(rs.getInt("project_id"));
-        a.setDate(rs.getDate("activity_date").toLocalDate());
+        a.setActivityDate(rs.getDate("activity_date").toLocalDate());
         a.setDescription(rs.getString("description"));
-        a.setHours(rs.getInt("hours_worked"));
+        a.setHoursWorked(rs.getDouble("hours_worked")); // Using setHoursWorked() which accepts double
         return a;
     }
-    
 }

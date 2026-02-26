@@ -16,6 +16,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import talentos.pidev.utils.EmailUtil;
+import java.time.format.DateTimeFormatter;
 import javafx.stage.StageStyle;
 
 import java.sql.*;
@@ -255,8 +257,7 @@ public class ActivityController {
         projectCombo.setValue(getProjectById(activity.getProjectId()));
         datePicker.setValue(activity.getDate());
         descriptionField.setText(activity.getDescription());
-        hoursField.setText(String.valueOf(activity.getHours()));
-
+        hoursField.setText(String.valueOf(activity.getHoursWorked()));
         submitBtn.setText("Update Record");
         submitBtn.setStyle("-fx-background-color: #84A2AE; -fx-text-fill: #0D203B; -fx-font-weight: bold; -fx-background-radius: 10;");
         submitBtn.setOnAction(e -> updateActivity());
@@ -265,36 +266,102 @@ public class ActivityController {
     @FXML
     private void addActivity() {
         if (!validate()) return;
+        
         Employee emp = employeeCombo.getValue();
         Project proj = projectCombo.getValue();
-
-        activityDAO.add(new Activity(
-                emp.getId(),
-                proj.getId(),
-                datePicker.getValue(),
-                descriptionField.getText(),
-                Integer.parseInt(hoursField.getText())
-        ));
-
+        
+        // Get employee email
+        String employeeEmail = emp.getEmail();
+        
+        // Get employee name from email (before @)
+        String employeeName = employeeEmail.split("@")[0];
+        
+        // Format date for email
+        String formattedDate = datePicker.getValue().format(DateTimeFormatter.ofPattern("dd MMMM yyyy"));
+        
+        // Create the activity
+        Activity newActivity = new Activity(
+            emp.getId(),
+            proj.getId(),
+            datePicker.getValue(),
+            descriptionField.getText(),
+            Double.parseDouble(hoursField.getText())
+        );
+        
+        // Save to database
+        activityDAO.add(newActivity);
+        
+        // Send email notification
+        try {
+            EmailUtil.sendActivityAssignmentEmail(
+                employeeEmail,
+                employeeName,
+                proj.getName(),
+                formattedDate,
+                Double.parseDouble(hoursField.getText()),
+                descriptionField.getText()
+            );
+            
+            // Show success message with email confirmation
+            showAlert(Alert.AlertType.INFORMATION, "Success", 
+                      "Activity created successfully!\nEmail notification sent to " + employeeEmail);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Still show success for activity creation but warn about email
+            showAlert(Alert.AlertType.WARNING, "Activity Created", 
+                      "Activity created but email notification failed: " + e.getMessage());
+        }
+        
         loadAllActivities();
         clear();
     }
 
     private void updateActivity() {
         if (selectedActivity == null || !validate()) return;
+        
         Employee emp = employeeCombo.getValue();
         Project proj = projectCombo.getValue();
-
+        
+        // Get employee email
+        String employeeEmail = emp.getEmail();
+        String employeeName = employeeEmail.split("@")[0];
+        String formattedDate = datePicker.getValue().format(DateTimeFormatter.ofPattern("dd MMMM yyyy"));
+        
+        // Parse hours from String to double
+        double hours = Double.parseDouble(hoursField.getText());
+        
         selectedActivity.setEmployeeId(emp.getId());
         selectedActivity.setProjectId(proj.getId());
         selectedActivity.setDate(datePicker.getValue());
         selectedActivity.setDescription(descriptionField.getText());
-        selectedActivity.setHours(Integer.parseInt(hoursField.getText()));
-
+        selectedActivity.setHoursWorked(Double.parseDouble(hoursField.getText()));    
         activityDAO.update(selectedActivity);
+        
+        // Send email notification for update
+        try {
+            EmailUtil.sendActivityAssignmentEmail(
+                employeeEmail,
+                employeeName,
+                proj.getName(),
+                formattedDate,
+                hours, // Use the parsed hours variable
+                descriptionField.getText() + " (Updated)"
+            );
+            
+            showAlert(Alert.AlertType.INFORMATION, "Success", 
+                      "Activity updated successfully!\nNotification sent to " + employeeEmail);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.WARNING, "Activity Updated", 
+                      "Activity updated but email notification failed: " + e.getMessage());
+        }
+        
         loadAllActivities();
         clear();
     }
+    
 
     private void handleDelete(Activity activity) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Delete this record?", ButtonType.YES, ButtonType.NO);

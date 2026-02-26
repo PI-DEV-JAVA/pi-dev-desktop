@@ -6,6 +6,7 @@
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/models/dao/InterviewsDAO/InterviewDAO.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/controllers/Activities/AdminActivityDetailsController.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/controllers/interviews/InterviewDetailsController.java
+/home/baril/pi-dev-desktop/src/main/java/talentos/pidev/utils/EmailUtil.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/controllers/SidebarController.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/utils/DB.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/services/MediaService.java
