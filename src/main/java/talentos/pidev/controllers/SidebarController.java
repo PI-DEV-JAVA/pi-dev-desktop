@@ -31,7 +31,7 @@ public class SidebarController {
     @FXML
     private void meet() {
         MainLayoutController.getInstance()
-                .navigate("videoPreview.fxml", "RTC");
+                .openWindow("videoPreview.fxml", "Meet");
     }
 
     @FXML
