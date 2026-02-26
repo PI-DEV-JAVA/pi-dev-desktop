@@ -19,13 +19,13 @@ public class SidebarController {
     @FXML
     private void activities() {
         MainLayoutController.getInstance()
-                .navigate("ActivityView.fxml", "Activities");
+                .navigate("activities.fxml", "Activities");
     }
 
     @FXML
     private void projects() {
         MainLayoutController.getInstance()
-                .navigate("ProjectView.fxml", "Projects");
+                .navigate("projects.fxml", "Projects");
     }
 
     @FXML

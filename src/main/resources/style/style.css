@@ -1,0 +1,20 @@
+.root {
+    -fx-background-color: #0D203B;
+    -fx-padding: 30;
+}
+
+.title {
+    -fx-text-fill: #9BA192;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.text-field, .date-picker {
+    -fx-background-radius: 20;
+}
+
+.button {
+    -fx-background-color: #84A2AE;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+}

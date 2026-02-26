@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="850" prefWidth="1300"
+            style="-fx-background-color: #F1F5F9;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="talentos.pidev.controllers.Activities.ProjectController">
+
+    <center>
+        <VBox spacing="25" style="-fx-padding: 35;">
+            <HBox alignment="BOTTOM_LEFT">
+                <VBox spacing="5">
+                    <Label style="-fx-text-fill: #0D203B; -fx-font-size: 32px; -fx-font-weight: 800;"
+                           text="Projects Hub"/>
+                    <Label style="-fx-text-fill: #64748B; -fx-font-size: 15px;"
+                           text="Create, monitor, and manage your workspace initiatives."/>
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <TextField fx:id="searchField"
+                           prefWidth="300"
+                           promptText="🔍 Search projects..."
+                           style="-fx-background-color: white; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 10 15;"/>
+            </HBox>
+
+            <HBox spacing="30" VBox.vgrow="ALWAYS">
+
+                <!-- LEFT FORM -->
+                <VBox prefWidth="420"
+                      spacing="20"
+                      style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 15, 0, 0, 5);">
+
+                    <Label style="-fx-text-fill: #0D203B; -fx-font-size: 20px; -fx-font-weight: bold;"
+                           text="Project Editor"/>
+
+                    <VBox spacing="15">
+
+                        <VBox spacing="8">
+                            <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 13px;"
+                                   text="NAME"/>
+                            <TextField fx:id="nameField"
+                                       promptText="Project Title"
+                                       style="-fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 8; -fx-padding: 10;"/>
+                        </VBox>
+
+                        <VBox spacing="8">
+                            <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 13px;"
+                                   text="DESCRIPTION"/>
+                            <TextArea fx:id="descriptionField"
+                                      prefHeight="80"
+                                      promptText="Brief details..."
+                                      wrapText="true"
+                                      style="-fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 8;"/>
+                        </VBox>
+
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 13px;"
+                                       text="STATUS"/>
+                                <ComboBox fx:id="statusCombo"
+                                          maxWidth="Infinity"
+                                          style="-fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 8;"/>
+                            </VBox>
+
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 13px;"
+                                       text="BUDGET"/>
+                                <TextField fx:id="budgetField"
+                                           promptText="\$ 0.00"
+                                           style="-fx-background-color: #F8FAFC; -fx-border-color: #CBD5E1; -fx-border-radius: 8; -fx-padding: 10;"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 13px;"
+                                       text="START"/>
+                                <DatePicker fx:id="startDatePicker"
+                                            maxWidth="Infinity"
+                                            style="-fx-border-color: #CBD5E1; -fx-border-radius: 8;"/>
+                            </VBox>
+
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-text-fill: #475569; -fx-font-weight: bold; -fx-font-size: 13px;"
+                                       text="END"/>
+                                <DatePicker fx:id="endDatePicker"
+                                            maxWidth="Infinity"
+                                            style="-fx-border-color: #CBD5E1; -fx-border-radius: 8;"/>
+                            </VBox>
+                        </HBox>
+
+                    </VBox>
+
+                    <HBox alignment="CENTER_RIGHT" spacing="12" style="-fx-padding: 10 0 0 0;">
+                        <Button text="Reset Fields"
+                                prefHeight="40"
+                                onAction="#clearFields"
+                                style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-weight: bold;"/>
+
+                        <Button fx:id="submitBtn"
+                                text="Create Project"
+                                prefHeight="45"
+                                prefWidth="150"
+                                onAction="#addProject"
+                                style="-fx-background-color: #0D203B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;"/>
+                    </HBox>
+
+                </VBox>
+
+                <!-- RIGHT LIST -->
+                <VBox spacing="15" HBox.hgrow="ALWAYS">
+
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="ACTIVE PROJECTS"
+                               style="-fx-text-fill: #475569; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Refresh List"
+                                onAction="#loadProjects"
+                                style="-fx-background-color: #E2E8F0; -fx-background-radius: 20; -fx-text-fill: #475569; -fx-padding: 5 15;"/>
+                    </HBox>
+
+                    <ScrollPane fitToWidth="true"
+                                style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                        <VBox fx:id="listContainer" spacing="20" style="-fx-padding: 5 5 20 5;"/>
+                    </ScrollPane>
+
+                </VBox>
+
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>
