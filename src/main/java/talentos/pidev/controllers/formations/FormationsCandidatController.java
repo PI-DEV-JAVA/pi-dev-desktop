@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
+import talentos.pidev.controllers.MainLayoutController;
 import talentos.pidev.dao.FormationDAO;
 import talentos.pidev.models.Formation;
 
@@ -23,6 +24,17 @@ public class FormationsCandidatController {
     private final FormationDAO formationDAO = new FormationDAO();
     private List<Formation> all = new ArrayList<>();
 
+    // ✅ NEW
+    private MainLayoutController mainLayout;
+    private boolean uiReady = false;
+
+    public void setMainLayout(MainLayoutController mainLayout) {
+        this.mainLayout = mainLayout;
+
+        // re-render after injection (cards need mainLayout)
+        if (uiReady) applySearchAndSort();
+    }
+
     @FXML
     public void initialize() {
         triCombo.getItems().setAll(
@@ -32,6 +44,16 @@ public class FormationsCandidatController {
                 "Difficulté"
         );
         triCombo.getSelectionModel().selectFirst();
+
+        // optional: live search + sort
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, o, n) -> applySearchAndSort());
+        }
+        if (triCombo != null) {
+            triCombo.valueProperty().addListener((obs, o, n) -> applySearchAndSort());
+        }
+
+        uiReady = true;
         refresh();
     }
 
@@ -43,8 +65,12 @@ public class FormationsCandidatController {
     public void refresh() {
         try {
             all = formationDAO.getAllFormations();
+
             // candidat: فقط ouvertes
-            all = all.stream().filter(f -> "OUVERTE".equalsIgnoreCase(f.getStatut())).toList();
+            all = all.stream()
+                    .filter(f -> f.getStatut() != null && "OUVERTE".equalsIgnoreCase(f.getStatut().trim()))
+                    .toList();
+
             applySearchAndSort();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -62,11 +88,56 @@ public class FormationsCandidatController {
                 FormationCardController controller = loader.getController();
                 controller.setData(f);
                 controller.setRHMode(false); // candidat
+
+                // ✅ inject main layout so "S'inscrire" opens inside contentPane
+                controller.setMainLayout(mainLayout);
+
+                // ✅ allow card to refresh after inscription
+                controller.setOnChanged(this::refresh);
+
+                // ✅ tell card how to open inscription form (no Stage)
+                controller.setOnInscrireRequested(() -> openInscriptionForm(f));
+
                 cardsContainer.getChildren().add(card);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    // ✅ Open InscriptionForm inside MainLayout
+    private void openInscriptionForm(Formation formation) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/formations/InscriptionForm.fxml"));
+            Node view = loader.load();
+
+            InscriptionFormController controller = loader.getController();
+            controller.setFormation(formation.getId(), formation.getNom());
+
+            controller.setOnSaved(() -> {
+                // after inscription saved, refresh (optional) and go back
+                refresh();
+                goBackToList();
+            });
+
+            controller.setOnCancel(this::goBackToList);
+
+            if (mainLayout != null) {
+                mainLayout.setView(view);
+            } else {
+                System.out.println("ERROR: mainLayout is null in FormationsCandidatController.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void goBackToList() {
+        if (mainLayout != null) {
+            // ✅ adapte le path à ton FXML candidat réel
+            mainLayout.setContent("/fxml/formations/FormationsCandidat.fxml");
         }
     }
 
@@ -91,9 +162,9 @@ public class FormationsCandidatController {
         String tri = triCombo.getValue();
 
         if ("Date début (asc)".equals(tri)) {
-            sorted.sort(Comparator.comparing(Formation::getDateDebut));
+            sorted.sort(Comparator.comparing(Formation::getDateDebut, Comparator.nullsLast(Comparator.naturalOrder())));
         } else if ("Date début (desc)".equals(tri)) {
-            sorted.sort(Comparator.comparing(Formation::getDateDebut).reversed());
+            sorted.sort(Comparator.comparing(Formation::getDateDebut, Comparator.nullsLast(Comparator.naturalOrder())).reversed());
         } else if ("Catégorie".equals(tri)) {
             sorted.sort(Comparator.comparing(f -> safe(f.getCategorie())));
         } else if ("Difficulté".equals(tri)) {

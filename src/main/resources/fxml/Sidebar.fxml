@@ -6,28 +6,34 @@
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
+      fx:id="sidebarRoot"
       fx:controller="talentos.pidev.controllers.SidebarController"
       spacing="12"
       prefWidth="240"
-      styleClass="sidebar" >
+      styleClass="sidebar">
 
     <padding>
         <Insets top="20" right="15" bottom="20" left="15"/>
     </padding>
 
-
     <Label text="TalentOS" styleClass="sidebar-logo"/>
     <Label text="Recrutement Intelligent" styleClass="sidebar-subtitle"/>
 
     <Label text="MODULES" styleClass="sidebar-section-label"/>
+    <Separator/>
+
+    <!-- Formation -->
+    <Button text="📚 Formations (RH)" onAction="#goFormationsRH" styleClass="sidebar-button" maxWidth="Infinity"/>
+    <Button text="🎓 Formations (Candidat)" onAction="#goFormationsCandidat" styleClass="sidebar-button" maxWidth="Infinity"/>
+    <Button text="📝 Inscriptions (RH)" onAction="#goInscriptionsRH" styleClass="sidebar-button" maxWidth="Infinity"/>
 
     <Separator/>
 
-    <Button text="📚 Formations (RH)" onAction="#goFormationsRH" styleClass="sidebar-button"/>
-    <Button text="🎓 Formations (Candidat)" onAction="#goFormationsCandidat" styleClass="sidebar-button"/>
-    <Button text="📝 Inscriptions (RH)" onAction="#goInscriptionsRH" styleClass="sidebar-button"/>
-    <Region VBox.vgrow="ALWAYS"/>
+    <!-- Quiz -->
+    <Label text="QUIZ" styleClass="sidebar-section-label"/>
+    <Button text="🧠 Gestion Quiz (RH)" onAction="#goQuizRH" styleClass="sidebar-button" maxWidth="Infinity"/>
+    <Button text="✅ Passer un Quiz" onAction="#goQuizPassage" styleClass="sidebar-button" maxWidth="Infinity"/>
 
-    <Separator/>
     <Region VBox.vgrow="ALWAYS"/>
+    <Separator/>
 </VBox>

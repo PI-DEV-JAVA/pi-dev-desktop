@@ -20,22 +20,39 @@ public class InscriptionsRHController {
 
     private final InscriptionDAO dao = new InscriptionDAO();
 
-    private int formationId;
-    private String formationNom;
+    private Integer formationId = null;   // null => all inscriptions
+    private String formationNom = null;
 
     private List<Inscription> all = new ArrayList<>();
+
+    private Runnable onBack;
+    private Runnable onChanged;
+
+    public void setOnBack(Runnable r) { this.onBack = r; }
+    public void setOnChanged(Runnable r) { this.onChanged = r; }
+
+    @FXML
+    private void onBack() {
+        if (onBack != null) onBack.run();
+    }
 
     public void setFormation(int formationId, String formationNom) {
         this.formationId = formationId;
         this.formationNom = formationNom;
-        titleLabel.setText("Inscriptions - " + formationNom);
+
+        if (titleLabel != null) {
+            titleLabel.setText("Inscriptions - " + formationNom);
+        }
+
         refresh();
     }
 
     @FXML
     public void initialize() {
-        // si on ouvre la page sans passer setFormation
-        titleLabel.setText("Inscriptions");
+        if (titleLabel != null) {
+            titleLabel.setText("Inscriptions (toutes)");
+        }
+        refresh();
     }
 
     @FXML
@@ -43,26 +60,49 @@ public class InscriptionsRHController {
         refresh();
     }
 
-    public void refresh() {
+    private void refresh() {
         try {
-            if (formationId == 0) {
-                cardsContainer.getChildren().clear();
-                return;
+            if (formationId == null) {
+                all = dao.getAllInscriptions();
+            } else {
+                all = dao.getInscriptionsByFormation(formationId);
             }
-            all = dao.getByFormation(formationId);
-            applySearch();
+
+            render(all);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @FXML
-    private void onSearch() {
-        applySearch();
+    private void render(List<Inscription> list) {
+        cardsContainer.getChildren().clear();
+
+        for (Inscription i : list) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/formations/InscriptionCard.fxml"));
+                Node card = loader.load();
+
+                InscriptionCardController controller = loader.getController();
+                controller.setData(i);
+
+                // ✅ when card changes -> refresh this list + notify parent page (formations) if needed
+                controller.setOnChanged(() -> {
+                    refresh();
+                    if (onChanged != null) onChanged.run();
+                });
+
+                cardsContainer.getChildren().add(card);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    private void applySearch() {
-        String q = searchField.getText() == null ? "" : searchField.getText().toLowerCase().trim();
+    @FXML
+    private void onSearch() {
+        String q = (searchField.getText() == null) ? "" : searchField.getText().toLowerCase().trim();
 
         List<Inscription> filtered = all.stream()
                 .filter(i ->
@@ -71,25 +111,6 @@ public class InscriptionsRHController {
                 )
                 .toList();
 
-        renderCards(filtered);
-    }
-
-    private void renderCards(List<Inscription> list) {
-        cardsContainer.getChildren().clear();
-
-        for (Inscription i : list) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/formations/InscriptionCard.fxml"));
-                Node card = loader.load();
-
-                InscriptionCardController c = loader.getController();
-                c.setData(i);
-                c.setOnChanged(this::refresh);
-
-                cardsContainer.getChildren().add(card);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        render(filtered);
     }
 }

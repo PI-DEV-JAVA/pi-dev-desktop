@@ -4,35 +4,99 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="talentos.pidev.controllers.formations.FormationFormController"
-      spacing="10" prefWidth="520">
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="talentos.pidev.controllers.formations.FormationFormController"
+            styleClass="content-pane">
 
-    <padding>
-        <Insets top="15" right="15" bottom="15" left="15"/>
-    </padding>
+    <top>
+        <VBox spacing="16" styleClass="filter-panel">
+            <padding>
+                <Insets top="22" right="22" bottom="18" left="22"/>
+            </padding>
 
-    <Label fx:id="titleLabel" text="Ajouter formation" styleClass="page-title"/>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="🧾" style="-fx-font-size: 22px;"/>
+                <Label fx:id="titleLabel" text="Formation" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Retour" onAction="#onCancel" styleClass="btn-secondary"/>
+            </HBox>
 
-    <TextField fx:id="nomField" promptText="Nom"/>
-    <TextArea fx:id="descArea" promptText="Description" prefRowCount="2"/>
+            <Label fx:id="errorLabel" text="" wrapText="true" styleClass="form-error"/>
+        </VBox>
+    </top>
 
-    <HBox spacing="10">
-        <DatePicker fx:id="dateDebutPicker" promptText="Date début"/>
-        <DatePicker fx:id="dateFinPicker" promptText="Date fin"/>
-    </HBox>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="card-scroll">
+            <content>
+                <VBox spacing="16">
+                    <padding>
+                        <Insets top="16" right="24" bottom="24" left="24"/>
+                    </padding>
 
-    <ComboBox fx:id="difficulteCombo" promptText="Difficulté"/>
-    <TextField fx:id="categorieField" promptText="Catégorie"/>
-    <TextField fx:id="formateurField" promptText="Formateur"/>
-    <TextField fx:id="statutField" promptText="Statut (OUVERTE/FERMEE/TERMINEE)"/>
+                    <!-- Section 1: Infos -->
+                    <VBox spacing="12" styleClass="offer-card">
+                        <padding>
+                            <Insets top="16" right="16" bottom="16" left="16"/>
+                        </padding>
 
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button text="Annuler" onAction="#onCancel"/>
-        <Button text="Enregistrer" onAction="#onSave"/>
-    </HBox>
+                        <Label text="Informations" styleClass="filter-label"/>
 
-    <Label fx:id="errorLabel" text="" styleClass="error-text" wrapText="true"/>
+                        <TextField fx:id="nomField" promptText="Nom formation"/>
 
-</VBox>
+                        <TextArea fx:id="descriptionArea" promptText="Description" prefRowCount="3"/>
+
+                        <HBox spacing="12">
+                            <DatePicker fx:id="dateDebutPicker" promptText="Date début" HBox.hgrow="ALWAYS"/>
+                            <DatePicker fx:id="dateFinPicker" promptText="Date fin" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Section 2: Contenu -->
+                    <VBox spacing="12" styleClass="offer-card">
+                        <padding>
+                            <Insets top="16" right="16" bottom="16" left="16"/>
+                        </padding>
+
+                        <Label text="Contenu" styleClass="filter-label"/>
+                        <TextArea fx:id="contenuArea" promptText="Contenu" prefRowCount="4"/>
+                        <TextArea fx:id="prerequisArea" promptText="Prérequis" prefRowCount="2"/>
+                    </VBox>
+
+                    <!-- Section 3: Paramètres -->
+                    <VBox spacing="12" styleClass="offer-card">
+                        <padding>
+                            <Insets top="16" right="16" bottom="16" left="16"/>
+                        </padding>
+
+                        <Label text="Paramètres" styleClass="filter-label"/>
+
+                        <HBox spacing="12">
+                            <ComboBox fx:id="categorieCombo" promptText="Catégorie" HBox.hgrow="ALWAYS"/>
+                            <ComboBox fx:id="difficulteCombo" promptText="Difficulté" HBox.hgrow="ALWAYS"/>
+                            <ComboBox fx:id="statutCombo" promptText="Statut" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+
+                        <HBox spacing="12">
+                            <ComboBox fx:id="modeCombo" promptText="Mode" HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="lieuField" promptText="Lieu (si présentiel)" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+
+                        <HBox spacing="12">
+                            <TextField fx:id="formateurField" promptText="Formateur" HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="capaciteField" promptText="Capacité max (ex: 20)" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Actions -->
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Button text="Annuler" onAction="#onCancel" styleClass="btn-secondary"/>
+                        <Button text="Enregistrer" onAction="#onSave" styleClass="btn-success"/>
+                    </HBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

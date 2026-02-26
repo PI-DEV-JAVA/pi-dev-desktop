@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="talentos.pidev.controllers.quiz.QuizFormController"
+      spacing="12"
+      styleClass="content-card">
+
+    <!-- ✅ FIX padding -->
+    <padding>
+        <Insets top="16" right="16" bottom="16" left="16"/>
+    </padding>
+
+    <Label text="Quiz" styleClass="form-title"/>
+
+    <GridPane hgap="12" vgap="12">
+        <columnConstraints>
+            <ColumnConstraints prefWidth="140"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="Titre" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="tfTitre" promptText="Titre" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Description" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextArea fx:id="taDescription" promptText="Description" prefRowCount="4"
+                  GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Durée (min)" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <Spinner fx:id="spDuree" prefWidth="140" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Date" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="dpDate" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Statut" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <CheckBox fx:id="cbActif" text="Actif" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="btnCancel" text="Annuler" onAction="#onCancel" styleClass="secondary-button"/>
+        <Button fx:id="btnSave" text="Enregistrer" onAction="#onSave" styleClass="primary-button"/>
+    </HBox>
+
+</VBox>

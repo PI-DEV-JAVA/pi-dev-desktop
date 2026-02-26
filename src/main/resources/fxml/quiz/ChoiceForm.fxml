@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="talentos.pidev.controllers.quiz.ChoiceFormController"
+      spacing="12"
+      styleClass="content-card">
+
+    <padding>
+        <Insets top="16" right="16" bottom="16" left="16"/>
+    </padding>
+
+    <Label fx:id="titleLabel" text="Choix" styleClass="page-title"/>
+
+    <TextArea fx:id="texteArea" promptText="Texte du choix..." prefRowCount="4"/>
+
+    <CheckBox fx:id="correctCheck" text="Correct (bonne réponse)"/>
+
+    <Label fx:id="errorLabel" styleClass="error-label"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Annuler" onAction="#onCancel" styleClass="secondary-button"/>
+        <Button text="Enregistrer" onAction="#onSave" styleClass="primary-button"/>
+    </HBox>
+</VBox>

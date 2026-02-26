@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="talentos.pidev.controllers.quiz.QuestionRowController"
+      spacing="12"
+      alignment="CENTER_LEFT"
+      styleClass="list-row-card">
+
+    <padding>
+        <Insets top="10" right="12" bottom="10" left="12"/>
+    </padding>
+
+    <!-- Publish checkbox -->
+    <CheckBox fx:id="publishedCheck" text="Afficher" />
+
+    <VBox spacing="4" HBox.hgrow="ALWAYS">
+        <Label fx:id="enonceLabel" wrapText="true" styleClass="row-title"/>
+        <HBox spacing="10">
+            <Label fx:id="nbChoixLabel" styleClass="muted-label"/>
+            <Label fx:id="correctLabel" styleClass="muted-label"/>
+        </HBox>
+    </VBox>
+
+    <HBox spacing="8" alignment="CENTER_RIGHT">
+        <Button text="Choix" onAction="#onChoices" styleClass="primary-button"/>
+        <Button text="Modifier" onAction="#onEdit" styleClass="secondary-button"/>
+        <Button text="Supprimer" onAction="#onDelete" styleClass="danger-button"/>
+    </HBox>
+
+</HBox>

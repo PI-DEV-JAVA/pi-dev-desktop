@@ -4,33 +4,67 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="talentos.pidev.controllers.formations.FormationCardController"
             prefWidth="340" prefHeight="220"
-            styleClass="card">
+            styleClass="offer-card,formation-card">
 
-    <VBox spacing="10">
+    <padding>
+        <Insets top="16" right="16" bottom="14" left="16"/>
+    </padding>
 
-        <Label fx:id="nomLabel" text="Nom formation" styleClass="page-title"/>
+    <!-- Header -->
+    <top>
+        <VBox spacing="10">
+            <HBox spacing="10" alignment="CENTER_LEFT">
 
-        <HBox spacing="8">
-            <Label fx:id="statutLabel" text="OUVERTE" styleClass="badge badge-green"/>
-            <Label fx:id="categorieLabel" text="Catégorie" styleClass="badge badge-blue"/>
-            <Label fx:id="difficulteLabel" text="AVANCE" styleClass="badge badge-purple"/>
+                <Label fx:id="nomLabel"
+                       text="Nom formation"
+                       styleClass="card-title"
+                       wrapText="true"
+                       HBox.hgrow="ALWAYS"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <HBox spacing="6" alignment="CENTER_RIGHT" styleClass="badges-row">
+                    <!-- status => set styleClass in controller: add status-badge + status-open/closed... -->
+                    <Label fx:id="statutLabel" text="OUVERTE" styleClass="status-badge,status-open"/>
+
+                    <!-- categorie/difficulte => custom badges (CSS below) -->
+                    <Label fx:id="categorieLabel" text="Catégorie" styleClass="tag-badge,tag-blue"/>
+                    <Label fx:id="difficulteLabel" text="AVANCE" styleClass="tag-badge,tag-purple"/>
+                </HBox>
+
+            </HBox>
+
+            <!-- small separator line like modern cards -->
+            <Separator styleClass="card-separator"/>
+        </VBox>
+    </top>
+
+    <!-- Body -->
+    <center>
+        <VBox spacing="8">
+            <Label fx:id="datesLabel" text="Du ... au ..." styleClass="card-detail" wrapText="true"/>
+            <Label fx:id="formateurLabel" text="Formateur : ..." styleClass="card-detail" wrapText="true"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </center>
+
+    <!-- Actions -->
+    <bottom>
+        <HBox spacing="8" alignment="CENTER_RIGHT" styleClass="card-actions">
+            <padding>
+                <Insets top="12"/>
+            </padding>
+
+            <Button fx:id="inscriptionsBtn" text="Inscriptions" onAction="#onInscriptions" styleClass="btn-small"/>
+            <Button fx:id="editBtn" text="Modifier" onAction="#onEdit" styleClass="btn-small"/>
+            <Button fx:id="deleteBtn" text="Supprimer" onAction="#onDelete" styleClass="btn-small,btn-danger"/>
+            <Button fx:id="inscrireBtn" text="S'inscrire" onAction="#onInscrire" styleClass="btn-small,btn-primary"/>
         </HBox>
+    </bottom>
 
-        <Label fx:id="datesLabel" text="Du ... au ..." styleClass="subtitle-text"/>
-        <Label fx:id="formateurLabel" text="Formateur : ..." styleClass="subtitle-text"/>
-
-        <Region VBox.vgrow="ALWAYS"/>
-
-        <HBox spacing="10" alignment="CENTER_RIGHT">
-            <Button fx:id="inscriptionsBtn" text="Inscriptions" onAction="#onInscriptions" styleClass="action-button"/>
-            <Button fx:id="editBtn" text="Modifier" onAction="#onEdit" styleClass="action-button"/>
-            <Button fx:id="deleteBtn" text="Supprimer" onAction="#onDelete" styleClass="action-button-danger"/>
-            <Button fx:id="inscrireBtn" text="S'inscrire" onAction="#onInscrire" styleClass="primary-button"/>
-        </HBox>
-
-    </VBox>
-</AnchorPane>
+</BorderPane>

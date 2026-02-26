@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="talentos.pidev.controllers.quiz.QuestionFormController"
+      spacing="12"
+      styleClass="card"
+      prefWidth="800">
+
+    <padding>
+        <Insets top="18" right="18" bottom="18" left="18"/>
+    </padding>
+
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <Label fx:id="titleLabel" text="Question" styleClass="page-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <Label text="Énoncé" styleClass="muted-text"/>
+    <TextArea fx:id="enonceArea"
+              promptText="Saisir l'énoncé..."
+              prefRowCount="6"
+              wrapText="true"/>
+
+    <Label fx:id="errorLabel" text="" styleClass="error-label" wrapText="true"/>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Annuler" onAction="#onCancel" styleClass="secondary-button"/>
+        <Button text="Enregistrer" onAction="#onSave" styleClass="primary-button"/>
+    </HBox>
+
+</VBox>

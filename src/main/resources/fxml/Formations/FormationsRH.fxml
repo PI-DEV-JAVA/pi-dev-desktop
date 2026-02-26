@@ -19,8 +19,8 @@
 
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <Button text="Ajouter" onAction="#onAdd" styleClass="primary-button"/>
-                <Button text="Rafraîchir" onAction="#onRefresh" styleClass="secondary-button"/>
+                <Button text="Ajouter" onAction="#onAdd" styleClass="btn-info"/>
+                <Button text="Rafraîchir" onAction="#onRefresh" styleClass="btn-info"/>
             </HBox>
         </VBox>
     </top>

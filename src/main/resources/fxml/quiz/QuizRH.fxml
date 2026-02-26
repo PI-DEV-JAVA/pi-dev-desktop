@@ -1,14 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
+<BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller=""
-            prefHeight="400.0" prefWidth="600.0">
+            fx:controller="talentos.pidev.controllers.quiz.QuizRHController"
+            styleClass="content">
 
-</AnchorPane>
+    <top>
+        <VBox spacing="12" styleClass="card">
+            <Label text="Gestion des quiz (RH)" styleClass="page-title"/>
+
+            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="sort-toolbar">
+
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Button text="Ajouter" onAction="#onAdd" styleClass="action-button"/>
+                <Button text="Rafraîchir" onAction="#onRefresh" styleClass="action-button"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="card-scroll">
+            <content>
+                <FlowPane fx:id="cardsContainer"
+                          hgap="20" vgap="20"
+                          alignment="TOP_CENTER">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+                </FlowPane>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

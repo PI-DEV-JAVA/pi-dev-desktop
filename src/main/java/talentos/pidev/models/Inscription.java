@@ -10,6 +10,7 @@ public class Inscription {
     private LocalDateTime dateInscription;
     private String statut;
     private Double scoreQuiz;
+    private LocalDateTime createdAt;
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -28,6 +29,13 @@ public class Inscription {
 
     public String getStatut() { return statut; }
     public void setStatut(String statut) { this.statut = statut; }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public Double getScoreQuiz() { return scoreQuiz; }
     public void setScoreQuiz(Double scoreQuiz) { this.scoreQuiz = scoreQuiz; }

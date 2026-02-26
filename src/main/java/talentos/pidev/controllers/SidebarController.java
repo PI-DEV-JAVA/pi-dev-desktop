@@ -1,51 +1,39 @@
 package talentos.pidev.controllers;
 
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.control.Alert;
 
 public class SidebarController {
 
-    private MainLayoutController mainLayoutController;
+    @FXML private Parent sidebarRoot;
 
-    @FXML
-    public void initialize() {
-        // rien
+    // ✅ NEW: reference to MainLayoutController
+    private MainLayoutController mainLayout;
+
+    public void setMainLayout(MainLayoutController mainLayout) {
+        this.mainLayout = mainLayout;
     }
 
-    private MainLayoutController getMainLayoutController() {
-        if (mainLayoutController != null) return mainLayoutController;
-
-        // Sidebar est inclus dans MainLayout -> on remonte au parent BorderPane
-        Node node = (Node) (Object) this; // (Astuce: pas fiable)
-        return mainLayoutController;
-    }
-
-    // ✅ Méthode robuste: chercher BorderPane puis controller
-    private MainLayoutController findMainLayoutController() {
+    private void open(String fxmlPath) {
         try {
-            // récupérer root scene -> BorderPane
-            BorderPane root = (BorderPane) javafx.stage.Stage.getWindows().stream()
-                    .filter(w -> w.isShowing())
-                    .findFirst()
-                    .map(w -> ((javafx.stage.Stage) w).getScene().getRoot())
-                    .orElse(null);
+            if (mainLayout == null) {
+                new Alert(Alert.AlertType.ERROR,
+                        "MainLayout non injecté dans SidebarController.\n" +
+                                "Fix: injecter SidebarController.setMainLayout(...) depuis MainLayoutController.")
+                        .show();
+                return;
+            }
 
-            if (root == null) return null;
+            mainLayout.setContent(fxmlPath);
 
-            Object controller = root.getProperties().get("controller");
-            if (controller instanceof MainLayoutController mlc) return mlc;
-
-        } catch (Exception ignored) {}
-        return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Erreur navigation: " + e.getMessage()).show();
+        }
     }
 
-    private void open(String path) {
-        MainLayoutController mlc = findMainLayoutController();
-        if (mlc != null) mlc.setContent(path);
-    }
-
+    // ===================== FORMATION =====================
     @FXML
     private void goFormationsRH() {
         open("/fxml/formations/FormationsRH.fxml");
@@ -59,5 +47,21 @@ public class SidebarController {
     @FXML
     private void goInscriptionsRH() {
         open("/fxml/formations/InscriptionsRH.fxml");
+    }
+
+    // ===================== QUIZ =====================
+    @FXML
+    private void goQuizRH() {
+        open("/fxml/quiz/QuizRH.fxml");
+    }
+
+    @FXML
+    private void goQuizPassage() {
+        open("/fxml/quiz/QuizPassage.fxml");
+    }
+
+    @FXML
+    private void goQuestionsRH() {
+        open("/fxml/quiz/QuizQuestionsRH.fxml");
     }
 }

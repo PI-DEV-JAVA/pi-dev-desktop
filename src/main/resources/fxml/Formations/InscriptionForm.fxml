@@ -4,25 +4,56 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="talentos.pidev.controllers.formations.InscriptionFormController"
-      spacing="10" prefWidth="420">
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="talentos.pidev.controllers.formations.InscriptionFormController"
+            styleClass="content-pane"
+            prefWidth="720">
 
-    <padding>
-        <Insets top="15" right="15" bottom="15" left="15"/>
-    </padding>
+    <!-- Header -->
+    <top>
+        <VBox spacing="16" styleClass="filter-panel">
+            <padding>
+                <Insets top="22" right="22" bottom="18" left="22"/>
+            </padding>
 
-    <Label fx:id="titleLabel" text="Inscription" styleClass="page-title"/>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="📝" style="-fx-font-size: 22px;"/>
+                <Label fx:id="titleLabel" text="Inscription" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Retour" onAction="#onCancel" styleClass="btn-secondary"/>
+            </HBox>
 
-    <TextField fx:id="nomField" promptText="Nom complet"/>
-    <TextField fx:id="emailField" promptText="Email"/>
+            <!-- Error -->
+            <Label fx:id="errorLabel" text="" styleClass="form-error" wrapText="true"/>
+        </VBox>
+    </top>
 
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button text="Annuler" onAction="#onCancel"/>
-        <Button text="Valider" onAction="#onSubmit"/>
-    </HBox>
+    <!-- Body -->
+    <center>
+        <VBox spacing="16">
+            <padding>
+                <Insets top="18" right="24" bottom="24" left="24"/>
+            </padding>
 
-    <Label fx:id="errorLabel" text="" styleClass="error-text" wrapText="true"/>
+            <VBox spacing="12" styleClass="offer-card">
+                <padding>
+                    <Insets top="16" right="16" bottom="16" left="16"/>
+                </padding>
 
-</VBox>
+                <Label text="Informations candidat" styleClass="filter-label"/>
+
+                <TextField fx:id="nomField" promptText="Nom complet"/>
+                <TextField fx:id="emailField" promptText="Email"/>
+            </VBox>
+
+            <!-- Actions -->
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Annuler" onAction="#onCancel" styleClass="btn-secondary"/>
+                <Button text="Valider" onAction="#onSubmit" styleClass="btn-success"/>
+            </HBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>

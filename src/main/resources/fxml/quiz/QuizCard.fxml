@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="talentos.pidev.controllers.quiz.QuizCardController"
+            prefWidth="360"
+            styleClass="offer-card,quiz-card">
+
+    <padding>
+        <Insets top="14" right="16" bottom="12" left="16"/>
+    </padding>
+
+    <!-- Header -->
+    <top>
+        <VBox spacing="10">
+            <Label fx:id="titreLabel"
+                   text="Titre quiz"
+                   styleClass="card-title"
+                   wrapText="true"/>
+
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <!-- Durée (badge neutre) -->
+                <Label fx:id="dureeLabel" text="10 min" styleClass="tag-badge"/>
+
+                <!-- Actif/Inactif : à gérer dynamiquement -->
+                <Label fx:id="actifLabel" text="ACTIF" styleClass="status-badge"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Label fx:id="dateLabel" text="2026-02-16" styleClass="footer-label"/>
+            </HBox>
+
+            <Separator styleClass="card-separator"/>
+        </VBox>
+    </top>
+
+    <!-- Body -->
+    <center>
+        <VBox spacing="8">
+            <Label fx:id="descriptionLabel"
+                   text="Description..."
+                   wrapText="true"
+                   styleClass="card-detail"/>
+            <Region VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </center>
+
+    <!-- Actions -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="card-actions">
+            <padding>
+                <Insets top="12"/>
+            </padding>
+            <Button text="Questions" onAction="#onQuestions" styleClass="btn-small, btn-info"/>
+            <Button text="Modifier" onAction="#onEdit" styleClass="btn-small"/>
+            <Button text="Supprimer" onAction="#onDelete" styleClass="btn-small,btn-danger"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

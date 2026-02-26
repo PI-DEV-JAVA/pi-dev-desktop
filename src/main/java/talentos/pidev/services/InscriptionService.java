@@ -15,14 +15,14 @@ public class InscriptionService {
     }
 
     public List<Inscription> getByFormation(int formationId) throws SQLException {
-        return dao.getByFormation(formationId);
+        return dao.getInscriptionsByFormation(formationId);
     }
 
     public void changerStatut(int inscriptionId, String statut) throws SQLException {
-        dao.updateStatut(inscriptionId, statut);
+        dao.updateStatutInscription(inscriptionId, statut);
     }
 
     public void supprimer(int inscriptionId) throws SQLException {
-        dao.delete(inscriptionId);
+        dao.deleteInscription(inscriptionId);
     }
 }

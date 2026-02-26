@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentos.pidev.controllers.quiz.QuizQuestionsRHController"
+            styleClass="content-card">
+
+    <top>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="← Retour" onAction="#onBack" styleClass="secondary-button"/>
+                <Label fx:id="titleLabel" text="Questions" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="+ Ajouter" onAction="#onAdd" styleClass="primary-button"/>
+                <Button text="Rafraîchir" onAction="#onRefresh" styleClass="secondary-button"/>
+            </HBox>
+
+            <TextField fx:id="searchField"
+                       promptText="Rechercher (énoncé, bonne réponse...)"
+                       onKeyReleased="#onSearch"/>
+        </VBox>
+    </top>
+
+    <center>
+        <ListView fx:id="listView" styleClass="transparent-list"/>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="12" padding="12"
+      fx:controller="talentos.pidev.controllers.quiz.QuestionCardController">
+
+    <VBox spacing="6" HBox.hgrow="ALWAYS">
+        <Label fx:id="lbEnonce" wrapText="true" style="-fx-font-weight:bold;"/>
+        <Label fx:id="lbNbChoix"/>
+    </VBox>
+
+    <VBox spacing="8">
+        <Button text="Modifier" onAction="#onEdit"/>
+        <Button text="Supprimer" onAction="#onDelete"/>
+        <Button text="Choix" onAction="#onManageChoices"/>
+    </VBox>
+
+</HBox>
