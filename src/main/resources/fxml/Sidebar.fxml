@@ -27,6 +27,8 @@
         <Button text="Projects" onAction="#projects"/>
         <Button text="Reports" onAction="#reports"/>
         <Button text="Settings" onAction="#settings"/>
+        <Button text="meet" onAction="#meet"/>
+
     </VBox>
 
     <Region VBox.vgrow="ALWAYS"/>

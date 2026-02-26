@@ -32,6 +32,11 @@ public class SidebarController {
         MainLayoutController.getInstance()
                 .navigate("activity_employee.fxml", "ToDoList");
     }
+    @FXML
+    private void meet() {
+        MainLayoutController.getInstance()
+                .openWindow("videoPreview.fxml", "Meet");
+    }
 
     @FXML
     private void reports() {}

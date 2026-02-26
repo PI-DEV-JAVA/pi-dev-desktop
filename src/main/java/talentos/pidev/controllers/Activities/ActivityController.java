@@ -6,10 +6,17 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import talentos.pidev.models.dao.ActivityDAO.ActivityDAO;
+import talentos.pidev.models.dao.ActivityDAO.ActivityFileDAO;
 import talentos.pidev.models.dao.ProjectDAO.ProjectDAO;
 import talentos.pidev.models.schema.Activity.Activity;
 import talentos.pidev.models.schema.Project.Project;
 import talentos.pidev.utils.DB;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.sql.*;
 import java.util.*;
@@ -22,6 +29,8 @@ public class ActivityController {
     @FXML private DatePicker datePicker;
     @FXML private TextArea descriptionField;
     @FXML private TextField hoursField, searchField;
+    private final ActivityFileDAO fileDAO = new ActivityFileDAO();
+    private final Map<Integer, Integer> fileCountMap = new HashMap<>();
     @FXML private VBox listContainer;
     @FXML private Button submitBtn;
 
@@ -67,6 +76,12 @@ public class ActivityController {
             displayActivities(filtered);
         });
     }
+    private void displayActivities(List<Activity> activities) {
+        listContainer.getChildren().clear();
+        for (Activity activity : activities) {
+            listContainer.getChildren().add(buildActivityCard(activity));
+        }
+    }
 
     private void loadUsers() {
         ObservableList<Employee> employees = FXCollections.observableArrayList();
@@ -99,14 +114,15 @@ public class ActivityController {
     @FXML
     public void loadAllActivities() {
         masterList.setAll(activityDAO.getAll());
-        displayActivities(masterList);
-    }
-
-    private void displayActivities(List<Activity> activities) {
-        listContainer.getChildren().clear();
-        for (Activity activity : activities) {
-            listContainer.getChildren().add(buildActivityCard(activity));
+        
+        // Load file counts for each activity
+        fileCountMap.clear();
+        for (Activity activity : masterList) {
+            int count = fileDAO.getFilesByActivityId(activity.getIdActivity()).size();
+            fileCountMap.put(activity.getIdActivity(), count);
         }
+        
+        displayActivities(masterList);
     }
 
     private HBox buildActivityCard(Activity activity) {
@@ -114,62 +130,125 @@ public class ActivityController {
         card.setAlignment(Pos.CENTER_LEFT);
         card.setStyle("-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; " +
                      "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);");
-
+        
+        // Make card clickable
+        card.setCursor(javafx.scene.Cursor.HAND);
+        card.setOnMouseClicked(e -> openActivityDetails(activity));
+        
+        // Add hover effect
+        card.setOnMouseEntered(e -> 
+            card.setStyle("-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; " +
+                         "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 5);")
+        );
+        card.setOnMouseExited(e -> 
+            card.setStyle("-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; " +
+                         "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);")
+        );
+    
         VBox mainInfo = new VBox(4);
         mainInfo.setPrefWidth(200);
         Label userLbl = new Label(userEmails.getOrDefault(activity.getEmployeeId(), "Unknown User").toUpperCase());
         userLbl.setStyle("-fx-font-weight: 900; -fx-font-size: 11px; -fx-text-fill: #94A3B8; -fx-letter-spacing: 1px;");
-
+    
         Project p = getProjectById(activity.getProjectId());
         Label projLbl = new Label(p != null ? p.getName() : "General Task");
         projLbl.setStyle("-fx-text-fill: #0D203B; -fx-font-weight: bold; -fx-font-size: 15px;");
-
+    
         mainInfo.getChildren().addAll(userLbl, projLbl);
-
+    
         VBox descContainer = new VBox(5);
         HBox.setHgrow(descContainer, Priority.ALWAYS);
         descContainer.setStyle("-fx-background-color: #F8FAFC; -fx-padding: 12; -fx-background-radius: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 10;");
-
+    
         Label descHeader = new Label("TASK DESCRIPTION");
         descHeader.setStyle("-fx-font-size: 9px; -fx-font-weight: 800; -fx-text-fill: #64748B;");
-
+    
         Label descText = new Label(activity.getDescription());
         descText.setStyle("-fx-text-fill: #334155; -fx-font-size: 13px; -fx-line-spacing: 1.5;");
         descText.setWrapText(true);
-
+        descText.setMaxWidth(300);
+    
         descContainer.getChildren().addAll(descHeader, descText);
-
+    
         VBox stats = new VBox(2);
         stats.setAlignment(Pos.CENTER_RIGHT);
         stats.setMinWidth(80);
-
+    
         Label hoursLbl = new Label(activity.getHours() + "h");
         hoursLbl.setStyle("-fx-font-weight: 900; -fx-font-size: 18px; -fx-text-fill: #0D203B;");
-
+    
         Label dateLbl = new Label(activity.getDate().toString());
         dateLbl.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 11px; -fx-font-weight: bold;");
-
+    
         stats.getChildren().addAll(hoursLbl, dateLbl);
-
+    
+        // File indicator
+        VBox fileIndicator = new VBox(2);
+        fileIndicator.setAlignment(Pos.CENTER);
+        fileIndicator.setMinWidth(50);
+        
+        int fileCount = fileCountMap.getOrDefault(activity.getIdActivity(), 0);
+        Label fileIcon = new Label(fileCount > 0 ? "📎" : "");
+        fileIcon.setStyle("-fx-font-size: 16px;");
+        
+        Label fileCountLabel = new Label(fileCount > 0 ? String.valueOf(fileCount) : "");
+        fileCountLabel.setStyle("-fx-text-fill: #0D203B; -fx-font-size: 10px; -fx-font-weight: bold;");
+        
+        if (fileCount > 0) {
+            fileIndicator.getChildren().addAll(fileIcon, fileCountLabel);
+        }
+    
         VBox actions = new VBox(8);
         actions.setAlignment(Pos.CENTER);
-
+    
         Button editBtn = new Button("✎");
         editBtn.setTooltip(new Tooltip("Edit Record"));
         editBtn.setStyle("-fx-background-color: #F1F5F9; -fx-text-fill: #0D203B; -fx-background-radius: 8; -fx-cursor: hand;");
-        editBtn.setOnAction(e -> populateForm(activity));
-
+        editBtn.setOnAction(e -> {
+            e.consume(); // Prevent card click
+            populateForm(activity);
+        });
+    
         Button delBtn = new Button("🗑");
         delBtn.setTooltip(new Tooltip("Delete Record"));
         delBtn.setStyle("-fx-background-color: #FFF1F2; -fx-text-fill: #EF4444; -fx-background-radius: 8; -fx-cursor: hand;");
-        delBtn.setOnAction(e -> handleDelete(activity));
-
+        delBtn.setOnAction(e -> {
+            e.consume(); // Prevent card click
+            handleDelete(activity);
+        });
+    
         actions.getChildren().addAll(editBtn, delBtn);
-
-        card.getChildren().addAll(mainInfo, descContainer, stats, actions);
+    
+        card.getChildren().addAll(mainInfo, descContainer, stats, fileIndicator, actions);
         return card;
     }
-
+    private void openActivityDetails(Activity activity) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin_activity_details.fxml"));
+            Parent root = loader.load();
+            
+            AdminActivityDetailsController controller = loader.getController();
+            controller.setActivity(activity);
+            
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.UNDECORATED);
+            stage.setScene(new Scene(root));
+            stage.show();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not open activity details: " + e.getMessage());
+        }
+    }
+    
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
     private void populateForm(Activity activity) {
         selectedActivity = activity;
         employeeCombo.setValue(new Employee(activity.getEmployeeId(), userEmails.get(activity.getEmployeeId())));

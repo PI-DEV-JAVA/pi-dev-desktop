@@ -4,9 +4,11 @@
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/controllers/Activities/ActivityController.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/controllers/Activities/EmployeeActivityController.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/models/dao/InterviewsDAO/InterviewDAO.java
+/home/baril/pi-dev-desktop/src/main/java/talentos/pidev/controllers/Activities/AdminActivityDetailsController.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/controllers/interviews/InterviewDetailsController.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/controllers/SidebarController.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/utils/DB.java
+/home/baril/pi-dev-desktop/src/main/java/talentos/pidev/services/MediaService.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/models/dao/InterviewsDAO/InterviewMeetDAO.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/models/dao/ActivityDAO/ActivityFileDAO.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/models/schema/Interviews/InterviewMeet.java
@@ -18,6 +20,7 @@
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/models/schema/Project/Project.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/models/schema/Activity/ActivityFile.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/models/dao/ProjectDAO/ProjectDAO.java
+/home/baril/pi-dev-desktop/src/main/java/talentos/pidev/controllers/interviews/MediaController.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/controllers/interviews/VideoPreviewController.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/controllers/interviews/InterviewFormController.java
 /home/baril/pi-dev-desktop/src/main/java/talentos/pidev/models/schema/Activity/Activity.java

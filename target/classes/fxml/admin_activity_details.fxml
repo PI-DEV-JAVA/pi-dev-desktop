@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="talentos.pidev.controllers.Activities.AdminActivityDetailsController"
+      spacing="20" style="-fx-background-color: white; -fx-background-radius: 15;"
+      prefWidth="750" prefHeight="650">
+
+    <padding>
+        <Insets top="25" right="25" bottom="25" left="25"/>
+    </padding>
+
+    <!-- Header with employee info -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="👤" style="-fx-font-size: 36px;"/>
+        <VBox spacing="5">
+            <Label fx:id="employeeNameLabel" text="Employee Name" 
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+            <Label fx:id="employeeEmailLabel" text="employee@company.com" 
+                   style="-fx-font-size: 13px; -fx-text-fill: #718096;"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="activityIdLabel" text="Activity #123" 
+               style="-fx-background-color: #F1F5F9; -fx-padding: 5 15; -fx-background-radius: 20; -fx-text-fill: #0D203B; -fx-font-weight: bold;"/>
+        <Button fx:id="closeBtn" text="✕" 
+                style="-fx-background-color: transparent; -fx-font-size: 18px; -fx-cursor: hand; -fx-text-fill: #718096;"/>
+    </HBox>
+
+    <Separator/>
+
+    <!-- Activity Details Grid -->
+    <GridPane hgap="20" vgap="15">
+        <columnConstraints>
+            <ColumnConstraints minWidth="120" prefWidth="120"/>
+            <ColumnConstraints hgrow="ALWAYS" prefWidth="200"/>
+            <ColumnConstraints minWidth="120" prefWidth="120"/>
+            <ColumnConstraints hgrow="ALWAYS" prefWidth="200"/>
+        </columnConstraints>
+        
+        <!-- Project -->
+        <Label text="Project:" style="-fx-font-weight: bold; -fx-text-fill: #4A5568;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <Label fx:id="projectNameLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        
+        <!-- Date -->
+        <Label text="Date:" style="-fx-font-weight: bold; -fx-text-fill: #4A5568;" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+        <Label fx:id="dateLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+        
+        <!-- Hours -->
+        <Label text="Hours:" style="-fx-font-weight: bold; -fx-text-fill: #4A5568;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <Label fx:id="hoursLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        
+        <!-- Status -->
+        <Label text="Status:" style="-fx-font-weight: bold; -fx-text-fill: #4A5568;" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+        <Label fx:id="statusLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+    </GridPane>
+
+    <!-- Description Section -->
+    <VBox spacing="10">
+        <Label text="Description" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+        <TextArea fx:id="descriptionArea" editable="false" wrapText="true" prefRowCount="3"
+                  style="-fx-background-color: #F8FAFC; -fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 8;"/>
+    </VBox>
+
+    <!-- Employee Notes Section -->
+    <VBox spacing="10">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="📝" style="-fx-font-size: 16px;"/>
+            <Label text="Employee Notes" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+        </HBox>
+        <TextArea fx:id="employeeNotesArea" editable="false" wrapText="true" prefRowCount="2"
+                  style="-fx-background-color: #F8FAFC; -fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 8;"
+                  promptText="No notes provided"/>
+    </VBox>
+
+    <!-- Attached Files Section -->
+    <VBox spacing="15" VBox.vgrow="ALWAYS">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="📎" style="-fx-font-size: 16px;"/>
+            <Label text="Attached Files" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0D203B;"/>
+            <Label fx:id="fileCountLabel" text="(0 files)" style="-fx-text-fill: #718096; -fx-font-size: 12px;"/>
+        </HBox>
+        
+        <!-- Files List -->
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" prefHeight="200">
+            <VBox fx:id="filesContainer" spacing="10" style="-fx-background-color: transparent;">
+                <!-- Files will be added dynamically -->
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
+    <!-- Admin Actions -->
+    <HBox alignment="CENTER_RIGHT" spacing="15">
+        <Button fx:id="downloadAllBtn" text="Download All Files"
+                style="-fx-background-color: #0D203B; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+        <Button fx:id="markReviewedBtn" text="Mark as Reviewed"
+                style="-fx-background-color: #38A169; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+    </HBox>
+</VBox>
