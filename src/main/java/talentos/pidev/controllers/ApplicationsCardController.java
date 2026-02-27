@@ -12,6 +12,7 @@ import talentos.pidev.models.Offer;
 import talentos.pidev.services.ApplicationService;
 import talentos.pidev.services.OfferService;
 
+import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -440,31 +441,319 @@ public class ApplicationsCardController implements Initializable {
     }
 
     private void showApplicationDetails(Application app, Offer offer) {
-        // À implémenter - boîte de dialogue détaillée
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Détails de la candidature");
-        alert.setHeaderText(app.getCandidateName());
+        // Créer un dialogue personnalisé
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Détails de la candidature");
+        dialog.setHeaderText(null);
 
-        String content = String.format(
-                "📧 Email: %s\n" +
-                        "📞 Téléphone: %s\n" +
-                        "📋 Offre: %s\n" +
-                        "📅 Date candidature: %s\n" +
-                        "📊 Statut: %s\n" +
-                        "⭐ Score: %.1f/100\n\n" +
-                        "📝 Notes:\n%s",
-                app.getCandidateEmail(),
-                app.getCandidatePhone() != null ? app.getCandidatePhone() : "Non renseigné",
-                offer != null ? offer.getTitle() : "Offre #" + app.getOfferId(),
-                app.getApplicationDate().format(dateFormatter),
-                app.getStatus(),
-                app.getScore(),
-                app.getNotes() != null ? app.getNotes() : "Aucune note");
+        // Style du dialogue
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setPrefWidth(600);
+        dialogPane.setPrefHeight(700);
+        dialogPane.setStyle("-fx-background-color: #0F172A; -fx-background-radius: 24;");
 
-        alert.setContentText(content);
-        alert.showAndWait();
+        dialogPane.getButtonTypes().add(ButtonType.CLOSE);
+
+        // Conteneur principal avec ScrollPane
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: #0F172A; -fx-background-color: #0F172A; -fx-border-color: transparent;");
+
+        VBox container = new VBox(25);
+        container.setStyle("-fx-padding: 30; -fx-background-color: #0F172A;");
+
+        // ========== 1. EN-TÊTE AVEC BANNIÈRE GRADIENT ==========
+        VBox headerBox = new VBox(20);
+        headerBox.setStyle(
+                "-fx-background-color: linear-gradient(to bottom right, #1E293B, #0F172A);" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-padding: 25;" +
+                        "-fx-border-color: rgba(99,102,241,0.3);" +
+                        "-fx-border-radius: 20;" +
+                        "-fx-border-width: 1;"
+        );
+
+        // Avatar et infos principales
+        HBox mainInfoRow = new HBox(20);
+        mainInfoRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        // Grand avatar
+        StackPane avatar = new StackPane();
+        avatar.setStyle(
+                "-fx-background-color: " + getAvatarColor(app.getStatus()) + ";" +
+                        "-fx-background-radius: 50;" +
+                        "-fx-min-width: 80;" +
+                        "-fx-min-height: 80;" +
+                        "-fx-max-width: 80;" +
+                        "-fx-max-height: 80;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.5), 15, 0, 0, 5);"
+        );
+
+        String initials = getInitials(app.getCandidateName());
+        Label initialsLabel = new Label(initials);
+        initialsLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;");
+        avatar.getChildren().add(initialsLabel);
+
+        // Infos candidat
+        VBox candidateMainInfo = new VBox(8);
+
+        Label nameLabel = new Label(app.getCandidateName());
+        nameLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        HBox statusRow = new HBox(15);
+        statusRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        Label statusBadge = new Label(app.getStatus());
+        statusBadge.setStyle(getStatusStyle(app.getStatus()) + "-fx-font-size: 13px; -fx-padding: 6 16;");
+
+        Label dateLabel = new Label("Candidature du " + app.getApplicationDate().format(dateFormatter));
+        dateLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8;");
+
+        statusRow.getChildren().addAll(statusBadge, dateLabel);
+
+        candidateMainInfo.getChildren().addAll(nameLabel, statusRow);
+
+        mainInfoRow.getChildren().addAll(avatar, candidateMainInfo);
+
+        headerBox.getChildren().add(mainInfoRow);
+
+        // ========== 2. CARTE DE CONTACT ==========
+        VBox contactCard = createInfoCard(
+                "📞 Informations de contact",
+                new String[][]{
+                        {"✉ Email", app.getCandidateEmail()},
+                        {"📞 Téléphone", app.getCandidatePhone() != null ? app.getCandidatePhone() : "Non renseigné"},
+                        {"📅 Date de candidature", app.getApplicationDate().format(dateFormatter)}
+                }
+        );
+
+        // ========== 3. CARTE DE L'OFFRE ==========
+        VBox offerCard;
+        if (offer != null) {
+            offerCard = createInfoCard(
+                    "📋 Offre postulée",
+                    new String[][]{
+                            {"🏢 Poste", offer.getTitle()},
+                            {"📄 Département", offer.getDepartment()},
+                            {"📑 Type de contrat", offer.getContractType()},
+                            {"📊 Niveau", offer.getExperienceLevel()},
+                            {"📍 Localisation", offer.getLocation()},
+                            {"💰 Salaire", String.format("%.0f - %.0f DT", offer.getSalaryMin(), offer.getSalaryMax())}
+                    }
+            );
+        } else {
+            offerCard = createInfoCard(
+                    "⚠️ Offre indisponible",
+                    new String[][]{
+                            {"❌ Statut", "Cette offre a été supprimée"},
+                            {"🆔 ID", String.valueOf(app.getOfferId())}
+                    }
+            );
+        }
+
+        // ========== 4. CARTE D'ÉVALUATION ==========
+        VBox evaluationCard = createInfoCard(
+                "📊 Évaluation",
+                new String[][]{
+                        {"⭐ Score", app.getScore() > 0 ? String.format("%.1f/100", app.getScore()) : "Non évalué"},
+                        {"👤 Interviewer", app.getInterviewer() != null ? app.getInterviewer() : "Non assigné"},
+                        {"📅 Date interview", app.getInterviewDate() != null ? app.getInterviewDate().format(dateFormatter) : "Non planifiée"},
+                        {"📝 Résultat", app.getInterviewResult() != null ? app.getInterviewResult() : "En attente"}
+                }
+        );
+
+        // ========== 5. NOTES ET LETTRE DE MOTIVATION ==========
+        VBox notesCard = new VBox(15);
+        notesCard.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-padding: 20;" +
+                        "-fx-border-color: rgba(99,102,241,0.15);" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-border-width: 1;"
+        );
+
+        // Titre de la section
+        Label notesTitle = new Label("📝 Notes d'évaluation");
+        notesTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        TextArea notesArea = new TextArea(app.getNotes() != null ? app.getNotes() : "Aucune note");
+        notesArea.setWrapText(true);
+        notesArea.setEditable(false);
+        notesArea.setPrefRowCount(4);
+        notesArea.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-color: #334155;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-text-fill: #1E293B;" +
+                        "-fx-font-size: 13px;"
+        );
+
+        notesCard.getChildren().addAll(notesTitle, notesArea);
+
+        // ========== 6. LETTRE DE MOTIVATION ==========
+        if (app.getMotivationLetter() != null && !app.getMotivationLetter().isEmpty()) {
+            VBox motivationCard = new VBox(15);
+            motivationCard.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.03);" +
+                            "-fx-background-radius: 16;" +
+                            "-fx-padding: 20;" +
+                            "-fx-border-color: rgba(99,102,241,0.15);" +
+                            "-fx-border-radius: 16;" +
+                            "-fx-border-width: 1;"
+            );
+
+            Label motivationTitle = new Label("💌 Lettre de motivation");
+            motivationTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+            TextArea motivationArea = new TextArea(app.getMotivationLetter());
+            motivationArea.setWrapText(true);
+            motivationArea.setEditable(false);
+            motivationArea.setPrefRowCount(6);
+            motivationArea.setStyle(
+                    "-fx-background-color: #1E293B;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-border-color: #334155;" +
+                            "-fx-border-radius: 12;" +
+                            "-fx-text-fill: #1E293B;" +
+                            "-fx-font-size: 13px;"
+            );
+
+            motivationCard.getChildren().addAll(motivationTitle, motivationArea);
+            container.getChildren().add(motivationCard);
+        }
+
+        // ========== 7. BOUTON VOIR CV ==========
+        if (app.getCvFilePath() != null && !app.getCvFilePath().isEmpty()) {
+            Button viewCVBtn = new Button("📄 Voir le CV");
+            viewCVBtn.setStyle(
+                    "-fx-background-color: #6366F1;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-font-size: 14px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-padding: 12 20;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-cursor: hand;" +
+                            "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.3), 10, 0, 0, 2);"
+            );
+            viewCVBtn.setMaxWidth(Double.MAX_VALUE);
+
+            viewCVBtn.setOnMouseEntered(e ->
+                    viewCVBtn.setStyle(
+                            "-fx-background-color: #4F46E5;" +
+                                    "-fx-text-fill: white;" +
+                                    "-fx-font-size: 14px;" +
+                                    "-fx-font-weight: bold;" +
+                                    "-fx-padding: 12 20;" +
+                                    "-fx-background-radius: 12;" +
+                                    "-fx-cursor: hand;" +
+                                    "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.5), 15, 0, 0, 4);"
+                    )
+            );
+
+            viewCVBtn.setOnMouseExited(e ->
+                    viewCVBtn.setStyle(
+                            "-fx-background-color: #6366F1;" +
+                                    "-fx-text-fill: white;" +
+                                    "-fx-font-size: 14px;" +
+                                    "-fx-font-weight: bold;" +
+                                    "-fx-padding: 12 20;" +
+                                    "-fx-background-radius: 12;" +
+                                    "-fx-cursor: hand;" +
+                                    "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.3), 10, 0, 0, 2);"
+                    )
+            );
+
+            viewCVBtn.setOnAction(e -> openCVFile(app.getCvFilePath()));
+            container.getChildren().add(viewCVBtn);
+        }
+
+        // Assemblage
+        container.getChildren().addAll(
+                headerBox,
+                contactCard,
+                offerCard,
+                evaluationCard,
+                notesCard
+        );
+
+        // Si lettre de motivation existe, elle est déjà ajoutée plus haut
+
+        scrollPane.setContent(container);
+        dialogPane.setContent(scrollPane);
+
+        // Style du bouton Fermer
+        Button closeButton = (Button) dialogPane.lookupButton(ButtonType.CLOSE);
+        closeButton.setStyle(
+                "-fx-background-color: #475569;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-padding: 8 20;" +
+                        "-fx-background-radius: 8;"
+        );
+
+        dialog.showAndWait();
     }
 
+    /**
+     * Crée une carte d'information élégante
+     */
+    private VBox createInfoCard(String title, String[][] infoRows) {
+        VBox card = new VBox(15);
+        card.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-padding: 20;" +
+                        "-fx-border-color: rgba(99,102,241,0.15);" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-border-width: 1;"
+        );
+
+        // Titre de la carte
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        // Grille d'informations
+        GridPane infoGrid = new GridPane();
+        infoGrid.setHgap(15);
+        infoGrid.setVgap(12);
+
+        for (int i = 0; i < infoRows.length; i++) {
+            String[] row = infoRows[i];
+
+            // Label (colonne 0)
+            Label keyLabel = new Label(row[0]);
+            keyLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #94A3B8; -fx-min-width: 100;");
+
+            // Valeur (colonne 1)
+            Label valueLabel = new Label(row[1]);
+            valueLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #F1F5F9; -fx-wrap-text: true;");
+
+            infoGrid.add(keyLabel, 0, i);
+            infoGrid.add(valueLabel, 1, i);
+        }
+
+        card.getChildren().addAll(titleLabel, infoGrid);
+
+        return card;
+    }
+
+    /**
+     * Ouvre le fichier CV
+     */
+    private void openCVFile(String path) {
+        try {
+            File file = new File(path);
+            if (file.exists()) {
+                java.awt.Desktop.getDesktop().open(file);
+            } else {
+                showAlert("Erreur", "Fichier CV non trouvé", Alert.AlertType.ERROR);
+            }
+        } catch (Exception e) {
+            showAlert("Erreur", "Impossible d'ouvrir le fichier: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
 private void showEvaluationDialog(Application app) {
         // Trouver l'offre associée
         Offer offer = offersList.stream()

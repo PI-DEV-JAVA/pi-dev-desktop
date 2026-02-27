@@ -229,7 +229,7 @@ public class OffersCardController implements Initializable {
         viewBtn.setOnAction(e -> showOfferDetails(offer));
 
         Button editBtn = createDarkButton("✏ Modifier", "rgba(245,158,11,0.2)", "#FBBF24");
-        editBtn.setOnAction(e -> editOffer(offer));
+        editBtn.setOnAction(e -> showEditForm(offer));
 
         Button deleteBtn = createDarkButton("🗑 Supprimer", "rgba(239,68,68,0.2)", "#F87171");
         deleteBtn.setOnAction(e -> deleteOffer(offer));
@@ -298,320 +298,474 @@ public class OffersCardController implements Initializable {
         totalOffersLabel.setText(count + " offre" + (count > 1 ? "s" : ""));
     }
 
+    // Remplacer la méthode addNewOffer() par celle-ci :
+
     @FXML
     private void addNewOffer() {
-        Dialog<Offer> dialog = new Dialog<>();
-        dialog.setTitle("Nouvelle offre d'emploi");
-        dialog.setHeaderText(null);
+        // Masquer le conteneur des cartes
+        cardsContainer.setVisible(false);
 
-        // Style du dialogue
-        dialog.getDialogPane().setPrefWidth(520);
-        dialog.getDialogPane().setPrefHeight(620);
-        dialog.getDialogPane().setStyle("-fx-background-color: #0F172A;");
+        // Créer et afficher le formulaire de création
+        VBox createForm = createOfferForm();
+        cardsContainer.getChildren().clear();
+        cardsContainer.getChildren().add(createForm);
+        cardsContainer.setVisible(true);
+    }
 
-        ButtonType saveButtonType = new ButtonType("Créer l'offre", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+    /**
+     * Crée le formulaire de création d'offre
+     */
+    /**
+     * Crée le formulaire de création d'offre avec validation
+     */
+    private VBox createOfferForm() {
+        VBox formContainer = new VBox(20);
+        formContainer.setStyle("-fx-background-color: #1E293B; -fx-padding: 30; -fx-background-radius: 16; -fx-max-width: 800;");
+        formContainer.setMaxWidth(800);
+        formContainer.setAlignment(javafx.geometry.Pos.TOP_CENTER);
 
-        // Conteneur principal
-        VBox mainContainer = new VBox(20);
-        mainContainer.setStyle("-fx-background-color: #1E293B; -fx-padding: 25; -fx-background-radius: 12;");
+        // En-tête avec bouton retour
+        HBox headerBox = new HBox(10);
+        headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
-        // En-tête
-        VBox headerBox = new VBox(5);
-        Label titleLabel = new Label("➕ Nouvelle offre d'emploi");
+        Button backBtn = new Button("← Retour aux offres");
+        backBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 5 10;");
+        backBtn.setOnAction(e -> backToOffers());
+
+        Label titleLabel = new Label("➕ Créer une nouvelle offre");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
 
-        Label subtitleLabel = new Label("Remplissez les informations ci-dessous pour créer une nouvelle offre");
-        subtitleLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748B;");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        headerBox.getChildren().addAll(titleLabel, subtitleLabel);
+        headerBox.getChildren().addAll(backBtn, spacer, titleLabel);
 
-        // ========== FORMULAIRE AVEC VALIDATION SOUS CHAQUE CHAMP ==========
-        VBox formBox = new VBox(15);
+        // Formulaire
+        GridPane formGrid = new GridPane();
+        formGrid.setHgap(15);
+        formGrid.setVgap(15);
+        formGrid.setAlignment(javafx.geometry.Pos.CENTER);
 
-        // Titre
-        VBox titleFieldBox = createValidatedField(
-                "Titre du poste *",
-                "Ex: Développeur Java Senior",
-                value -> {
-                    if (value.isEmpty())
-                        return "Le titre est obligatoire";
-                    if (value.length() < 3)
-                        return "Minimum 3 caractères";
-                    if (value.length() > 100)
-                        return "Maximum 100 caractères";
-                    return null;
-                });
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(30);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(70);
+        formGrid.getColumnConstraints().addAll(col1, col2);
 
-        // Description
-        VBox descFieldBox = new VBox(5);
-        Label descLabel = new Label("Description du poste");
+        int row = 0;
+
+        // ========== TITRE ==========
+        Label titleFieldLabel = new Label("Titre *");
+        titleFieldLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+
+        TextField titleField = new TextField();
+        titleField.setPromptText("Ex: Développeur Java Senior");
+        titleField.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 10; -fx-text-fill: #E2E8F0; -fx-prompt-text-fill: #64748B;");
+
+        Label titleError = new Label();
+        titleError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox titleBox = new VBox(3);
+        titleBox.getChildren().addAll(titleField, titleError);
+        formGrid.add(titleFieldLabel, 0, row);
+        formGrid.add(titleBox, 1, row++);
+
+        // ========== DESCRIPTION ==========
+        Label descLabel = new Label("Description");
         descLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
         TextArea descriptionArea = new TextArea();
         descriptionArea.setPromptText("Décrivez les missions, responsabilités, etc.");
         descriptionArea.setPrefRowCount(4);
-        descriptionArea
-                .setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); " +
-                        "-fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 10; " +
-                        "-fx-font-size: 14px; -fx-text-fill: #E2E8F0;");
+        descriptionArea.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 10; -fx-text-fill: #E2E8F0; -fx-prompt-text-fill: #64748B;");
 
-        Label descErrorLabel = new Label();
-        descErrorLabel.setStyle("-fx-text-fill: #F87171; -fx-font-size: 12px;");
+        formGrid.add(descLabel, 0, row);
+        formGrid.add(descriptionArea, 1, row++);
 
-        descFieldBox.getChildren().addAll(descLabel, descriptionArea, descErrorLabel);
+        // ========== DÉPARTEMENT ==========
+        Label deptLabel = new Label("Département *");
+        deptLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
-        // Département
-        VBox deptFieldBox = createValidatedCombo(
-                "Département *",
-                value -> value == null ? "Sélectionnez un département" : null,
-                "IT", "RH", "Finance", "Marketing", "Production", "Logistique", "Commerce");
+        ComboBox<String> departmentCombo = new ComboBox<>();
+        departmentCombo.getItems().addAll("IT", "RH", "Finance", "Marketing", "Production", "Logistique", "Commerce");
+        departmentCombo.setPromptText("Sélectionnez un département");
+        departmentCombo.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
 
-        // Type de contrat
-        VBox contractFieldBox = createValidatedCombo(
-                "Type de contrat *",
-                value -> value == null ? "Sélectionnez un type de contrat" : null,
-                "CDI", "CDD", "Stage", "Alternance", "Freelance");
+        Label deptError = new Label();
+        deptError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
 
-        // Niveau d'expérience
-        VBox expFieldBox = createValidatedCombo(
-                "Niveau d'expérience *",
-                value -> value == null ? "Sélectionnez un niveau" : null,
-                "Débutant", "Junior", "Intermédiaire", "Senior", "Expert");
+        VBox deptBox = new VBox(3);
+        deptBox.getChildren().addAll(departmentCombo, deptError);
+        formGrid.add(deptLabel, 0, row);
+        formGrid.add(deptBox, 1, row++);
 
-        // Salaires (grille 2 colonnes)
-        GridPane salaryGrid = new GridPane();
-        salaryGrid.setHgap(15);
-        salaryGrid.setVgap(10);
+        // ========== TYPE DE CONTRAT ==========
+        Label contractLabel = new Label("Type de contrat *");
+        contractLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
-        // Salaire min
-        VBox salaryMinBox = createValidatedField(
-                "Salaire minimum (DT) *",
-                "Ex: 45000",
-                value -> {
-                    if (value.isEmpty())
-                        return "Salaire minimum obligatoire";
-                    try {
-                        double salaire = Double.parseDouble(value);
-                        if (salaire <= 0)
-                            return "Doit être > 0";
-                        if (salaire > 1000000)
-                            return "Trop élevé";
-                        return null;
-                    } catch (NumberFormatException e) {
-                        return "Format invalide (chiffres uniquement)";
-                    }
-                });
+        ComboBox<String> contractCombo = new ComboBox<>();
+        contractCombo.getItems().addAll("CDI", "CDD", "Stage", "Alternance", "Freelance");
+        contractCombo.setPromptText("Sélectionnez un type");
+        contractCombo.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
 
-        // Salaire max
-        VBox salaryMaxBox = createValidatedField(
-                "Salaire maximum (DT) *",
-                "Ex: 65000",
-                value -> {
-                    if (value.isEmpty())
-                        return "Salaire maximum obligatoire";
-                    try {
-                        double salaire = Double.parseDouble(value);
-                        if (salaire <= 0)
-                            return "Doit être > 0";
-                        if (salaire > 1000000)
-                            return "Trop élevé";
-                        return null;
-                    } catch (NumberFormatException e) {
-                        return "Format invalide (chiffres uniquement)";
-                    }
-                });
+        Label contractError = new Label();
+        contractError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
 
-        salaryGrid.add(salaryMinBox, 0, 0);
-        salaryGrid.add(salaryMaxBox, 1, 0);
+        VBox contractBox = new VBox(3);
+        contractBox.getChildren().addAll(contractCombo, contractError);
+        formGrid.add(contractLabel, 0, row);
+        formGrid.add(contractBox, 1, row++);
 
-        // Localisation
-        VBox locationFieldBox = createValidatedCombo(
-                "Localisation *",
-                value -> value == null || value.trim().isEmpty() ? "Sélectionnez une ville" : null,
-                "Tunis", "Sfax", "Sousse", "Gabès", "Bizerte", "Ariana", "Ben Arous", "Nabeul");
+        // ========== NIVEAU D'EXPÉRIENCE ==========
+        Label expLabel = new Label("Expérience *");
+        expLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
-        // Dates (grille 2 colonnes)
-        GridPane dateGrid = new GridPane();
-        dateGrid.setHgap(15);
-        dateGrid.setVgap(10);
+        ComboBox<String> expCombo = new ComboBox<>();
+        expCombo.getItems().addAll("Débutant", "Junior", "Intermédiaire", "Senior", "Expert");
+        expCombo.setPromptText("Sélectionnez un niveau");
+        expCombo.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
 
-        // Date publication
-        VBox publishDateBox = createValidatedDateField(
-                "Date de publication",
-                LocalDate.now(),
-                date -> null // Toujours valide
-        );
+        Label expError = new Label();
+        expError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
 
-        // Date clôture
-        VBox closingDateBox = createValidatedDateField(
-                "Date de clôture *",
-                LocalDate.now().plusMonths(1),
-                date -> {
-                    if (date == null)
-                        return "Date de clôture obligatoire";
-                    if (date.isBefore(LocalDate.now()))
-                        return "Ne peut pas être dans le passé";
-                    return null;
-                });
+        VBox expBox = new VBox(3);
+        expBox.getChildren().addAll(expCombo, expError);
+        formGrid.add(expLabel, 0, row);
+        formGrid.add(expBox, 1, row++);
 
-        dateGrid.add(publishDateBox, 0, 0);
-        dateGrid.add(closingDateBox, 1, 0);
+        // ========== SALAIRE MIN ==========
+        Label salaryMinLabel = new Label("Salaire min *");
+        salaryMinLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
-        // Postes disponibles
-        VBox positionsBox = new VBox(5);
+        TextField salaryMinField = new TextField();
+        salaryMinField.setPromptText("Ex: 45000");
+        salaryMinField.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 10; -fx-text-fill: #E2E8F0; -fx-prompt-text-fill: #64748B;");
+
+        // Validation pour n'accepter que les nombres
+        salaryMinField.textProperty().addListener((obs, old, newVal) -> {
+            if (!newVal.matches("\\d*\\.?\\d*")) {
+                salaryMinField.setText(newVal.replaceAll("[^\\d.]", ""));
+            }
+        });
+
+        Label salaryMinError = new Label();
+        salaryMinError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox salaryMinBox = new VBox(3);
+        salaryMinBox.getChildren().addAll(salaryMinField, salaryMinError);
+        formGrid.add(salaryMinLabel, 0, row);
+        formGrid.add(salaryMinBox, 1, row);
+
+        // ========== SALAIRE MAX ==========
+        Label salaryMaxLabel = new Label("Salaire max *");
+        salaryMaxLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+
+        TextField salaryMaxField = new TextField();
+        salaryMaxField.setPromptText("Ex: 65000");
+        salaryMaxField.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 10; -fx-text-fill: #E2E8F0; -fx-prompt-text-fill: #64748B;");
+
+        // Validation pour n'accepter que les nombres
+        salaryMaxField.textProperty().addListener((obs, old, newVal) -> {
+            if (!newVal.matches("\\d*\\.?\\d*")) {
+                salaryMaxField.setText(newVal.replaceAll("[^\\d.]", ""));
+            }
+        });
+
+        Label salaryMaxError = new Label();
+        salaryMaxError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox salaryMaxBox = new VBox(3);
+        salaryMaxBox.getChildren().addAll(salaryMaxField, salaryMaxError);
+        formGrid.add(salaryMaxLabel, 2, row);
+        formGrid.add(salaryMaxBox, 3, row++);
+
+        // ========== LOCALISATION ==========
+        Label locationLabel = new Label("Localisation *");
+        locationLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+
+        ComboBox<String> locationCombo = new ComboBox<>();
+        locationCombo.getItems().addAll("Tunis", "Sfax", "Sousse", "Gabès", "Bizerte", "Ariana", "Ben Arous", "Nabeul");
+        locationCombo.setPromptText("Sélectionnez une ville");
+        locationCombo.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
+        locationCombo.setEditable(true);
+
+        Label locationError = new Label();
+        locationError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox locationBox = new VBox(3);
+        locationBox.getChildren().addAll(locationCombo, locationError);
+        formGrid.add(locationLabel, 0, row);
+        formGrid.add(locationBox, 1, row++);
+
+        // ========== DATE PUBLICATION ==========
+        Label publishLabel = new Label("Date publication");
+        publishLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+
+        DatePicker publishDatePicker = new DatePicker(LocalDate.now());
+        publishDatePicker.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
+
+        formGrid.add(publishLabel, 0, row);
+        formGrid.add(publishDatePicker, 1, row++);
+
+        // ========== DATE CLÔTURE ==========
+        Label closingLabel = new Label("Date clôture *");
+        closingLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+
+        DatePicker closingDatePicker = new DatePicker(LocalDate.now().plusMonths(1));
+        closingDatePicker.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
+
+        Label closingError = new Label();
+        closingError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox closingBox = new VBox(3);
+        closingBox.getChildren().addAll(closingDatePicker, closingError);
+        formGrid.add(closingLabel, 0, row);
+        formGrid.add(closingBox, 1, row++);
+
+        // ========== POSTES DISPONIBLES ==========
         Label positionsLabel = new Label("Postes disponibles");
         positionsLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
         Spinner<Integer> positionsSpinner = new Spinner<>(1, 50, 1);
         positionsSpinner.setEditable(true);
-        positionsSpinner
-                .setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); " +
-                        "-fx-border-radius: 10; -fx-background-radius: 10;");
+        positionsSpinner.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-text-fill: #E2E8F0;");
 
-        positionsBox.getChildren().addAll(positionsLabel, positionsSpinner);
+        formGrid.add(positionsLabel, 0, row);
+        formGrid.add(positionsSpinner, 1, row++);
 
-        // Assemblage du formulaire
-        formBox.getChildren().addAll(
-                titleFieldBox,
-                descFieldBox,
-                deptFieldBox,
-                contractFieldBox,
-                expFieldBox,
-                salaryGrid,
-                locationFieldBox,
-                dateGrid,
-                positionsBox);
+        // Bouton de sauvegarde (désactivé par défaut)
+        Button saveBtn = new Button("Créer l'offre");
+        saveBtn.setStyle("-fx-background-color: #475569; -fx-text-fill: #94A3B8; -fx-padding: 12 24; -fx-background-radius: 10; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+        saveBtn.setDisable(true);
 
-        mainContainer.getChildren().addAll(headerBox, new Separator(), formBox);
+        // ========== VALIDATION EN TEMPS RÉEL ==========
+        Runnable validateForm = () -> {
+            boolean isValid = true;
 
-        // ScrollPane si nécessaire
-        ScrollPane scrollPane = new ScrollPane(mainContainer);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background: #1E293B; -fx-border-color: transparent;");
+            // Validation titre
+            String title = titleField.getText();
+            if (title.isEmpty()) {
+                titleError.setText("❌ Le titre est obligatoire");
+                titleField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else if (title.length() < 3) {
+                titleError.setText("❌ Minimum 3 caractères");
+                titleField.setStyle("-fx-border-color: #F59E0B; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                titleError.setText("✅ Valide");
+                titleError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                titleField.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
 
-        dialog.getDialogPane().setContent(scrollPane);
+            // Validation département
+            if (departmentCombo.getValue() == null) {
+                deptError.setText("❌ Sélectionnez un département");
+                departmentCombo.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                deptError.setText("✅ Valide");
+                deptError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                departmentCombo.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
 
-        // Récupérer le bouton "Créer"
-        Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveButtonType);
-        saveButton.setStyle(
-                "-fx-background-color: linear-gradient(to right, #6366F1, #06B6D4); -fx-text-fill: white; -fx-padding: 10 24; "
-                        +
-                        "-fx-background-radius: 10; -fx-font-size: 14px; -fx-font-weight: bold;");
-        saveButton.setDisable(true);
+            // Validation type contrat
+            if (contractCombo.getValue() == null) {
+                contractError.setText("❌ Sélectionnez un type de contrat");
+                contractCombo.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                contractError.setText("✅ Valide");
+                contractError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                contractCombo.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
 
-        // Validation croisée des salaires
-        TextField salaryMinField = (TextField) ((VBox) salaryGrid.getChildren().get(0)).getChildren().get(1);
-        TextField salaryMaxField = (TextField) ((VBox) salaryGrid.getChildren().get(1)).getChildren().get(1);
-        Label salaryMinError = (Label) ((VBox) salaryGrid.getChildren().get(0)).getChildren().get(2);
-        Label salaryMaxError = (Label) ((VBox) salaryGrid.getChildren().get(1)).getChildren().get(2);
+            // Validation expérience
+            if (expCombo.getValue() == null) {
+                expError.setText("❌ Sélectionnez un niveau");
+                expCombo.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                expError.setText("✅ Valide");
+                expError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                expCombo.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
 
-        // Validation en temps réel
-        Runnable validateAll = () -> {
-            boolean allValid = true;
+            // Validation salaire min
+            String salMin = salaryMinField.getText();
+            if (salMin.isEmpty()) {
+                salaryMinError.setText("❌ Salaire minimum obligatoire");
+                salaryMinField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                try {
+                    double min = Double.parseDouble(salMin);
+                    if (min <= 0) {
+                        salaryMinError.setText("❌ Doit être > 0");
+                        salaryMinField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                        isValid = false;
+                    } else {
+                        salaryMinError.setText("✅ Valide");
+                        salaryMinError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                        salaryMinField.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                    }
+                } catch (NumberFormatException e) {
+                    salaryMinError.setText("❌ Format invalide");
+                    salaryMinField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                    isValid = false;
+                }
+            }
 
-            // Valider chaque champ
-            allValid &= validateField((VBox) titleFieldBox);
-            allValid &= validateField((VBox) deptFieldBox);
-            allValid &= validateField((VBox) contractFieldBox);
-            allValid &= validateField((VBox) expFieldBox);
-            allValid &= validateField((VBox) locationFieldBox);
-            allValid &= validateField((VBox) closingDateBox);
-
-            // Validation spéciale pour les salaires
-            boolean salaryMinValid = validateField((VBox) salaryMinBox);
-            boolean salaryMaxValid = validateField((VBox) salaryMaxBox);
-            allValid &= salaryMinValid && salaryMaxValid;
+            // Validation salaire max
+            String salMax = salaryMaxField.getText();
+            if (salMax.isEmpty()) {
+                salaryMaxError.setText("❌ Salaire maximum obligatoire");
+                salaryMaxField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                try {
+                    double max = Double.parseDouble(salMax);
+                    if (max <= 0) {
+                        salaryMaxError.setText("❌ Doit être > 0");
+                        salaryMaxField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                        isValid = false;
+                    } else {
+                        salaryMaxError.setText("✅ Valide");
+                        salaryMaxError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                        salaryMaxField.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                    }
+                } catch (NumberFormatException e) {
+                    salaryMaxError.setText("❌ Format invalide");
+                    salaryMaxField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                    isValid = false;
+                }
+            }
 
             // Validation croisée des salaires
-            if (salaryMinValid && salaryMaxValid) {
+            if (!salMin.isEmpty() && !salMax.isEmpty()) {
                 try {
-                    double min = Double.parseDouble(salaryMinField.getText());
-                    double max = Double.parseDouble(salaryMaxField.getText());
-
+                    double min = Double.parseDouble(salMin);
+                    double max = Double.parseDouble(salMax);
                     if (max < min) {
-                        salaryMinError.setText("❌ Le salaire min ne peut pas être > au max");
-                        salaryMaxError.setText("❌ Le salaire max doit être ≥ au min");
-                        salaryMinField.setStyle(
-                                "-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: #FEF2F2;");
-                        salaryMaxField.setStyle(
-                                "-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: #FEF2F2;");
-                        allValid = false;
-                    } else {
-                        if (salaryMinError.getText().startsWith("✅")) {
-                            salaryMinError.setText("✅ Valide");
-                            salaryMinField.setStyle(
-                                    "-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: #F0FDF4;");
-                        }
-                        if (salaryMaxError.getText().startsWith("✅")) {
-                            salaryMaxError.setText("✅ Valide");
-                            salaryMaxField.setStyle(
-                                    "-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: #F0FDF4;");
-                        }
+                        salaryMinError.setText("❌ Min > Max");
+                        salaryMaxError.setText("❌ Max < Min");
+                        salaryMinField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                        salaryMaxField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                        isValid = false;
                     }
                 } catch (NumberFormatException e) {
                     // Déjà géré
                 }
             }
 
-            saveButton.setDisable(!allValid);
+            // Validation localisation
+            if (locationCombo.getValue() == null || locationCombo.getValue().trim().isEmpty()) {
+                locationError.setText("❌ Localisation obligatoire");
+                locationCombo.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                locationError.setText("✅ Valide");
+                locationError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                locationCombo.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
+
+            // Validation date clôture
+            LocalDate closingDate = closingDatePicker.getValue();
+            if (closingDate == null) {
+                closingError.setText("❌ Date de clôture obligatoire");
+                closingDatePicker.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else if (closingDate.isBefore(LocalDate.now())) {
+                closingError.setText("❌ Ne peut pas être dans le passé");
+                closingDatePicker.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                closingError.setText("✅ Valide");
+                closingError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                closingDatePicker.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
+
+            // Activer/désactiver le bouton
+            if (isValid) {
+                saveBtn.setDisable(false);
+                saveBtn.setStyle("-fx-background-color: linear-gradient(to right, #6366F1, #06B6D4); -fx-text-fill: white; -fx-padding: 12 24; -fx-background-radius: 10; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+            } else {
+                saveBtn.setDisable(true);
+                saveBtn.setStyle("-fx-background-color: #475569; -fx-text-fill: #94A3B8; -fx-padding: 12 24; -fx-background-radius: 10; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+            }
         };
 
-        // Ajouter les écouteurs
-        addValidationListener((VBox) titleFieldBox, validateAll);
-        addValidationListener((VBox) deptFieldBox, validateAll);
-        addValidationListener((VBox) contractFieldBox, validateAll);
-        addValidationListener((VBox) expFieldBox, validateAll);
-        addValidationListener((VBox) salaryMinBox, validateAll);
-        addValidationListener((VBox) salaryMaxBox, validateAll);
-        addValidationListener((VBox) locationFieldBox, validateAll);
-        addValidationListener((VBox) closingDateBox, validateAll);
+        // Ajouter les écouteurs de validation
+        titleField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
+        departmentCombo.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
+        contractCombo.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
+        expCombo.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
+        salaryMinField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
+        salaryMaxField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
+        locationCombo.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
+        closingDatePicker.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
 
-        // Résultat
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == saveButtonType) {
-                try {
-                    Offer newOffer = new Offer();
-                    newOffer.setTitle(((TextField) ((VBox) titleFieldBox).getChildren().get(1)).getText());
-                    newOffer.setDescription(descriptionArea.getText());
-                    newOffer.setDepartment((String) ((ComboBox) ((VBox) deptFieldBox).getChildren().get(1)).getValue());
-                    newOffer.setContractType(
-                            (String) ((ComboBox) ((VBox) contractFieldBox).getChildren().get(1)).getValue());
-                    newOffer.setExperienceLevel(
-                            (String) ((ComboBox) ((VBox) expFieldBox).getChildren().get(1)).getValue());
-                    newOffer.setSalaryMin(Double.parseDouble(salaryMinField.getText()));
-                    newOffer.setSalaryMax(Double.parseDouble(salaryMaxField.getText()));
-                    newOffer.setLocation(
-                            (String) ((ComboBox) ((VBox) locationFieldBox).getChildren().get(1)).getValue());
-                    newOffer.setStatus("Ouverte");
-                    newOffer.setPublishDate(((DatePicker) ((VBox) publishDateBox).getChildren().get(1)).getValue());
-                    newOffer.setClosingDate(((DatePicker) ((VBox) closingDateBox).getChildren().get(1)).getValue());
-                    newOffer.setPositionsAvailable(positionsSpinner.getValue());
-                    newOffer.setApplicationsReceived(0);
-                    return newOffer;
-                } catch (Exception e) {
-                    showAlert("Erreur", "Erreur de saisie: " + e.getMessage(), Alert.AlertType.ERROR);
-                    return null;
+        // Validation initiale
+        validateForm.run();
+
+        // ========== BOUTON ANNULER ==========
+        Button cancelBtn = new Button("Annuler");
+        cancelBtn.setStyle("-fx-background-color: #475569; -fx-text-fill: white; -fx-padding: 12 24; -fx-background-radius: 10; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+        cancelBtn.setOnAction(e -> backToOffers());
+
+        // Action du bouton sauvegarder
+        saveBtn.setOnAction(e -> {
+            try {
+                Offer newOffer = new Offer();
+                newOffer.setTitle(titleField.getText());
+                newOffer.setDescription(descriptionArea.getText());
+                newOffer.setDepartment(departmentCombo.getValue());
+                newOffer.setContractType(contractCombo.getValue());
+                newOffer.setExperienceLevel(expCombo.getValue());
+                newOffer.setSalaryMin(Double.parseDouble(salaryMinField.getText()));
+                newOffer.setSalaryMax(Double.parseDouble(salaryMaxField.getText()));
+                newOffer.setLocation(locationCombo.getValue());
+                newOffer.setStatus("Ouverte");
+                newOffer.setPublishDate(publishDatePicker.getValue());
+                newOffer.setClosingDate(closingDatePicker.getValue());
+                newOffer.setPositionsAvailable(positionsSpinner.getValue());
+                newOffer.setApplicationsReceived(0);
+
+                if (offerService.createOffer(newOffer)) {
+                    showAlert("Succès", "Offre créée avec succès!", Alert.AlertType.INFORMATION);
+                    backToOffers();
+                    loadOffers();
+                } else {
+                    showAlert("Erreur", "Erreur lors de la création", Alert.AlertType.ERROR);
                 }
+            } catch (NumberFormatException ex) {
+                showAlert("Erreur", "Vérifiez les champs numériques", Alert.AlertType.ERROR);
             }
-            return null;
         });
 
-        dialog.showAndWait().ifPresent(offer -> {
-            if (offerService.createOffer(offer)) {
-                loadOffers();
-                showAlert("Succès", "Offre créée avec succès!", Alert.AlertType.INFORMATION);
-            } else {
-                showAlert("Erreur", "Erreur lors de la création", Alert.AlertType.ERROR);
-            }
-        });
+        // Boutons
+        HBox buttonBox = new HBox(15);
+        buttonBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        buttonBox.setPadding(new Insets(20, 0, 0, 0));
+        buttonBox.getChildren().addAll(cancelBtn, saveBtn);
+
+        // Message champs obligatoires
+        Label requiredLabel = new Label("* Champs obligatoires");
+        requiredLabel.setStyle("-fx-text-fill: #64748B; -fx-font-size: 12px;");
+
+        // Assemblage final
+        formContainer.getChildren().addAll(headerBox, formGrid, buttonBox, requiredLabel);
+
+        return formContainer;
     }
 
-    // ========== MÉTHODES UTILITAIRES ==========
-
     /**
-     * Crée un champ de texte avec validation
+     * Retourne à la liste des offres
      */
+    private void backToOffers() {
+        cardsContainer.getChildren().clear();
+        displayCards(offersList);
+    }
     private VBox createValidatedField(String label, String placeholder,
             java.util.function.Function<String, String> validator) {
         VBox box = new VBox(5);
@@ -749,7 +903,6 @@ public class OffersCardController implements Initializable {
         }
     }
 
-    // ✅ AJOUT DE LA MÉTHODE showOfferDetails
     private void showOfferDetails(Offer offer) {
         // Créer un dialogue personnalisé
         Dialog<Void> dialog = new Dialog<>();
@@ -757,106 +910,148 @@ public class OffersCardController implements Initializable {
         dialog.setHeaderText(null);
 
         // Style du dialogue
-        dialog.getDialogPane().setPrefWidth(600);
-        dialog.getDialogPane().setPrefHeight(200);
-        dialog.getDialogPane().getStylesheets().add(
-                getClass().getResource("/style/app.css").toExternalForm());
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setPrefWidth(650);
+        dialogPane.setPrefHeight(750);
+        dialogPane.setStyle("-fx-background-color: #0F172A; -fx-background-radius: 24;");
 
-        // Bouton de fermeture
-        ButtonType closeButtonType = new ButtonType("Fermer", ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().add(closeButtonType);
+        dialogPane.getButtonTypes().add(ButtonType.CLOSE);
 
-        // Conteneur principal
-        BorderPane mainContainer = new BorderPane();
-        mainContainer.setStyle("-fx-background-color: #0F172A; -fx-background-radius: 12;");
+        // Conteneur principal avec ScrollPane
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: #0F172A; -fx-background-color: #0F172A; -fx-border-color: transparent;");
 
-        // ========== EN-TÊTE AVEC BANNIÈRE ==========
-        VBox headerBox = new VBox();
-        headerBox.setStyle("-fx-background-color: linear-gradient(to right, #6366F1, #06B6D4);" +
-                "-fx-background-radius: 12 12 0 0; -fx-padding: 25;");
+        VBox container = new VBox(25);
+        container.setStyle("-fx-padding: 30; -fx-background-color: #0F172A;");
+
+        // ========== 1. EN-TÊTE AVEC BANNIÈRE GRADIENT ==========
+        VBox headerBox = new VBox(20);
+        headerBox.setStyle(
+                "-fx-background-color: linear-gradient(to bottom right, #6366F1, #06B6D4);" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-padding: 25;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.3), 15, 0, 0, 5);"
+        );
 
         // Titre et statut
-        HBox titleRow = new HBox(10);
+        HBox titleRow = new HBox(15);
         titleRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
         Label titleLabel = new Label(offer.getTitle());
         titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
         titleLabel.setWrapText(true);
+        HBox.setHgrow(titleLabel, Priority.ALWAYS);
 
-        Label statusLabel = new Label(offer.getStatus());
-        statusLabel.setStyle(getModernStatusStyle(offer.getStatus()));
+        Label statusBadge = new Label(offer.getStatus());
+        statusBadge.setStyle(getStatusStyle(offer.getStatus()));
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        titleRow.getChildren().addAll(titleLabel, statusBadge);
 
-        titleRow.getChildren().addAll(titleLabel, spacer, statusLabel);
+        // Sous-titre avec département et contrat
+        HBox subtitleRow = new HBox(15);
+        subtitleRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
-        // Sous-titre avec département
-        Label subtitleLabel = new Label(offer.getDepartment() + " • " + offer.getContractType());
-        subtitleLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: rgba(255,255,255,0.9);");
+        Label deptIcon = new Label("🏢");
+        deptIcon.setStyle("-fx-font-size: 16px;");
 
-        headerBox.getChildren().addAll(titleRow, subtitleLabel);
+        Label deptLabel = new Label(offer.getDepartment() + " • " + offer.getContractType());
+        deptLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: rgba(255,255,255,0.9);");
 
-        // ========== CONTENU PRINCIPAL ==========
-        VBox contentBox = new VBox(20);
-        contentBox.setStyle("-fx-padding: 25; -fx-background-color: #1E293B;");
+        Label expIcon = new Label("📊");
+        expIcon.setStyle("-fx-font-size: 16px;");
 
-        // Grille d'informations avec icônes
-        GridPane infoGrid = new GridPane();
-        infoGrid.setHgap(20);
-        infoGrid.setVgap(15);
-        infoGrid.setPadding(new Insets(0, 0, 20, 0));
+        Label expLabel = new Label(offer.getExperienceLevel());
+        expLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: rgba(255,255,255,0.9);");
 
-        // Ligne 1: Localisation
-        addInfoRow(infoGrid, "📍 Localisation", offer.getLocation(), 0, "#3B82F6");
+        subtitleRow.getChildren().addAll(deptIcon, deptLabel, expIcon, expLabel);
 
-        // Ligne 2: Salaire
-        String salaireText = String.format("%.0f - %.0f DT", offer.getSalaryMin(), offer.getSalaryMax());
-        addInfoRow(infoGrid, "💰 Salaire", salaireText, 1, "#10B981");
+        headerBox.getChildren().addAll(titleRow, subtitleRow);
 
-        // Ligne 3: Expérience
-        addInfoRow(infoGrid, "📊 Niveau d'expérience", offer.getExperienceLevel(), 2, "#8B5CF6");
+        // ========== 2. CARTE INFORMATIONS PRINCIPALES ==========
+        VBox infoCard = createInfoCard(
+                "📋 Informations générales",
+                new String[][]{
+                        {"📍 Localisation", offer.getLocation()},
+                        {"💰 Salaire", String.format("%.0f - %.0f DT", offer.getSalaryMin(), offer.getSalaryMax())},
+                        {"👥 Postes disponibles", String.valueOf(offer.getPositionsAvailable())},
+                        {"📋 Candidatures reçues", String.valueOf(offer.getApplicationsReceived())}
+                }
+        );
 
-        // Ligne 4: Postes disponibles
-        String postesText = offer.getPositionsAvailable() + " poste" + (offer.getPositionsAvailable() > 1 ? "s" : "");
-        addInfoRow(infoGrid, "👥 Postes disponibles", postesText, 3, "#F59E0B");
+        // ========== 3. CARTE DATES ==========
+        VBox datesCard = new VBox(15);
+        datesCard.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-padding: 20;" +
+                        "-fx-border-color: rgba(99,102,241,0.15);" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-border-width: 1;"
+        );
 
-        // Ligne 5: Candidatures reçues
-        String candidaturesText = offer.getApplicationsReceived() + " candidature"
-                + (offer.getApplicationsReceived() > 1 ? "s" : "");
-        addInfoRow(infoGrid, "📋 Candidatures reçues", candidaturesText, 4, "#EC4899");
+        Label datesTitle = new Label("📅 Dates importantes");
+        datesTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
 
-        // ========== DATES ==========
-        HBox datesBox = new HBox(20);
-        datesBox.setStyle("-fx-background-color: rgba(255,255,255,0.03); -fx-padding: 15; -fx-background-radius: 12;");
+        GridPane datesGrid = new GridPane();
+        datesGrid.setHgap(20);
+        datesGrid.setVgap(15);
 
-        VBox publishBox = createDateBox(
-                "📅 Date de publication",
-                offer.getPublishDate().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")),
-                "#3B82F6");
+        // Date de publication
+        Label pubLabel = new Label("Date de publication:");
+        pubLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8;");
 
-        VBox closingBox = createDateBox(
-                "⏰ Date de clôture",
-                offer.getClosingDate().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")),
-                offer.getClosingDate().isBefore(LocalDate.now()) ? "#EF4444" : "#10B981");
+        Label pubValue = new Label(offer.getPublishDate().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
+        pubValue.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #F1F5F9;");
 
-        // Ajouter un indicateur de jours restants
-        if (!offer.getClosingDate().isBefore(LocalDate.now())) {
-            long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), offer.getClosingDate());
-            Label daysLeftLabel = new Label(
-                    daysLeft + " jour" + (daysLeft > 1 ? "s" : "") + " restant" + (daysLeft > 1 ? "s" : ""));
-            daysLeftLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748B; -fx-padding: 5 0 0 0;");
-            closingBox.getChildren().add(daysLeftLabel);
+        // Date de clôture
+        Label closingLabel = new Label("Date de clôture:");
+        closingLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8;");
+
+        Label closingValue = new Label(offer.getClosingDate().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
+
+        // Calcul des jours restants
+        long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), offer.getClosingDate());
+        String daysText;
+        String daysColor;
+
+        if (daysLeft < 0) {
+            daysText = "Expirée";
+            daysColor = "#EF4444";
+        } else if (daysLeft == 0) {
+            daysText = "Dernier jour !";
+            daysColor = "#F59E0B";
+        } else if (daysLeft <= 7) {
+            daysText = daysLeft + " jour" + (daysLeft > 1 ? "s" : "") + " restant" + (daysLeft > 1 ? "s" : "") + " ⚠️";
+            daysColor = "#F59E0B";
+        } else {
+            daysText = daysLeft + " jour" + (daysLeft > 1 ? "s" : "") + " restant" + (daysLeft > 1 ? "s" : "");
+            daysColor = "#10B981";
         }
 
-        datesBox.getChildren().addAll(publishBox, closingBox);
-        HBox.setHgrow(publishBox, Priority.ALWAYS);
-        HBox.setHgrow(closingBox, Priority.ALWAYS);
+        Label daysLeftLabel = new Label(daysText);
+        daysLeftLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: " + daysColor + ";");
 
-        // ========== DESCRIPTION ==========
-        VBox descriptionBox = new VBox(10);
-        descriptionBox
-                .setStyle("-fx-background-color: rgba(255,255,255,0.03); -fx-padding: 20; -fx-background-radius: 12;");
+        closingValue.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: " + daysColor + ";");
+
+        datesGrid.add(pubLabel, 0, 0);
+        datesGrid.add(pubValue, 1, 0);
+        datesGrid.add(closingLabel, 0, 1);
+        datesGrid.add(closingValue, 1, 1);
+        datesGrid.add(daysLeftLabel, 1, 2);
+
+        datesCard.getChildren().addAll(datesTitle, datesGrid);
+
+        // ========== 4. DESCRIPTION ==========
+        VBox descCard = new VBox(15);
+        descCard.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-padding: 20;" +
+                        "-fx-border-color: rgba(99,102,241,0.15);" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-border-width: 1;"
+        );
 
         Label descTitle = new Label("📝 Description du poste");
         descTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
@@ -865,118 +1060,156 @@ public class OffersCardController implements Initializable {
         descriptionArea.setWrapText(true);
         descriptionArea.setEditable(false);
         descriptionArea.setPrefRowCount(8);
-        descriptionArea
-                .setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); " +
-                        "-fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 14px; -fx-text-fill: #CBD5E1;");
+        descriptionArea.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-color: #334155;" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-text-fill: #1E293B;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-font-family: 'Segoe UI';" +
+                        "-fx-line-spacing: 2;"
+        );
 
-        descriptionBox.getChildren().addAll(descTitle, descriptionArea);
+        descCard.getChildren().addAll(descTitle, descriptionArea);
 
-        // ========== STATISTIQUES ==========
+        // ========== 5. STATISTIQUES ==========
         HBox statsBox = new HBox(15);
-        statsBox.setStyle("-fx-padding: 10 0 0 0;");
+        statsBox.setAlignment(javafx.geometry.Pos.CENTER);
 
         // Taux de remplissage
-        double fillRate = offer.getPositionsAvailable() > 0
-                ? (double) offer.getApplicationsReceived() / offer.getPositionsAvailable() * 100
-                : 0;
+        double fillRate = offer.getPositionsAvailable() > 0 ?
+                (double) offer.getApplicationsReceived() / offer.getPositionsAvailable() * 100 : 0;
 
-        VBox rateBox = createStatBox(
+        VBox fillRateBox = createStatBox(
                 "📊 Taux de remplissage",
                 String.format("%.1f%%", fillRate),
-                fillRate > 100 ? "#EF4444" : (fillRate > 50 ? "#10B981" : "#F59E0B"));
+                fillRate >= 100 ? "#EF4444" : (fillRate >= 50 ? "#10B981" : "#F59E0B")
+        );
 
         // Ratio candidatures/postes
+        double ratio = offer.getPositionsAvailable() > 0 ?
+                (double) offer.getApplicationsReceived() / offer.getPositionsAvailable() : 0;
+
         VBox ratioBox = createStatBox(
                 "📈 Ratio candidatures/postes",
-                String.format("%.1f", (double) offer.getApplicationsReceived() / offer.getPositionsAvailable()),
-                "#8B5CF6");
+                String.format("%.1f", ratio),
+                ratio >= 5 ? "#EF4444" : (ratio >= 2 ? "#F59E0B" : "#10B981")
+        );
 
-        statsBox.getChildren().addAll(rateBox, ratioBox);
-        HBox.setHgrow(rateBox, Priority.ALWAYS);
+        // Compétitivité
+        String competitivite;
+        String compColor;
+        if (offer.getApplicationsReceived() == 0) {
+            competitivite = "Faible";
+            compColor = "#94A3B8";
+        } else if (offer.getApplicationsReceived() < 5) {
+            competitivite = "Modérée";
+            compColor = "#F59E0B";
+        } else if (offer.getApplicationsReceived() < 15) {
+            competitivite = "Élevée";
+            compColor = "#10B981";
+        } else {
+            competitivite = "Très élevée";
+            compColor = "#EF4444";
+        }
+
+        VBox compBox = createStatBox(
+                "🔥 Compétitivité",
+                competitivite,
+                compColor
+        );
+
+        statsBox.getChildren().addAll(fillRateBox, ratioBox, compBox);
+        HBox.setHgrow(fillRateBox, Priority.ALWAYS);
         HBox.setHgrow(ratioBox, Priority.ALWAYS);
+        HBox.setHgrow(compBox, Priority.ALWAYS);
+
+        // ========== 6. PIED DE PAGE AVEC DATE DE CRÉATION ==========
+        // ✅ DÉCLARATION DE FOOTERBOX ICI (avant de l'utiliser)
+        HBox footerBox = new HBox(15);
+        footerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        // ✅ DATE DE CRÉATION
+        Label createdLabel = new Label("📅 Créée le: " + (offer.getPublishDate() != null ?
+                offer.getPublishDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A"));
+        createdLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748B;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Message informatif
+        Label infoLabel = new Label("✨ Offre active");
+        infoLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #10B981; -fx-font-weight: bold;");
+
+        footerBox.getChildren().addAll(createdLabel, spacer, infoLabel);
 
         // ========== ASSEMBLAGE ==========
-        contentBox.getChildren().addAll(
-                infoGrid,
-                new Separator(),
-                datesBox,
-                new Separator(),
-                descriptionBox,
-                statsBox);
+        container.getChildren().addAll(
+                headerBox,
+                infoCard,
+                datesCard,
+                descCard,
+                statsBox,
+                footerBox  // ✅ Maintenant footerBox est déclaré
+        );
 
-        mainContainer.setTop(headerBox);
-        mainContainer.setCenter(contentBox);
+        scrollPane.setContent(container);
+        dialogPane.setContent(scrollPane);
 
-        dialog.getDialogPane().setContent(mainContainer);
+        // Style du bouton Fermer
+        Button closeButton = (Button) dialogPane.lookupButton(ButtonType.CLOSE);
+        closeButton.setStyle(
+                "-fx-background-color: #475569;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-padding: 8 20;" +
+                        "-fx-background-radius: 8;"
+        );
 
-        // Style du bouton fermer
-        Button closeButton = (Button) dialog.getDialogPane().lookupButton(closeButtonType);
-        closeButton
-                .setStyle("-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: #94A3B8; -fx-padding: 8 20; " +
-                        "-fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold;");
-        closeButton.setOnMouseEntered(
-                e -> closeButton.setStyle(
-                        "-fx-background-color: rgba(255,255,255,0.12); -fx-text-fill: #F1F5F9; -fx-padding: 8 20; " +
-                                "-fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold;"));
-        closeButton.setOnMouseExited(
-                e -> closeButton.setStyle(
-                        "-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: #94A3B8; -fx-padding: 8 20; " +
-                                "-fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold;"));
-
-        // Afficher le dialogue
         dialog.showAndWait();
     }
-
     /**
-     * Ajoute une ligne d'information dans la grille
+     * Crée une carte d'information élégante
      */
-    private void addInfoRow(GridPane grid, String label, String value, int row, String color) {
-        // Label
-        Label labelField = new Label(label);
-        labelField.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748B; -fx-font-weight: 600;");
+    private VBox createInfoCard(String title, String[][] infoRows) {
+        VBox card = new VBox(15);
+        card.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-padding: 20;" +
+                        "-fx-border-color: rgba(99,102,241,0.15);" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-border-width: 1;"
+        );
 
-        // Valeur avec icône
-        HBox valueBox = new HBox(8);
-        valueBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-
-        Label iconLabel = new Label("●");
-        iconLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 16px;");
-
-        Label valueLabel = new Label(value);
-        valueLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #E2E8F0; -fx-font-weight: 500;");
-
-        valueBox.getChildren().addAll(iconLabel, valueLabel);
-
-        grid.add(labelField, 0, row);
-        grid.add(valueBox, 1, row);
-    }
-
-    /**
-     * Crée une boîte de date stylisée
-     */
-    private VBox createDateBox(String title, String date, String color) {
-        VBox box = new VBox(5);
-        box.setStyle("-fx-background-color: rgba(255,255,255,0.03); -fx-padding: 15; -fx-background-radius: 8; " +
-                "-fx-border-color: rgba(255,255,255,0.06); -fx-border-radius: 8; -fx-border-width: 1;");
-
+        // Titre de la carte
         Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #64748B; -fx-font-weight: 600;");
+        titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
 
-        HBox dateBox = new HBox(8);
-        dateBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        // Grille d'informations
+        GridPane infoGrid = new GridPane();
+        infoGrid.setHgap(15);
+        infoGrid.setVgap(12);
 
-        Label dateValue = new Label(date);
-        dateValue.setStyle("-fx-font-size: 16px; -fx-text-fill: #F1F5F9; -fx-font-weight: bold;");
+        for (int i = 0; i < infoRows.length; i++) {
+            String[] row = infoRows[i];
 
-        // Petit indicateur coloré
-        Label indicator = new Label("●");
-        indicator.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 12px;");
+            // Label (colonne 0)
+            Label keyLabel = new Label(row[0]);
+            keyLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8; -fx-min-width: 150;");
 
-        dateBox.getChildren().addAll(indicator, dateValue);
+            // Valeur (colonne 1)
+            Label valueLabel = new Label(row[1]);
+            valueLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #F1F5F9; -fx-wrap-text: true;");
 
-        box.getChildren().addAll(titleLabel, dateBox);
+            infoGrid.add(keyLabel, 0, i);
+            infoGrid.add(valueLabel, 1, i);
+        }
 
-        return box;
+        card.getChildren().addAll(titleLabel, infoGrid);
+
+        return card;
     }
 
     /**
@@ -984,221 +1217,502 @@ public class OffersCardController implements Initializable {
      */
     private VBox createStatBox(String title, String value, String color) {
         VBox box = new VBox(5);
-        box.setStyle("-fx-background-color: rgba(255,255,255,0.03); -fx-padding: 15; -fx-background-radius: 8;");
+        box.setStyle(
+                "-fx-background-color: rgba(255,255,255,0.03);" +
+                        "-fx-padding: 15;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-color: rgba(99,102,241,0.15);" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-alignment: center;"
+        );
 
         Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748B;");
+        titleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #94A3B8; -fx-alignment: center;");
+        titleLabel.setMaxWidth(Double.MAX_VALUE);
 
         Label valueLabel = new Label(value);
-        valueLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: " + color + ";");
+        valueLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + color + "; -fx-alignment: center;");
+        valueLabel.setMaxWidth(Double.MAX_VALUE);
 
         box.getChildren().addAll(titleLabel, valueLabel);
 
         return box;
     }
-
     /**
-     * Style moderne pour les badges de statut
+     * Affiche le formulaire de modification d'offre
      */
-    private String getModernStatusStyle(String status) {
-        switch (status) {
-            case "Ouverte":
-                return "-fx-background-color: rgba(16,185,129,0.2); -fx-text-fill: #34D399; -fx-padding: 6 15; " +
-                        "-fx-background-radius: 30; -fx-font-size: 14px; -fx-font-weight: bold;";
-            case "Fermée":
-                return "-fx-background-color: rgba(239,68,68,0.2); -fx-text-fill: #F87171; -fx-padding: 6 15; " +
-                        "-fx-background-radius: 30; -fx-font-size: 14px; -fx-font-weight: bold;";
-            case "En attente":
-                return "-fx-background-color: rgba(245,158,11,0.2); -fx-text-fill: #FBBF24; -fx-padding: 6 15; " +
-                        "-fx-background-radius: 30; -fx-font-size: 14px; -fx-font-weight: bold;";
-            case "Pourvue":
-                return "-fx-background-color: rgba(99,102,241,0.2); -fx-text-fill: #A5B4FC; -fx-padding: 6 15; " +
-                        "-fx-background-radius: 30; -fx-font-size: 14px; -fx-font-weight: bold;";
-            default:
-                return "-fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: #94A3B8; -fx-padding: 6 15; " +
-                        "-fx-background-radius: 30; -fx-font-size: 14px; -fx-font-weight: bold;";
-        }
+    private void showEditForm(Offer offer) {
+        // Vider le conteneur des cartes
+        cardsContainer.getChildren().clear();
+
+        // Créer et afficher le formulaire de modification
+        VBox editForm = createEditForm(offer);
+        cardsContainer.getChildren().add(editForm);
     }
 
-    // ✅ AJOUT DE LA MÉTHODE editOffer
-    private void editOffer(Offer offer) {
-        // Créer le dialogue
-        Dialog<Offer> dialog = new Dialog<>();
-        dialog.setTitle("Modifier l'offre");
-        dialog.setHeaderText("Modifier l'offre : " + offer.getTitle());
+    /**
+     * Crée le formulaire de modification d'offre avec validation
+     */
+    private VBox createEditForm(Offer offer) {
+        VBox formContainer = new VBox(20);
+        formContainer.setStyle("-fx-background-color: #1E293B; -fx-padding: 30; -fx-background-radius: 16; -fx-max-width: 800;");
+        formContainer.setMaxWidth(800);
+        formContainer.setAlignment(javafx.geometry.Pos.TOP_CENTER);
 
-        ButtonType saveButtonType = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+        // En-tête avec bouton retour
+        HBox headerBox = new HBox(10);
+        headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
-        // Grille pour le formulaire
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
+        Button backBtn = new Button("← Retour aux offres");
+        backBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 5 10;");
+        backBtn.setOnAction(e -> backToOffers());
 
-        // Champs du formulaire pré-remplis avec les données de l'offre
+        Label titleLabel = new Label("✏️ Modifier l'offre");
+        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Label offerTitle = new Label(" • " + offer.getTitle());
+        offerTitle.setStyle("-fx-font-size: 18px; -fx-text-fill: #94A3B8;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        headerBox.getChildren().addAll(backBtn, spacer, titleLabel, offerTitle);
+
+        // Formulaire
+        GridPane formGrid = new GridPane();
+        formGrid.setHgap(15);
+        formGrid.setVgap(15);
+        formGrid.setAlignment(javafx.geometry.Pos.CENTER);
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(30);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(70);
+        formGrid.getColumnConstraints().addAll(col1, col2);
+
+        int row = 0;
+
+        // ========== TITRE ==========
+        Label titleFieldLabel = new Label("Titre *");
+        titleFieldLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+
         TextField titleField = new TextField(offer.getTitle());
-        titleField.setPromptText("Titre du poste");
+        titleField.setPromptText("Ex: Développeur Java Senior");
+        titleField.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 10; -fx-text-fill: #E2E8F0; -fx-prompt-text-fill: #64748B;");
+
+        Label titleError = new Label();
+        titleError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox titleBox = new VBox(3);
+        titleBox.getChildren().addAll(titleField, titleError);
+        formGrid.add(titleFieldLabel, 0, row);
+        formGrid.add(titleBox, 1, row++);
+
+        // ========== DESCRIPTION ==========
+        Label descLabel = new Label("Description");
+        descLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
         TextArea descriptionArea = new TextArea(offer.getDescription());
-        descriptionArea.setPromptText("Description du poste");
-        descriptionArea.setPrefRowCount(5);
+        descriptionArea.setPromptText("Décrivez les missions, responsabilités, etc.");
+        descriptionArea.setPrefRowCount(4);
+        descriptionArea.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 10; -fx-text-fill: #E2E8F0; -fx-prompt-text-fill: #64748B;");
+
+        formGrid.add(descLabel, 0, row);
+        formGrid.add(descriptionArea, 1, row++);
+
+        // ========== DÉPARTEMENT ==========
+        Label deptLabel = new Label("Département *");
+        deptLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
         ComboBox<String> departmentCombo = new ComboBox<>();
         departmentCombo.getItems().addAll("IT", "RH", "Finance", "Marketing", "Production", "Logistique", "Commerce");
         departmentCombo.setValue(offer.getDepartment());
-        departmentCombo.setPromptText("Département");
+        departmentCombo.setPromptText("Sélectionnez un département");
+        departmentCombo.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
 
-        ComboBox<String> contractTypeCombo = new ComboBox<>();
-        contractTypeCombo.getItems().addAll("CDI", "CDD", "Stage", "Alternance", "Freelance");
-        contractTypeCombo.setValue(offer.getContractType());
-        contractTypeCombo.setPromptText("Type de contrat");
+        Label deptError = new Label();
+        deptError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
 
-        ComboBox<String> experienceCombo = new ComboBox<>();
-        experienceCombo.getItems().addAll("Débutant", "Junior", "Intermédiaire", "Senior", "Expert");
-        experienceCombo.setValue(offer.getExperienceLevel());
-        experienceCombo.setPromptText("Niveau d'expérience");
+        VBox deptBox = new VBox(3);
+        deptBox.getChildren().addAll(departmentCombo, deptError);
+        formGrid.add(deptLabel, 0, row);
+        formGrid.add(deptBox, 1, row++);
+
+        // ========== TYPE DE CONTRAT ==========
+        Label contractLabel = new Label("Type de contrat *");
+        contractLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+
+        ComboBox<String> contractCombo = new ComboBox<>();
+        contractCombo.getItems().addAll("CDI", "CDD", "Stage", "Alternance", "Freelance");
+        contractCombo.setValue(offer.getContractType());
+        contractCombo.setPromptText("Sélectionnez un type");
+        contractCombo.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
+
+        Label contractError = new Label();
+        contractError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox contractBox = new VBox(3);
+        contractBox.getChildren().addAll(contractCombo, contractError);
+        formGrid.add(contractLabel, 0, row);
+        formGrid.add(contractBox, 1, row++);
+
+        // ========== NIVEAU D'EXPÉRIENCE ==========
+        Label expLabel = new Label("Expérience *");
+        expLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+
+        ComboBox<String> expCombo = new ComboBox<>();
+        expCombo.getItems().addAll("Débutant", "Junior", "Intermédiaire", "Senior", "Expert");
+        expCombo.setValue(offer.getExperienceLevel());
+        expCombo.setPromptText("Sélectionnez un niveau");
+        expCombo.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
+
+        Label expError = new Label();
+        expError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox expBox = new VBox(3);
+        expBox.getChildren().addAll(expCombo, expError);
+        formGrid.add(expLabel, 0, row);
+        formGrid.add(expBox, 1, row++);
+
+        // ========== SALAIRE MIN ==========
+        Label salaryMinLabel = new Label("Salaire min *");
+        salaryMinLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
         TextField salaryMinField = new TextField(String.valueOf(offer.getSalaryMin()));
-        salaryMinField.setPromptText("Salaire min");
+        salaryMinField.setPromptText("Ex: 45000");
+        salaryMinField.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 10; -fx-text-fill: #E2E8F0; -fx-prompt-text-fill: #64748B;");
+
+        // Validation pour n'accepter que les nombres
+        salaryMinField.textProperty().addListener((obs, old, newVal) -> {
+            if (!newVal.matches("\\d*\\.?\\d*")) {
+                salaryMinField.setText(newVal.replaceAll("[^\\d.]", ""));
+            }
+        });
+
+        Label salaryMinError = new Label();
+        salaryMinError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox salaryMinBox = new VBox(3);
+        salaryMinBox.getChildren().addAll(salaryMinField, salaryMinError);
+        formGrid.add(salaryMinLabel, 0, row);
+        formGrid.add(salaryMinBox, 1, row);
+
+        // ========== SALAIRE MAX ==========
+        Label salaryMaxLabel = new Label("Salaire max *");
+        salaryMaxLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
         TextField salaryMaxField = new TextField(String.valueOf(offer.getSalaryMax()));
-        salaryMaxField.setPromptText("Salaire max");
+        salaryMaxField.setPromptText("Ex: 65000");
+        salaryMaxField.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 10; -fx-text-fill: #E2E8F0; -fx-prompt-text-fill: #64748B;");
+
+        // Validation pour n'accepter que les nombres
+        salaryMaxField.textProperty().addListener((obs, old, newVal) -> {
+            if (!newVal.matches("\\d*\\.?\\d*")) {
+                salaryMaxField.setText(newVal.replaceAll("[^\\d.]", ""));
+            }
+        });
+
+        Label salaryMaxError = new Label();
+        salaryMaxError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox salaryMaxBox = new VBox(3);
+        salaryMaxBox.getChildren().addAll(salaryMaxField, salaryMaxError);
+        formGrid.add(salaryMaxLabel, 2, row);
+        formGrid.add(salaryMaxBox, 3, row++);
+
+        // ========== LOCALISATION ==========
+        Label locationLabel = new Label("Localisation *");
+        locationLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
         ComboBox<String> locationCombo = new ComboBox<>();
         locationCombo.getItems().addAll("Tunis", "Sfax", "Sousse", "Gabès", "Bizerte", "Ariana", "Ben Arous", "Nabeul");
         locationCombo.setValue(offer.getLocation());
-        locationCombo.setPromptText("Localisation");
+        locationCombo.setPromptText("Sélectionnez une ville");
+        locationCombo.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
+        locationCombo.setEditable(true);
+
+        Label locationError = new Label();
+        locationError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox locationBox = new VBox(3);
+        locationBox.getChildren().addAll(locationCombo, locationError);
+        formGrid.add(locationLabel, 0, row);
+        formGrid.add(locationBox, 1, row++);
+
+        // ========== STATUT ==========
+        Label statusLabel = new Label("Statut");
+        statusLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
         ComboBox<String> statusCombo = new ComboBox<>();
         statusCombo.getItems().addAll("Ouverte", "Fermée", "En attente", "Pourvue");
         statusCombo.setValue(offer.getStatus());
-        statusCombo.setPromptText("Statut");
+        statusCombo.setPromptText("Sélectionnez un statut");
+        statusCombo.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
+
+        formGrid.add(statusLabel, 0, row);
+        formGrid.add(statusCombo, 1, row++);
+
+        // ========== DATE PUBLICATION ==========
+        Label publishLabel = new Label("Date publication");
+        publishLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
         DatePicker publishDatePicker = new DatePicker(offer.getPublishDate());
+        publishDatePicker.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
+
+        formGrid.add(publishLabel, 0, row);
+        formGrid.add(publishDatePicker, 1, row++);
+
+        // ========== DATE CLÔTURE ==========
+        Label closingLabel = new Label("Date clôture *");
+        closingLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+
         DatePicker closingDatePicker = new DatePicker(offer.getClosingDate());
+        closingDatePicker.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 5; -fx-text-fill: #E2E8F0;");
 
-        Spinner<Integer> positionsSpinner = new Spinner<>(1, 100, offer.getPositionsAvailable());
+        Label closingError = new Label();
+        closingError.setStyle("-fx-text-fill: #F87171; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox closingBox = new VBox(3);
+        closingBox.getChildren().addAll(closingDatePicker, closingError);
+        formGrid.add(closingLabel, 0, row);
+        formGrid.add(closingBox, 1, row++);
+
+        // ========== POSTES DISPONIBLES ==========
+        Label positionsLabel = new Label("Postes disponibles");
+        positionsLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+
+        Spinner<Integer> positionsSpinner = new Spinner<>(1, 50, offer.getPositionsAvailable());
         positionsSpinner.setEditable(true);
+        positionsSpinner.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-border-color: rgba(255,255,255,0.08); -fx-border-radius: 10; -fx-background-radius: 10; -fx-text-fill: #E2E8F0;");
 
-        // Ajout des champs à la grille
-        int row = 0;
-        grid.add(new Label("Titre*:"), 0, row);
-        grid.add(titleField, 1, row++);
+        formGrid.add(positionsLabel, 0, row);
+        formGrid.add(positionsSpinner, 1, row++);
 
-        grid.add(new Label("Description:"), 0, row);
-        grid.add(descriptionArea, 1, row++);
+        // Bouton de sauvegarde (désactivé par défaut)
+        Button saveBtn = new Button("Mettre à jour");
+        saveBtn.setStyle("-fx-background-color: #475569; -fx-text-fill: #94A3B8; -fx-padding: 12 24; -fx-background-radius: 10; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+        saveBtn.setDisable(true);
 
-        grid.add(new Label("Département*:"), 0, row);
-        grid.add(departmentCombo, 1, row++);
-
-        grid.add(new Label("Type de contrat*:"), 0, row);
-        grid.add(contractTypeCombo, 1, row++);
-
-        grid.add(new Label("Expérience*:"), 0, row);
-        grid.add(experienceCombo, 1, row++);
-
-        grid.add(new Label("Salaire min*:"), 0, row);
-        grid.add(salaryMinField, 1, row);
-        grid.add(new Label("Salaire max*:"), 2, row);
-        grid.add(salaryMaxField, 3, row++);
-
-        grid.add(new Label("Localisation*:"), 0, row);
-        grid.add(locationCombo, 1, row++);
-
-        grid.add(new Label("Statut:"), 0, row);
-        grid.add(statusCombo, 1, row++);
-
-        grid.add(new Label("Date publication:"), 0, row);
-        grid.add(publishDatePicker, 1, row);
-        grid.add(new Label("Date clôture:"), 2, row);
-        grid.add(closingDatePicker, 3, row++);
-
-        grid.add(new Label("Postes disponibles:"), 0, row);
-        grid.add(positionsSpinner, 1, row);
-
-        dialog.getDialogPane().setContent(grid);
-
-        // Récupérer le bouton "Enregistrer"
-        Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveButtonType);
-
-        // Validation du formulaire
+        // ========== VALIDATION EN TEMPS RÉEL ==========
         Runnable validateForm = () -> {
-            boolean isValid = !titleField.getText().trim().isEmpty() &&
-                    departmentCombo.getValue() != null &&
-                    contractTypeCombo.getValue() != null &&
-                    experienceCombo.getValue() != null &&
-                    !salaryMinField.getText().trim().isEmpty() &&
-                    !salaryMaxField.getText().trim().isEmpty() &&
-                    locationCombo.getValue() != null;
+            boolean isValid = true;
 
-            // Vérifier que les salaires sont des nombres valides
-            if (isValid) {
+            // Validation titre
+            String title = titleField.getText();
+            if (title.isEmpty()) {
+                titleError.setText("❌ Le titre est obligatoire");
+                titleField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else if (title.length() < 3) {
+                titleError.setText("❌ Minimum 3 caractères");
+                titleField.setStyle("-fx-border-color: #F59E0B; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                titleError.setText("✅ Valide");
+                titleError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                titleField.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
+
+            // Validation département
+            if (departmentCombo.getValue() == null) {
+                deptError.setText("❌ Sélectionnez un département");
+                departmentCombo.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                deptError.setText("✅ Valide");
+                deptError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                departmentCombo.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
+
+            // Validation type contrat
+            if (contractCombo.getValue() == null) {
+                contractError.setText("❌ Sélectionnez un type de contrat");
+                contractCombo.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                contractError.setText("✅ Valide");
+                contractError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                contractCombo.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
+
+            // Validation expérience
+            if (expCombo.getValue() == null) {
+                expError.setText("❌ Sélectionnez un niveau");
+                expCombo.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                expError.setText("✅ Valide");
+                expError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                expCombo.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
+
+            // Validation salaire min
+            String salMin = salaryMinField.getText();
+            if (salMin.isEmpty()) {
+                salaryMinError.setText("❌ Salaire minimum obligatoire");
+                salaryMinField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
                 try {
-                    Double.parseDouble(salaryMinField.getText());
-                    Double.parseDouble(salaryMaxField.getText());
+                    double min = Double.parseDouble(salMin);
+                    if (min <= 0) {
+                        salaryMinError.setText("❌ Doit être > 0");
+                        salaryMinField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                        isValid = false;
+                    } else {
+                        salaryMinError.setText("✅ Valide");
+                        salaryMinError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                        salaryMinField.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                    }
                 } catch (NumberFormatException e) {
+                    salaryMinError.setText("❌ Format invalide");
+                    salaryMinField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
                     isValid = false;
                 }
             }
 
-            saveButton.setDisable(!isValid);
+            // Validation salaire max
+            String salMax = salaryMaxField.getText();
+            if (salMax.isEmpty()) {
+                salaryMaxError.setText("❌ Salaire maximum obligatoire");
+                salaryMaxField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                try {
+                    double max = Double.parseDouble(salMax);
+                    if (max <= 0) {
+                        salaryMaxError.setText("❌ Doit être > 0");
+                        salaryMaxField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                        isValid = false;
+                    } else {
+                        salaryMaxError.setText("✅ Valide");
+                        salaryMaxError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                        salaryMaxField.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                    }
+                } catch (NumberFormatException e) {
+                    salaryMaxError.setText("❌ Format invalide");
+                    salaryMaxField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                    isValid = false;
+                }
+            }
+
+            // Validation croisée des salaires
+            if (!salMin.isEmpty() && !salMax.isEmpty()) {
+                try {
+                    double min = Double.parseDouble(salMin);
+                    double max = Double.parseDouble(salMax);
+                    if (max < min) {
+                        salaryMinError.setText("❌ Min > Max");
+                        salaryMaxError.setText("❌ Max < Min");
+                        salaryMinField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                        salaryMaxField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                        isValid = false;
+                    }
+                } catch (NumberFormatException e) {
+                    // Déjà géré
+                }
+            }
+
+            // Validation localisation
+            if (locationCombo.getValue() == null || locationCombo.getValue().trim().isEmpty()) {
+                locationError.setText("❌ Localisation obligatoire");
+                locationCombo.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                locationError.setText("✅ Valide");
+                locationError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                locationCombo.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
+
+            // Validation date clôture
+            LocalDate closingDate = closingDatePicker.getValue();
+            if (closingDate == null) {
+                closingError.setText("❌ Date de clôture obligatoire");
+                closingDatePicker.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else if (closingDate.isBefore(LocalDate.now())) {
+                closingError.setText("❌ Ne peut pas être dans le passé");
+                closingDatePicker.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+                isValid = false;
+            } else {
+                closingError.setText("✅ Valide");
+                closingError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+                closingDatePicker.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: rgba(255,255,255,0.05);");
+            }
+
+            // Activer/désactiver le bouton
+            if (isValid) {
+                saveBtn.setDisable(false);
+                saveBtn.setStyle("-fx-background-color: linear-gradient(to right, #6366F1, #06B6D4); -fx-text-fill: white; -fx-padding: 12 24; -fx-background-radius: 10; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+            } else {
+                saveBtn.setDisable(true);
+                saveBtn.setStyle("-fx-background-color: #475569; -fx-text-fill: #94A3B8; -fx-padding: 12 24; -fx-background-radius: 10; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+            }
         };
 
-        // Ajouter des écouteurs
+        // Ajouter les écouteurs de validation
         titleField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
         departmentCombo.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
-        contractTypeCombo.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
-        experienceCombo.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
+        contractCombo.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
+        expCombo.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
         salaryMinField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
         salaryMaxField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
         locationCombo.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
+        closingDatePicker.valueProperty().addListener((obs, old, newVal) -> validateForm.run());
 
-        // Valider initialement
+        // Validation initiale
         validateForm.run();
 
-        // Conversion résultat
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == saveButtonType) {
-                try {
-                    // Mettre à jour l'offre existante
-                    offer.setTitle(titleField.getText());
-                    offer.setDescription(descriptionArea.getText());
-                    offer.setDepartment(departmentCombo.getValue());
-                    offer.setContractType(contractTypeCombo.getValue());
-                    offer.setExperienceLevel(experienceCombo.getValue());
-                    offer.setSalaryMin(Double.parseDouble(salaryMinField.getText()));
-                    offer.setSalaryMax(Double.parseDouble(salaryMaxField.getText()));
-                    offer.setLocation(locationCombo.getValue());
-                    offer.setStatus(statusCombo.getValue());
-                    offer.setPublishDate(publishDatePicker.getValue());
-                    offer.setClosingDate(closingDatePicker.getValue());
-                    offer.setPositionsAvailable(positionsSpinner.getValue());
-                    return offer;
-                } catch (NumberFormatException e) {
-                    showAlert("Erreur", "Les salaires doivent être des nombres valides", Alert.AlertType.ERROR);
-                    return null;
+        // ========== BOUTON ANNULER ==========
+        Button cancelBtn = new Button("Annuler");
+        cancelBtn.setStyle("-fx-background-color: #475569; -fx-text-fill: white; -fx-padding: 12 24; -fx-background-radius: 10; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+        cancelBtn.setOnAction(e -> backToOffers());
+
+        // Action du bouton sauvegarder
+        saveBtn.setOnAction(e -> {
+            try {
+                // Mettre à jour l'offre existante
+                offer.setTitle(titleField.getText());
+                offer.setDescription(descriptionArea.getText());
+                offer.setDepartment(departmentCombo.getValue());
+                offer.setContractType(contractCombo.getValue());
+                offer.setExperienceLevel(expCombo.getValue());
+                offer.setSalaryMin(Double.parseDouble(salaryMinField.getText()));
+                offer.setSalaryMax(Double.parseDouble(salaryMaxField.getText()));
+                offer.setLocation(locationCombo.getValue());
+                offer.setStatus(statusCombo.getValue());
+                offer.setPublishDate(publishDatePicker.getValue());
+                offer.setClosingDate(closingDatePicker.getValue());
+                offer.setPositionsAvailable(positionsSpinner.getValue());
+
+                if (offerService.updateOffer(offer)) {
+                    showAlert("Succès", "Offre modifiée avec succès!", Alert.AlertType.INFORMATION);
+                    backToOffers();
+                    loadOffers();
+                } else {
+                    showAlert("Erreur", "Erreur lors de la modification", Alert.AlertType.ERROR);
                 }
+            } catch (NumberFormatException ex) {
+                showAlert("Erreur", "Vérifiez les champs numériques", Alert.AlertType.ERROR);
             }
-            return null;
         });
 
-        // Afficher le dialogue et traiter le résultat
-        dialog.showAndWait().ifPresent(updatedOffer -> {
-            if (offerService.updateOffer(updatedOffer)) {
-                // Rafraîchir l'affichage
-                int index = offersList.indexOf(offer);
-                if (index != -1) {
-                    offersList.set(index, updatedOffer);
-                }
-                loadOffers(); // Recharger toutes les offres
-                showAlert("Succès", "Offre modifiée avec succès!", Alert.AlertType.INFORMATION);
-            } else {
-                showAlert("Erreur", "Erreur lors de la modification de l'offre", Alert.AlertType.ERROR);
-            }
-        });
+        // Boutons
+        HBox buttonBox = new HBox(15);
+        buttonBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        buttonBox.setPadding(new Insets(20, 0, 0, 0));
+        buttonBox.getChildren().addAll(cancelBtn, saveBtn);
+
+        // Message champs obligatoires
+        Label requiredLabel = new Label("* Champs obligatoires");
+        requiredLabel.setStyle("-fx-text-fill: #64748B; -fx-font-size: 12px;");
+
+        // Assemblage final
+        formContainer.getChildren().addAll(headerBox, formGrid, buttonBox, requiredLabel);
+
+        return formContainer;
     }
-
     // ✅ AJOUT DE LA MÉTHODE deleteOffer
     private void deleteOffer(Offer offer) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);

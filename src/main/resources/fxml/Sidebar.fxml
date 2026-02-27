@@ -14,14 +14,21 @@
       styleClass="sidebar"
       spacing="0">
 
-    <!-- Logo Header -->
+
     <HBox spacing="12" styleClass="sidebar-header" alignment="CENTER_LEFT">
         <padding>
             <Insets top="24" right="20" bottom="24" left="20"/>
         </padding>
         <StackPane>
-            <Circle radius="22" style="-fx-fill: linear-gradient(to bottom right, #6366F1, #06B6D4);"/>
-            <Text text="T" fill="white" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            <!-- Cercle de fond (si l'image ne charge pas) -->
+            <Circle radius="22" style="-fx-fill: linear-gradient(to bottom right, #6366F1, #06B6D4);" visible="false"/>
+            <!-- Logo image -->
+            <ImageView fitWidth="40" fitHeight="40" preserveRatio="true">
+                <Image url="/images/logo.png"/>
+                <clip>
+                    <Circle radius="20" centerX="20" centerY="20"/>
+                </clip>
+            </ImageView>
         </StackPane>
         <VBox spacing="1">
             <Label text="TalentOS" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
@@ -60,24 +67,31 @@
     <!-- Spacer -->
     <Region VBox.vgrow="ALWAYS"/>
 
-    <!-- User Profile -->
+    <!-- ✅ USER PROFILE - IMAGE BIEN AJUSTÉE -->
     <HBox spacing="12" styleClass="sidebar-user" alignment="CENTER_LEFT">
         <padding>
             <Insets left="20" right="20" top="16" bottom="16"/>
         </padding>
-        <StackPane>
-            <Circle radius="22" style="-fx-fill: linear-gradient(to bottom right, #6366F1, #06B6D4);"/>
-            <ImageView fitWidth="40" fitHeight="40" preserveRatio="true">
+
+        <!-- Avatar avec image -->
+        <StackPane prefWidth="48" prefHeight="48">
+            <!-- Cercle de fond (optionnel, peut être supprimé si l'image couvre tout) -->
+            <Circle radius="24" style="-fx-fill: linear-gradient(to bottom right, #6366F1, #06B6D4);" visible="false"/>
+
+            <!-- Image avec clip circulaire -->
+            <ImageView fitWidth="48" fitHeight="48" preserveRatio="false">
                 <Image url="/images/meniar.jpg"/>
                 <clip>
-                    <Circle radius="19" centerX="20" centerY="20"/>
+                    <!-- Clip circulaire aux dimensions exactes de l'image -->
+                    <Circle radius="24" centerX="24" centerY="24"/>
                 </clip>
             </ImageView>
         </StackPane>
+
+        <!-- Informations utilisateur -->
         <VBox spacing="2">
-            <Label text="Meniar Mili" style="-fx-font-weight: bold; -fx-text-fill: #E2E8F0;"/>
-            <Label text="RH Manager" style="-fx-font-size: 11px; -fx-text-fill: #64748B;"/>
+            <Label text="Meniar Mili" style="-fx-font-weight: bold; -fx-text-fill: #E2E8F0; -fx-font-size: 14px;"/>
+            <Label text="RH Manager" style="-fx-font-size: 12px; -fx-text-fill: #64748B;"/>
         </VBox>
     </HBox>
-
 </VBox>
