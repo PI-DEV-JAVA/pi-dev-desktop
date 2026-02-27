@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="talentospidev.controllers.CandidateApplicationCardController"
+      stylesheets="@/style/app.css" style="-fx-background-color: #f0f2f5;">
+
+    <!-- ======= LEFT SIDEBAR ======= -->
+    <VBox styleClass="sidebar">
+        <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 1 1 1 1;">
+            <ImageView fitHeight="60" fitWidth="60" preserveRatio="true">
+                <image>
+                    <Image url="@/images/logo.png"/>
+                </image>
+            </ImageView>
+            <Label text="Talentos" styleClass="sidebar-logo"/>
+        </HBox>
+
+        <Separator style="-fx-opacity: 0.1;"/>
+
+        <Label text="MAIN" styleClass="sidebar-section-label"/>
+        <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
+        <Button text="💼  Job Offers" styleClass="sidebar-button-active" onAction="#handleJobOffers"/>
+        <Button text="✅  To Do" styleClass="sidebar-button" onAction="#handleToDo"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
+        <Button text="👤  My Profile" styleClass="sidebar-button" onAction="#handleMyProfile"/>
+        <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
+    </VBox>
+
+    <!-- ======= MAIN CONTENT ======= -->
+    <VBox HBox.hgrow="ALWAYS">
+
+        <!-- Top Bar -->
+        <HBox alignment="CENTER_LEFT" spacing="16" styleClass="top-bar">
+            <VBox>
+                <Label text="Postuler à une offre" styleClass="page-title"/>
+                <Label text="Trouvez l'offre qui vous correspond et postulez" styleClass="page-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="totalOffersLabel" styleClass="total-label"
+                   style="-fx-font-size: 12px; -fx-text-fill: #9ca3af;"/>
+            <Button text="🔄 Actualiser" onAction="#refreshOffers" styleClass="sidebar-button"
+                    style="-fx-padding: 8 16;"/>
+        </HBox>
+
+        <!-- Search + Filters -->
+        <VBox spacing="12" style="-fx-padding: 12 24;">
+            <HBox spacing="14" alignment="CENTER_LEFT">
+                <HBox alignment="CENTER_LEFT" spacing="8"
+                      style="-fx-background-color: #f3f4f6; -fx-background-radius: 8; -fx-padding: 2 12;">
+                    <Label text="🔍" style="-fx-text-fill: #9ca3af;"/>
+                    <TextField fx:id="searchField" promptText="Rechercher par titre, description..."
+                               style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8; -fx-pref-width: 300;"/>
+                </HBox>
+
+                <ComboBox fx:id="departmentFilter" prefWidth="180"/>
+                <ComboBox fx:id="contractFilter" prefWidth="150"/>
+            </HBox>
+        </VBox>
+
+        <!-- Scrollable content area -->
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                    style="-fx-background: transparent; -fx-background-color: transparent;">
+            <VBox spacing="20" style="-fx-padding: 10 24 24 24;">
+
+                <!-- Offer Cards Container -->
+                <FlowPane fx:id="offersCardsContainer"
+                          hgap="20"
+                          vgap="20"
+                          alignment="TOP_CENTER">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                </FlowPane>
+
+                <!-- Application Form (hidden by default) -->
+                <VBox fx:id="applicationForm" spacing="22"
+                      style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 32;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+                      visible="false">
+
+                    <HBox spacing="16" alignment="CENTER_LEFT">
+                        <Label text="📝" style="-fx-font-size: 32px;"/>
+                        <VBox spacing="4">
+                            <Label text="Formulaire de candidature"
+                                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                            <Label text="Remplissez vos informations pour postuler"
+                                   style="-fx-font-size: 13px; -fx-text-fill: #6b7280;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Selected offer summary -->
+                    <VBox spacing="10"
+                          style="-fx-background-color: #f8fafc; -fx-background-radius: 8; -fx-padding: 20;
+                                 -fx-border-color: #e2e8f0; -fx-border-radius: 8; -fx-border-width: 1;">
+                        <Label text="Offre sélectionnée :" style="-fx-font-weight: bold; -fx-text-fill: #6b7280;"/>
+                        <Label fx:id="selectedOfferTitle"
+                               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                        <HBox spacing="20">
+                            <Label fx:id="selectedOfferDept" style="-fx-text-fill: #6b7280;"/>
+                            <Label fx:id="selectedOfferLocation" style="-fx-text-fill: #6b7280;"/>
+                        </HBox>
+                        <HBox spacing="20">
+                            <Label fx:id="selectedOfferSalary" style="-fx-text-fill: #22c55e; -fx-font-weight: bold;"/>
+                            <Label fx:id="selectedOfferClosing" style="-fx-text-fill: #ef4444;"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Form fields -->
+                    <GridPane hgap="20" vgap="16">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="28"/>
+                            <ColumnConstraints percentWidth="72"/>
+                        </columnConstraints>
+
+                        <Label text="Nom complet *" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                               style="-fx-font-weight: bold; -fx-text-fill: #374151;"/>
+                        <TextField fx:id="nameField" promptText="Votre nom et prénom"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                        <Label text="Email *" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                               style="-fx-font-weight: bold; -fx-text-fill: #374151;"/>
+                        <TextField fx:id="emailField" promptText="exemple@email.com"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                        <Label text="Téléphone" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                               style="-fx-font-weight: bold; -fx-text-fill: #374151;"/>
+                        <TextField fx:id="phoneField" promptText="+216 XX XXX XXX"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                        <Label text="CV *" GridPane.columnIndex="0" GridPane.rowIndex="3"
+                               style="-fx-font-weight: bold; -fx-text-fill: #374151;"/>
+                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                            <Button text="📎 Choisir un fichier" onAction="#chooseCV"
+                                    style="-fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-padding: 8 16; -fx-background-radius: 8;"/>
+                            <Label fx:id="cvFileNameLabel" text="Aucun fichier sélectionné"
+                                   style="-fx-text-fill: #9ca3af; -fx-font-size: 12px;"/>
+                        </VBox>
+
+                        <Label text="Lettre de motivation" GridPane.columnIndex="0" GridPane.rowIndex="4"
+                               style="-fx-font-weight: bold; -fx-text-fill: #374151;"/>
+                        <TextArea fx:id="motivationArea"
+                                  promptText="Parlez-nous de votre motivation, de votre parcours..."
+                                  prefRowCount="5" wrapText="true"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+                    </GridPane>
+
+                    <!-- Action buttons -->
+                    <HBox spacing="16" alignment="CENTER_RIGHT">
+                        <Button text="← Retour aux offres" onAction="#backToOffers"
+                                style="-fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-padding: 10 20; -fx-background-radius: 8;"/>
+                        <Button fx:id="submitButton" text="📤 Envoyer ma candidature" onAction="#submitApplication"
+                                style="-fx-background-color: linear-gradient(to right, #6366f1, #8b5cf6); -fx-text-fill: white; -fx-padding: 10 24; -fx-background-radius: 8; -fx-font-weight: bold;"/>
+                    </HBox>
+
+                    <Label text="* Champs obligatoires" style="-fx-text-fill: #9ca3af; -fx-font-size: 12px;"/>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+</HBox>

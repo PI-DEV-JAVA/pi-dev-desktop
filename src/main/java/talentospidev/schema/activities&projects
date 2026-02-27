@@ -1,0 +1,26 @@
+CREATE TABLE `project` (
+  `id`                 INT NOT NULL AUTO_INCREMENT,
+  `name`               VARCHAR(100) NOT NULL,
+  `description`        TEXT,
+  `status`             ENUM('PLANNED','IN_PROGRESS','DONE','ON_HOLD') DEFAULT 'PLANNED',
+  `start_date`         DATE DEFAULT NULL,
+  `end_date`           DATE DEFAULT NULL,
+  `budget`             DECIMAL(10,2) DEFAULT NULL,
+  `project_manager_id` INT DEFAULT NULL,
+  `created_at`         TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- activities table (depends on users and project)
+CREATE TABLE `activities` (
+  `id_activity`   INT NOT NULL AUTO_INCREMENT,
+  `employee_id`   INT NOT NULL,
+  `activity_date` DATE NOT NULL,
+  `description`   TEXT,
+  `hours_worked`  DECIMAL(5,2) DEFAULT NULL,
+  `project_id`    INT DEFAULT NULL,
+  PRIMARY KEY (`id_activity`),
+  CONSTRAINT `fk_activity_employee` FOREIGN KEY (`employee_id`) REFERENCES `users` (`id_user`) ON DELETE CASCADE,
+  CONSTRAINT `fk_activity_project`  FOREIGN KEY (`project_id`)  REFERENCES `project` (`id`)    ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

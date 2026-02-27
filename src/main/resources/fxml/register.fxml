@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentospidev.controllers.RegisterController"
+            stylesheets="@/style/app.css"
+            style="-fx-background-color: linear-gradient(to bottom right, #eef2ff, #f0f2f5, #ede9fe);">
+
+    <center>
+        <VBox spacing="16" alignment="CENTER" styleClass="login-card"
+              maxWidth="440" maxHeight="580">
+
+            <padding>
+                <Insets top="32" right="48" bottom="32" left="48"/>
+            </padding>
+
+            <!-- Logo -->
+            <ImageView fitHeight="50" preserveRatio="true" pickOnBounds="true">
+                <image>
+                    <Image url="@/images/logo.png"/>
+                </image>
+            </ImageView>
+
+            <Text text="CREATE ACCOUNT" styleClass="title-text"/>
+            <Label text="Join TalentOs and connect with talent" style="-fx-text-fill: #9ca3af; -fx-font-size: 12px;"/>
+
+            <VBox spacing="10" maxWidth="340" alignment="CENTER">
+
+                <!-- Email -->
+                <VBox spacing="2">
+                    <HBox spacing="2" alignment="CENTER_LEFT">
+                        <Label text="E-mail" styleClass="field-label"/>
+                        <Label text="*" styleClass="required-star"/>
+                    </HBox>
+                    <TextField fx:id="emailField" promptText="Enter your email" styleClass="input-field"/>
+                    <Label fx:id="emailError" styleClass="error-label" text="" visible="false" managed="false"/>
+                </VBox>
+
+                <!-- Password -->
+                <VBox spacing="2">
+                    <HBox spacing="2" alignment="CENTER_LEFT">
+                        <Label text="Password" styleClass="field-label"/>
+                        <Label text="*" styleClass="required-star"/>
+                    </HBox>
+                    <PasswordField fx:id="passwordField" promptText="Min 6 chars, 1 uppercase, 1 digit" styleClass="input-field"/>
+                    <Label fx:id="passwordError" styleClass="error-label" text="" visible="false" managed="false"/>
+                </VBox>
+
+                <!-- Confirm Password -->
+                <VBox spacing="2">
+                    <HBox spacing="2" alignment="CENTER_LEFT">
+                        <Label text="Confirm Password" styleClass="field-label"/>
+                        <Label text="*" styleClass="required-star"/>
+                    </HBox>
+                    <PasswordField fx:id="confirmPasswordField" promptText="Re-enter password" styleClass="input-field"/>
+                    <Label fx:id="confirmError" styleClass="error-label" text="" visible="false" managed="false"/>
+                </VBox>
+
+                <!-- Role -->
+                <VBox spacing="2">
+                    <HBox spacing="2" alignment="CENTER_LEFT">
+                        <Label text="Role" styleClass="field-label"/>
+                        <Label text="*" styleClass="required-star"/>
+                    </HBox>
+                    <ComboBox fx:id="roleBox" maxWidth="Infinity"/>
+                </VBox>
+
+                <Button text="REGISTER"
+                        maxWidth="Infinity"
+                        styleClass="primary-button"
+                        onAction="#handleRegister"/>
+
+            </VBox>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER" styleClass="footer">
+            <padding>
+                <Insets top="16" right="20" bottom="16" left="20"/>
+            </padding>
+            <Label text="Already have an account?" styleClass="footer-text"/>
+            <Hyperlink text="Login" styleClass="footer-link" onAction="#goToLogin"/>
+        </HBox>
+    </bottom>
+</BorderPane>

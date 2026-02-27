@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="talentospidev.controllers.AddOfferController"
+      stylesheets="@/style/app.css" style="-fx-background-color: #f0f2f5;">
+
+    <!-- ======= LEFT SIDEBAR ======= -->
+    <VBox styleClass="sidebar">
+       <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 1 1 1 1;">
+            <ImageView fitHeight="60" fitWidth="60" preserveRatio="true">
+                <image>
+                    <Image url="@/images/logo.png"/>
+                </image>
+            </ImageView>
+            <Label text="Talentos" styleClass="sidebar-logo"/>
+        </HBox>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="MAIN" styleClass="sidebar-section-label"/>
+        <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
+        <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
+        <Button text="📋  Activities" styleClass="sidebar-button" onAction="#handleActivities"/>
+        <Button text="📂  Projects" styleClass="sidebar-button" onAction="#handleProjects"/>
+        <Region VBox.vgrow="ALWAYS"/>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
+        <Button text="👤  My Profile" styleClass="sidebar-button" onAction="#handleMyProfile"/>
+        <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
+    </VBox>
+
+    <!-- ======= MAIN CONTENT ======= -->
+    <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS"
+                style="-fx-background-color: transparent; -fx-background: transparent;">
+        <VBox spacing="24" style="-fx-padding: 30;" alignment="TOP_CENTER">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="16">
+                <Button text="← Retour" onAction="#handleDashboard"
+                        style="-fx-background-color: transparent; -fx-text-fill: #6366f1; -fx-font-size: 13px; -fx-font-weight: 600; -fx-cursor: hand;"/>
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label fx:id="pageTitle" text="Nouvelle Offre" style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+                    <Label fx:id="pageSubtitle" text="Remplissez les informations de l'offre" style="-fx-font-size: 13px; -fx-text-fill: #6b7280;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Form Card -->
+            <VBox maxWidth="700" spacing="20"
+                  style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 32;
+                         -fx-border-color: #e5e7eb; -fx-border-radius: 16;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 2);">
+
+                <!-- Title -->
+                <VBox spacing="6">
+                    <Label text="Titre du poste *" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                    <TextField fx:id="titleField" promptText="Ex: Développeur Java Senior"
+                               style="-fx-background-color: #f9fafb; -fx-background-radius: 10; -fx-padding: 12 16;
+                                      -fx-font-size: 14px; -fx-border-color: #e5e7eb; -fx-border-radius: 10;"/>
+                </VBox>
+
+                <!-- Description -->
+                <VBox spacing="6">
+                    <Label text="Description du poste" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                    <TextArea fx:id="descriptionField" promptText="Décrivez les responsabilités, missions et profil recherché..."
+                              prefRowCount="5"
+                              style="-fx-background-color: #f9fafb; -fx-background-radius: 10;
+                                     -fx-font-size: 13px; -fx-border-color: #e5e7eb; -fx-border-radius: 10;"/>
+                </VBox>
+
+                <!-- 2-column row: Department + Contract -->
+                <HBox spacing="16">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Département" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <ComboBox fx:id="departmentBox" promptText="Sélectionner" maxWidth="Infinity"
+                                  style="-fx-background-radius: 10; -fx-font-size: 13px;"/>
+                    </VBox>
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Type de contrat" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <ComboBox fx:id="contractBox" promptText="Sélectionner" maxWidth="Infinity"
+                                  style="-fx-background-radius: 10; -fx-font-size: 13px;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- 2-column row: Experience + Location -->
+                <HBox spacing="16">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Niveau d'expérience" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <ComboBox fx:id="experienceBox" promptText="Sélectionner" maxWidth="Infinity"
+                                  style="-fx-background-radius: 10; -fx-font-size: 13px;"/>
+                    </VBox>
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Localisation" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <TextField fx:id="locationField" promptText="Ex: Tunis"
+                                   style="-fx-background-color: #f9fafb; -fx-background-radius: 10; -fx-padding: 10 14;
+                                          -fx-font-size: 13px; -fx-border-color: #e5e7eb; -fx-border-radius: 10;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- 2-column row: Salary Min + Max -->
+                <HBox spacing="16">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Salaire minimum (DT)" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <TextField fx:id="salaryMinField" promptText="1000"
+                                   style="-fx-background-color: #f9fafb; -fx-background-radius: 10; -fx-padding: 10 14;
+                                          -fx-font-size: 13px; -fx-border-color: #e5e7eb; -fx-border-radius: 10;"/>
+                    </VBox>
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Salaire maximum (DT)" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <TextField fx:id="salaryMaxField" promptText="3000"
+                                   style="-fx-background-color: #f9fafb; -fx-background-radius: 10; -fx-padding: 10 14;
+                                          -fx-font-size: 13px; -fx-border-color: #e5e7eb; -fx-border-radius: 10;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- 2-column row: Positions + Closing Date -->
+                <HBox spacing="16">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Postes disponibles" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <TextField fx:id="positionsField" promptText="1"
+                                   style="-fx-background-color: #f9fafb; -fx-background-radius: 10; -fx-padding: 10 14;
+                                          -fx-font-size: 13px; -fx-border-color: #e5e7eb; -fx-border-radius: 10;"/>
+                    </VBox>
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Date de clôture" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <DatePicker fx:id="closingDatePicker" maxWidth="Infinity"
+                                    style="-fx-font-size: 13px;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Status (edit mode only) -->
+                <VBox fx:id="statusSection" spacing="6" visible="false" managed="false">
+                    <Label text="Statut" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                    <ComboBox fx:id="statusBox" promptText="Statut" maxWidth="300"
+                              style="-fx-background-radius: 10; -fx-font-size: 13px;"/>
+                </VBox>
+
+                <!-- Action Buttons -->
+                <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 8 0 0 0;">
+                    <Button text="Annuler" onAction="#handleDashboard"
+                            style="-fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-font-size: 13px;
+                                   -fx-font-weight: 600; -fx-padding: 10 24; -fx-background-radius: 10; -fx-cursor: hand;"/>
+                    <Button fx:id="submitBtn" text="Créer l'offre" onAction="#handleSubmit"
+                            style="-fx-background-color: linear-gradient(to right, #6366f1, #8b5cf6);
+                                   -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 700;
+                                   -fx-padding: 10 32; -fx-background-radius: 10; -fx-cursor: hand;
+                                   -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.3), 8, 0, 0, 3);"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</HBox>
