@@ -904,111 +904,176 @@ public class OffersCardController implements Initializable {
     }
 
     private void showOfferDetails(Offer offer) {
-        // Créer un dialogue personnalisé
-        Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Détails de l'offre");
-        dialog.setHeaderText(null);
+        // Vider le conteneur des cartes
+        cardsContainer.getChildren().clear();
 
-        // Style du dialogue
-        DialogPane dialogPane = dialog.getDialogPane();
-        dialogPane.setPrefWidth(650);
-        dialogPane.setPrefHeight(750);
-        dialogPane.setStyle("-fx-background-color: #0F172A; -fx-background-radius: 24;");
-
-        dialogPane.getButtonTypes().add(ButtonType.CLOSE);
-
-        // Conteneur principal avec ScrollPane
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background: #0F172A; -fx-background-color: #0F172A; -fx-border-color: transparent;");
-
+        // Créer et afficher la vue détails
+        VBox detailsView = createDetailsView(offer);
+        cardsContainer.getChildren().add(detailsView);
+    }
+    /**
+     * Crée la vue détaillée d'une offre
+     /**
+     * Crée la vue détaillée d'une offre - Version corrigée
+     */
+    private VBox createDetailsView(Offer offer) {
         VBox container = new VBox(25);
-        container.setStyle("-fx-padding: 30; -fx-background-color: #0F172A;");
+        container.setStyle("-fx-background-color: #0F172A; -fx-padding: 30; -fx-background-radius: 16; -fx-max-width: 900;");
+        container.setMaxWidth(900);
+        container.setAlignment(javafx.geometry.Pos.TOP_CENTER);
 
-        // ========== 1. EN-TÊTE AVEC BANNIÈRE GRADIENT ==========
-        VBox headerBox = new VBox(20);
-        headerBox.setStyle(
+        // ========== EN-TÊTE AVEC BOUTON RETOUR ==========
+        HBox headerBox = new HBox(15);
+        headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        Button backBtn = new Button("← Retour aux offres");
+        backBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 14px; -fx-cursor: hand; -fx-padding: 5 10;");
+        backBtn.setOnAction(e -> backToOffers());
+
+        Label titleLabel = new Label("📋 Détails de l'offre");
+        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Label offerTitle = new Label(" • " + offer.getTitle());
+        offerTitle.setStyle("-fx-font-size: 20px; -fx-text-fill: #A5B4FC; -fx-font-weight: 600;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Boutons d'action rapides
+        Button editBtn = new Button("✏ Modifier");
+        editBtn.setStyle("-fx-background-color: rgba(245,158,11,0.2); -fx-text-fill: #FBBF24; -fx-padding: 8 16; -fx-background-radius: 8; -fx-font-size: 13px; -fx-font-weight: bold; -fx-cursor: hand;");
+        editBtn.setOnAction(e -> showEditForm(offer));
+
+        Button deleteBtn = new Button("🗑 Supprimer");
+        deleteBtn.setStyle("-fx-background-color: rgba(239,68,68,0.2); -fx-text-fill: #F87171; -fx-padding: 8 16; -fx-background-radius: 8; -fx-font-size: 13px; -fx-font-weight: bold; -fx-cursor: hand;");
+        deleteBtn.setOnAction(e -> deleteOffer(offer));
+
+        headerBox.getChildren().addAll(backBtn, spacer, titleLabel, offerTitle, editBtn, deleteBtn);
+
+        // ========== BANNIÈRE GRADIENT ==========
+        VBox bannerBox = new VBox(15);
+        bannerBox.setStyle(
                 "-fx-background-color: linear-gradient(to bottom right, #6366F1, #06B6D4);" +
-                        "-fx-background-radius: 20;" +
+                        "-fx-background-radius: 16;" +
                         "-fx-padding: 25;" +
                         "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.3), 15, 0, 0, 5);"
         );
 
-        // Titre et statut
-        HBox titleRow = new HBox(15);
-        titleRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        // Titre dans la bannière
+        Label bannerTitle = new Label(offer.getTitle());
+        bannerTitle.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        Label titleLabel = new Label(offer.getTitle());
-        titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white;");
-        titleLabel.setWrapText(true);
-        HBox.setHgrow(titleLabel, Priority.ALWAYS);
+        HBox badgesRow = new HBox(15);
+        badgesRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
         Label statusBadge = new Label(offer.getStatus());
-        statusBadge.setStyle(getStatusStyle(offer.getStatus()));
+        statusBadge.setStyle(getStatusStyle(offer.getStatus()) + "-fx-font-size: 14px; -fx-padding: 6 16;");
 
-        titleRow.getChildren().addAll(titleLabel, statusBadge);
+        Label departmentBadge = new Label(offer.getDepartment());
+        departmentBadge.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-padding: 6 16; -fx-background-radius: 20; -fx-font-size: 13px; -fx-font-weight: 600;");
 
-        // Sous-titre avec département et contrat
-        HBox subtitleRow = new HBox(15);
-        subtitleRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        Label contractBadge = new Label(offer.getContractType());
+        contractBadge.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-padding: 6 16; -fx-background-radius: 20; -fx-font-size: 13px; -fx-font-weight: 600;");
 
-        Label deptIcon = new Label("🏢");
-        deptIcon.setStyle("-fx-font-size: 16px;");
+        Label expBadge = new Label(offer.getExperienceLevel());
+        expBadge.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-padding: 6 16; -fx-background-radius: 20; -fx-font-size: 13px; -fx-font-weight: 600;");
 
-        Label deptLabel = new Label(offer.getDepartment() + " • " + offer.getContractType());
-        deptLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: rgba(255,255,255,0.9);");
+        badgesRow.getChildren().addAll(statusBadge, departmentBadge, contractBadge, expBadge);
 
-        Label expIcon = new Label("📊");
-        expIcon.setStyle("-fx-font-size: 16px;");
+        bannerBox.getChildren().addAll(bannerTitle, badgesRow);
 
-        Label expLabel = new Label(offer.getExperienceLevel());
-        expLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: rgba(255,255,255,0.9);");
-
-        subtitleRow.getChildren().addAll(deptIcon, deptLabel, expIcon, expLabel);
-
-        headerBox.getChildren().addAll(titleRow, subtitleRow);
-
-        // ========== 2. CARTE INFORMATIONS PRINCIPALES ==========
-        VBox infoCard = createInfoCard(
-                "📋 Informations générales",
-                new String[][]{
-                        {"📍 Localisation", offer.getLocation()},
-                        {"💰 Salaire", String.format("%.0f - %.0f DT", offer.getSalaryMin(), offer.getSalaryMax())},
-                        {"👥 Postes disponibles", String.valueOf(offer.getPositionsAvailable())},
-                        {"📋 Candidatures reçues", String.valueOf(offer.getApplicationsReceived())}
-                }
-        );
-
-        // ========== 3. CARTE DATES ==========
-        VBox datesCard = new VBox(15);
-        datesCard.setStyle(
-                "-fx-background-color: rgba(255,255,255,0.03);" +
+        // ========== CARTE INFORMATIONS ==========
+        VBox infoCard = new VBox(20);
+        infoCard.setStyle(
+                "-fx-background-color: #1E293B;" +
                         "-fx-background-radius: 16;" +
-                        "-fx-padding: 20;" +
-                        "-fx-border-color: rgba(99,102,241,0.15);" +
+                        "-fx-padding: 25;" +
+                        "-fx-border-color: rgba(99,102,241,0.2);" +
                         "-fx-border-radius: 16;" +
                         "-fx-border-width: 1;"
         );
 
-        Label datesTitle = new Label("📅 Dates importantes");
-        datesTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+        // Grille d'informations (2 colonnes)
+        GridPane infoGrid = new GridPane();
+        infoGrid.setHgap(30);
+        infoGrid.setVgap(20);
 
-        GridPane datesGrid = new GridPane();
-        datesGrid.setHgap(20);
-        datesGrid.setVgap(15);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(15);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(35);
+        ColumnConstraints col3 = new ColumnConstraints();
+        col3.setPercentWidth(15);
+        ColumnConstraints col4 = new ColumnConstraints();
+        col4.setPercentWidth(35);
+        infoGrid.getColumnConstraints().addAll(col1, col2, col3, col4);
 
-        // Date de publication
-        Label pubLabel = new Label("Date de publication:");
-        pubLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8;");
+        // Ligne 1: Localisation
+        Label locIcon = new Label("📍");
+        locIcon.setStyle("-fx-font-size: 18px;");
+        Label locLabel = new Label("Localisation");
+        locLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;");
+        HBox locTitleBox = new HBox(8, locIcon, locLabel);
 
-        Label pubValue = new Label(offer.getPublishDate().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
-        pubValue.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #F1F5F9;");
+        Label locValue = new Label(offer.getLocation());
+        locValue.setStyle("-fx-font-size: 16px; -fx-text-fill: #F1F5F9; -fx-font-weight: 600;");
 
-        // Date de clôture
-        Label closingLabel = new Label("Date de clôture:");
-        closingLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8;");
+        // Ligne 1 (colonne 2): Salaire
+        Label salaryIcon = new Label("💰");
+        salaryIcon.setStyle("-fx-font-size: 18px;");
+        Label salaryLabel = new Label("Salaire");
+        salaryLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;");
+        HBox salaryTitleBox = new HBox(8, salaryIcon, salaryLabel);
 
-        Label closingValue = new Label(offer.getClosingDate().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
+        Label salaryValue = new Label(String.format("%.0f - %.0f DT", offer.getSalaryMin(), offer.getSalaryMax()));
+        salaryValue.setStyle("-fx-font-size: 16px; -fx-text-fill: #F1F5F9; -fx-font-weight: 600;");
+
+        infoGrid.add(locTitleBox, 0, 0);
+        infoGrid.add(locValue, 1, 0);
+        infoGrid.add(salaryTitleBox, 2, 0);
+        infoGrid.add(salaryValue, 3, 0);
+
+        // Ligne 2: Postes disponibles
+        Label positionsIcon = new Label("👥");
+        positionsIcon.setStyle("-fx-font-size: 18px;");
+        Label positionsLabel = new Label("Postes disponibles");
+        positionsLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;");
+        HBox positionsTitleBox = new HBox(8, positionsIcon, positionsLabel);
+
+        Label positionsValue = new Label(String.valueOf(offer.getPositionsAvailable()));
+        positionsValue.setStyle("-fx-font-size: 16px; -fx-text-fill: #F1F5F9; -fx-font-weight: 600;");
+
+        // Ligne 2 (colonne 2): Candidatures reçues
+        Label appsIcon = new Label("📋");
+        appsIcon.setStyle("-fx-font-size: 18px;");
+        Label appsLabel = new Label("Candidatures reçues");
+        appsLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;");
+        HBox appsTitleBox = new HBox(8, appsIcon, appsLabel);
+
+        Label appsValue = new Label(String.valueOf(offer.getApplicationsReceived()));
+        appsValue.setStyle("-fx-font-size: 16px; -fx-text-fill: #F1F5F9; -fx-font-weight: 600;");
+
+        infoGrid.add(positionsTitleBox, 0, 1);
+        infoGrid.add(positionsValue, 1, 1);
+        infoGrid.add(appsTitleBox, 2, 1);
+        infoGrid.add(appsValue, 3, 1);
+
+        // Ligne 3: Date publication
+        Label publishIcon = new Label("📅");
+        publishIcon.setStyle("-fx-font-size: 18px;");
+        Label publishLabel = new Label("Date publication");
+        publishLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;");
+        HBox publishTitleBox = new HBox(8, publishIcon, publishLabel);
+
+        Label publishValue = new Label(offer.getPublishDate().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
+        publishValue.setStyle("-fx-font-size: 16px; -fx-text-fill: #F1F5F9; -fx-font-weight: 600;");
+
+        // Ligne 3 (colonne 2): Date clôture
+        Label closingIcon = new Label("⏰");
+        closingIcon.setStyle("-fx-font-size: 18px;");
+        Label closingLabel = new Label("Date clôture");
+        closingLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;");
+        HBox closingTitleBox = new HBox(8, closingIcon, closingLabel);
 
         // Calcul des jours restants
         long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), offer.getClosingDate());
@@ -1022,67 +1087,79 @@ public class OffersCardController implements Initializable {
             daysText = "Dernier jour !";
             daysColor = "#F59E0B";
         } else if (daysLeft <= 7) {
-            daysText = daysLeft + " jour" + (daysLeft > 1 ? "s" : "") + " restant" + (daysLeft > 1 ? "s" : "") + " ⚠️";
+            daysText = daysLeft + " jour" + (daysLeft > 1 ? "s" : "") + " restant" + (daysLeft > 1 ? "s" : "");
             daysColor = "#F59E0B";
         } else {
             daysText = daysLeft + " jour" + (daysLeft > 1 ? "s" : "") + " restant" + (daysLeft > 1 ? "s" : "");
             daysColor = "#10B981";
         }
 
-        Label daysLeftLabel = new Label(daysText);
-        daysLeftLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: " + daysColor + ";");
+        VBox closingValueBox = new VBox(3);
+        Label closingDateValue = new Label(offer.getClosingDate().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
+        closingDateValue.setStyle("-fx-font-size: 16px; -fx-text-fill: #F1F5F9; -fx-font-weight: 600;");
 
-        closingValue.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: " + daysColor + ";");
+        Label daysLeftValue = new Label(daysText);
+        daysLeftValue.setStyle("-fx-font-size: 13px; -fx-text-fill: " + daysColor + "; -fx-font-weight: 600;");
 
-        datesGrid.add(pubLabel, 0, 0);
-        datesGrid.add(pubValue, 1, 0);
-        datesGrid.add(closingLabel, 0, 1);
-        datesGrid.add(closingValue, 1, 1);
-        datesGrid.add(daysLeftLabel, 1, 2);
+        closingValueBox.getChildren().addAll(closingDateValue, daysLeftValue);
 
-        datesCard.getChildren().addAll(datesTitle, datesGrid);
+        infoGrid.add(publishTitleBox, 0, 2);
+        infoGrid.add(publishValue, 1, 2);
+        infoGrid.add(closingTitleBox, 2, 2);
+        infoGrid.add(closingValueBox, 3, 2);
 
-        // ========== 4. DESCRIPTION ==========
-        VBox descCard = new VBox(15);
-        descCard.setStyle(
-                "-fx-background-color: rgba(255,255,255,0.03);" +
+        infoCard.getChildren().add(infoGrid);
+
+        // ========== DESCRIPTION ==========
+        VBox descBox = new VBox(15);
+        descBox.setStyle(
+                "-fx-background-color: #1E293B;" +
                         "-fx-background-radius: 16;" +
-                        "-fx-padding: 20;" +
-                        "-fx-border-color: rgba(99,102,241,0.15);" +
+                        "-fx-padding: 25;" +
+                        "-fx-border-color: rgba(99,102,241,0.2);" +
                         "-fx-border-radius: 16;" +
                         "-fx-border-width: 1;"
         );
 
-        Label descTitle = new Label("📝 Description du poste");
+        HBox descHeader = new HBox(10);
+        descHeader.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        Label descIcon = new Label("📝");
+        descIcon.setStyle("-fx-font-size: 20px;");
+
+        Label descTitle = new Label("Description du poste");
         descTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        descHeader.getChildren().addAll(descIcon, descTitle);
 
         TextArea descriptionArea = new TextArea(offer.getDescription());
         descriptionArea.setWrapText(true);
         descriptionArea.setEditable(false);
-        descriptionArea.setPrefRowCount(8);
+        descriptionArea.setPrefRowCount(6);
         descriptionArea.setStyle(
-                "-fx-background-color: #1E293B;" +
+                "-fx-background-color: #0F172A;" +
                         "-fx-background-radius: 12;" +
                         "-fx-border-color: #334155;" +
                         "-fx-border-radius: 12;" +
-                        "-fx-text-fill: #1E293B;" +
+                        "-fx-text-fill: #E2E8F0;" +
                         "-fx-font-size: 14px;" +
                         "-fx-font-family: 'Segoe UI';" +
-                        "-fx-line-spacing: 2;"
+                        "-fx-padding: 15;"
         );
 
-        descCard.getChildren().addAll(descTitle, descriptionArea);
+        descBox.getChildren().addAll(descHeader, descriptionArea);
 
-        // ========== 5. STATISTIQUES ==========
+        // ========== STATISTIQUES ==========
         HBox statsBox = new HBox(15);
         statsBox.setAlignment(javafx.geometry.Pos.CENTER);
+        statsBox.setPadding(new Insets(10, 0, 0, 0));
 
         // Taux de remplissage
         double fillRate = offer.getPositionsAvailable() > 0 ?
                 (double) offer.getApplicationsReceived() / offer.getPositionsAvailable() * 100 : 0;
 
         VBox fillRateBox = createStatBox(
-                "📊 Taux de remplissage",
+                "Taux de remplissage",
                 String.format("%.1f%%", fillRate),
                 fillRate >= 100 ? "#EF4444" : (fillRate >= 50 ? "#10B981" : "#F59E0B")
         );
@@ -1092,7 +1169,7 @@ public class OffersCardController implements Initializable {
                 (double) offer.getApplicationsReceived() / offer.getPositionsAvailable() : 0;
 
         VBox ratioBox = createStatBox(
-                "📈 Ratio candidatures/postes",
+                "Ratio candidatures/postes",
                 String.format("%.1f", ratio),
                 ratio >= 5 ? "#EF4444" : (ratio >= 2 ? "#F59E0B" : "#10B981")
         );
@@ -1115,7 +1192,7 @@ public class OffersCardController implements Initializable {
         }
 
         VBox compBox = createStatBox(
-                "🔥 Compétitivité",
+                "Compétitivité",
                 competitivite,
                 compColor
         );
@@ -1125,53 +1202,86 @@ public class OffersCardController implements Initializable {
         HBox.setHgrow(ratioBox, Priority.ALWAYS);
         HBox.setHgrow(compBox, Priority.ALWAYS);
 
-        // ========== 6. PIED DE PAGE AVEC DATE DE CRÉATION ==========
-        // ✅ DÉCLARATION DE FOOTERBOX ICI (avant de l'utiliser)
+        // ========== INFORMATIONS COMPLÉMENTAIRES ==========
         HBox footerBox = new HBox(15);
         footerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        footerBox.setPadding(new Insets(15, 0, 0, 0));
 
-        // ✅ DATE DE CRÉATION
         Label createdLabel = new Label("📅 Créée le: " + (offer.getPublishDate() != null ?
                 offer.getPublishDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "N/A"));
         createdLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748B;");
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        Label idLabel = new Label("🆔 ID: " + offer.getId());
+        idLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #64748B;");
 
-        // Message informatif
-        Label infoLabel = new Label("✨ Offre active");
-        infoLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #10B981; -fx-font-weight: bold;");
+        Region spacer2 = new Region();
+        HBox.setHgrow(spacer2, Priority.ALWAYS);
 
-        footerBox.getChildren().addAll(createdLabel, spacer, infoLabel);
+        footerBox.getChildren().addAll(createdLabel, spacer2, idLabel);
 
         // ========== ASSEMBLAGE ==========
         container.getChildren().addAll(
                 headerBox,
+                bannerBox,
                 infoCard,
-                datesCard,
-                descCard,
+                descBox,
                 statsBox,
-                footerBox  // ✅ Maintenant footerBox est déclaré
+                footerBox
         );
 
-        scrollPane.setContent(container);
-        dialogPane.setContent(scrollPane);
+        return container;
+    }
 
-        // Style du bouton Fermer
-        Button closeButton = (Button) dialogPane.lookupButton(ButtonType.CLOSE);
-        closeButton.setStyle(
-                "-fx-background-color: #475569;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-padding: 8 20;" +
-                        "-fx-background-radius: 8;"
+    /**
+     * Crée une boîte de statistique (version corrigée)
+     */
+    private VBox createStatBox(String title, String value, String color) {
+        VBox box = new VBox(5);
+        box.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-padding: 15;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-border-color: rgba(99,102,241,0.2);" +
+                        "-fx-border-radius: 12;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-alignment: center;"
         );
+        box.setPrefWidth(200);
 
-        dialog.showAndWait();
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #94A3B8;");
+        titleLabel.setAlignment(javafx.geometry.Pos.CENTER);
+        titleLabel.setMaxWidth(Double.MAX_VALUE);
+
+        Label valueLabel = new Label(value);
+        valueLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + color + ";");
+        valueLabel.setAlignment(javafx.geometry.Pos.CENTER);
+        valueLabel.setMaxWidth(Double.MAX_VALUE);
+
+        box.getChildren().addAll(titleLabel, valueLabel);
+
+        return box;
     }
     /**
-     * Crée une carte d'information élégante
+     * Ajoute une ligne d'information dans la grille
      */
+    private void addDetailRow(GridPane grid, String label, String value, int col, int row) {
+        Label labelField = createDetailLabel(label);
+        Label valueField = new Label(value);
+        valueField.setStyle("-fx-font-size: 15px; -fx-text-fill: #F1F5F9; -fx-font-weight: 600;");
+
+        grid.add(labelField, col, row);
+        grid.add(valueField, col + 1, row);
+    }
+
+    /**
+     * Crée un label pour les détails
+     */
+    private Label createDetailLabel(String text) {
+        Label label = new Label(text);
+        label.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8; -fx-font-weight: 600;");
+        return label;
+    }
     private VBox createInfoCard(String title, String[][] infoRows) {
         VBox card = new VBox(15);
         card.setStyle(
@@ -1215,30 +1325,11 @@ public class OffersCardController implements Initializable {
     /**
      * Crée une boîte de statistique
      */
-    private VBox createStatBox(String title, String value, String color) {
-        VBox box = new VBox(5);
-        box.setStyle(
-                "-fx-background-color: rgba(255,255,255,0.03);" +
-                        "-fx-padding: 15;" +
-                        "-fx-background-radius: 12;" +
-                        "-fx-border-color: rgba(99,102,241,0.15);" +
-                        "-fx-border-radius: 12;" +
-                        "-fx-border-width: 1;" +
-                        "-fx-alignment: center;"
-        );
 
-        Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #94A3B8; -fx-alignment: center;");
-        titleLabel.setMaxWidth(Double.MAX_VALUE);
+    /**
+     * Crée une boîte de statistique
+     */
 
-        Label valueLabel = new Label(value);
-        valueLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + color + "; -fx-alignment: center;");
-        valueLabel.setMaxWidth(Double.MAX_VALUE);
-
-        box.getChildren().addAll(titleLabel, valueLabel);
-
-        return box;
-    }
     /**
      * Affiche le formulaire de modification d'offre
      */
