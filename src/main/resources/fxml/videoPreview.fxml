@@ -35,17 +35,33 @@
         </StackPane>
     </center>
 
-    <right>
-        <VBox prefWidth="300" style="-fx-background-color: white; -fx-padding: 10;" spacing="10">
-            <Label text="In-call messages" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
-            <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" style="-fx-background-color: transparent; -fx-background: white;">
-                <VBox fx:id="chatBox" spacing="8" />
-            </ScrollPane>
-            <HBox spacing="5">
-                <TextField fx:id="messageInput" HBox.hgrow="ALWAYS" promptText="Send a message" 
-                           style="-fx-background-radius: 20; -fx-padding: 8;"/>
-                <Button onAction="#sendMessage" text="Send" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-background-radius: 20;"/>
-            </HBox>
-        </VBox>
+   <right>
+        <StackPane prefWidth="350">
+            <padding>
+                <Insets top="20" right="20" bottom="60" left="10"/> 
+            </padding>
+            
+            <VBox spacing="10" 
+                  style="-fx-background-color: white; 
+                         -fx-background-radius: 15; 
+                         -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0); 
+                         -fx-padding: 15;">
+                
+                <Label text="In-call messages" 
+                       style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #202124;"/>
+                
+                <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" 
+                            style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+                    <VBox fx:id="chatBox" spacing="8" style="-fx-background-color: white;"/>
+                </ScrollPane>
+                
+                <HBox spacing="8" alignment="CENTER">
+                    <TextField fx:id="messageInput" HBox.hgrow="ALWAYS" promptText="Send a message" 
+                               style="-fx-background-radius: 20; -fx-background-color: #f1f3f4; -fx-padding: 10;"/>
+                    <Button onAction="#sendMessage" text="Send" 
+                            style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15; -fx-font-weight: bold; -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+        </StackPane>
     </right>
 </BorderPane>

@@ -51,7 +51,7 @@ public class MediaController {
         if (text != null && !text.isEmpty()) {
             Label msgLabel = new Label("You: " + text);
             msgLabel.setWrapText(true);
-            msgLabel.setStyle("-fx-background-color: #f1f3f4; -fx-padding: 8; -fx-background-radius: 10;");
+            msgLabel.setStyle("-fx-background-color: #f1f3f4; -fx-padding: 8; -fx-background-radius: 10; -fx-text-fill: #202124;");
             chatBox.getChildren().add(msgLabel);
             messageInput.clear();
             // Logic to send text to other users via socket/Janus
