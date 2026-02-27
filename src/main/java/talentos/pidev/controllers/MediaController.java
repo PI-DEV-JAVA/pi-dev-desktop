@@ -8,11 +8,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import talentos.pidev.models.schema.ChatMessage;
+import talentos.pidev.services.ChatService;
 import talentos.pidev.services.MediaService;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MediaController {
@@ -26,9 +29,20 @@ public class MediaController {
     private boolean isCamOff = false;
     private final ConcurrentHashMap<Integer, MediaService> activeServices = new ConcurrentHashMap<>();
 
+    private ChatService client;
+    private String currentRoom = "1234"; 
+    private String username = "speedweed";
+
     @FXML
     public void initialize() {
         startDiscoveryListener();
+
+        try {
+            client = new ChatService(new URI("ws://4.233.136.0:3000"), this);
+            client.connect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -45,18 +59,37 @@ public class MediaController {
         // To locally "hide" cam, you could set opacity of videoGrid to 0 or send a signal to Python
     }
 
+   
+
+    public void displayMessage(String text, boolean isUser) {
+        Label msgLabel = new Label(text);
+        msgLabel.setWrapText(true);
+        msgLabel.setMaxWidth(280);
+        
+        String style = isUser 
+            ? "-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 8;"
+            : "-fx-background-color: #f1f3f4; -fx-text-fill: #202124; -fx-background-radius: 10; -fx-padding: 8;";
+        
+        msgLabel.setStyle(style);
+        chatBox.getChildren().add(msgLabel);
+    }
+
     @FXML
     private void sendMessage() {
-        String text = messageInput.getText();
-        if (text != null && !text.isEmpty()) {
-            Label msgLabel = new Label("You: " + text);
-            msgLabel.setWrapText(true);
-            msgLabel.setStyle("-fx-background-color: #f1f3f4; -fx-padding: 8; -fx-background-radius: 10; -fx-text-fill: #202124;");
-            chatBox.getChildren().add(msgLabel);
+        String text = messageInput.getText().trim();
+        if (!text.isEmpty() && client != null && client.isOpen()) {
+            ChatMessage msg = new ChatMessage("chat", currentRoom, username, text);
+            
+            // 2. Send to server
+            client.sendMessage(msg);
+            
+            // 3. Display locally
+            displayMessage("You: " + text, true);
             messageInput.clear();
-            // Logic to send text to other users via socket/Janus
         }
     }
+
+    
 
     private void startDiscoveryListener() {
         Thread discovery = new Thread(() -> {
