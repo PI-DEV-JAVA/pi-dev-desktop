@@ -1,24 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.TilePane?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="talentos.pidev.controllers.MediaController" style="-fx-background-color: #2c3e50;">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="talentos.pidev.controllers.MediaController" 
+            style="-fx-background-color: #202124;">
+    
+    <center>
+        <StackPane>
+            <TilePane fx:id="videoGrid" alignment="CENTER" hgap="10" vgap="10" 
+                      prefColumns="2" style="-fx-padding: 20;">
+                </TilePane>
+            
+            <StackPane StackPane.alignment="BOTTOM_CENTER" maxHeight="80">
+                <HBox alignment="CENTER" spacing="15" 
+                      style="-fx-background-color: rgba(60, 64, 67, 0.9); -fx-background-radius: 40; -fx-padding: 10 30 10 30;">
+                    <StackPane.margin>
+                        <Insets bottom="20"/>
+                    </StackPane.margin>
+                    
+                    <Button fx:id="muteBtn" onAction="#toggleMute" text="Mic" 
+                            style="-fx-background-radius: 50; -fx-min-width: 50; -fx-min-height: 50; -fx-background-color: #3c4043; -fx-text-fill: white;"/>
+                    
+                    <Button fx:id="camBtn" onAction="#toggleCam" text="Cam" 
+                            style="-fx-background-radius: 50; -fx-min-width: 50; -fx-min-height: 50; -fx-background-color: #3c4043; -fx-text-fill: white;"/>
+                    
+                    <Button onAction="#stopAll" text="Hang Up" 
+                            style="-fx-background-radius: 50; -fx-min-width: 80; -fx-min-height: 50; -fx-background-color: #ea4335; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
+            </StackPane>
+        </StackPane>
+    </center>
 
-    <Label text="Multi-User Video Conference" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
-
-    <TilePane fx:id="videoGrid" alignment="CENTER" hgap="15" vgap="15" 
-              prefColumns="2" prefTileWidth="320" prefTileHeight="240" 
-              style="-fx-background-color: #34495e; -fx-padding: 10;">
-    </TilePane>
-
-    <Button text="Stop All Streams" onAction="#stopAll" 
-            style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;"/>
-</VBox>
+    <right>
+        <VBox prefWidth="300" style="-fx-background-color: white; -fx-padding: 10;" spacing="10">
+            <Label text="In-call messages" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+            <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" style="-fx-background-color: transparent; -fx-background: white;">
+                <VBox fx:id="chatBox" spacing="8" />
+            </ScrollPane>
+            <HBox spacing="5">
+                <TextField fx:id="messageInput" HBox.hgrow="ALWAYS" promptText="Send a message" 
+                           style="-fx-background-radius: 20; -fx-padding: 8;"/>
+                <Button onAction="#sendMessage" text="Send" style="-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-background-radius: 20;"/>
+            </HBox>
+        </VBox>
+    </right>
+</BorderPane>
