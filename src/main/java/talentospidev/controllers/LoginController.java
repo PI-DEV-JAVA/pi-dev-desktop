@@ -73,9 +73,13 @@ public class LoginController {
         WebView webView = new WebView();
         WebEngine engine = webView.getEngine();
 
+        // Guard against duplicate processing — the listener fires multiple times
+        final boolean[] processed = { false };
+
         // Listen for URL changes (waiting for the redirect with ?code=...)
         engine.locationProperty().addListener((obs, oldUrl, newUrl) -> {
-            if (newUrl != null && newUrl.startsWith(GoogleOAuthConfig.REDIRECT_URI)) {
+            if (newUrl != null && newUrl.startsWith(GoogleOAuthConfig.REDIRECT_URI) && !processed[0]) {
+                processed[0] = true;
                 // Extract the authorization code from the URL
                 String code = extractParam(newUrl, "code");
 
@@ -109,9 +113,11 @@ public class LoginController {
             JsonObject userInfo = GoogleOAuthService.getUserInfo(accessToken);
             String email = userInfo.get("email").getAsString();
             String googleId = userInfo.get("id").getAsString();
+            String givenName = userInfo.has("given_name") ? userInfo.get("given_name").getAsString() : null;
+            String familyName = userInfo.has("family_name") ? userInfo.get("family_name").getAsString() : null;
 
-            // 3. Login or register via AuthService
-            User user = AuthService.loginOAuth(email, googleId);
+            // 3. Login or register via AuthService (with Google name for profile pre-fill)
+            User user = AuthService.loginOAuth(email, googleId, givenName, familyName);
 
             if (user == null) {
                 showError("Google login failed. Please try again.");
@@ -154,7 +160,9 @@ public class LoginController {
             return null;
         start += search.length();
         int end = url.indexOf("&", start);
-        return end == -1 ? url.substring(start) : url.substring(start, end);
+        String value = end == -1 ? url.substring(start) : url.substring(start, end);
+        // URL-decode the value — Google's auth codes contain encoded characters
+        return java.net.URLDecoder.decode(value, java.nio.charset.StandardCharsets.UTF_8);
     }
 
     private void showError(String msg) {

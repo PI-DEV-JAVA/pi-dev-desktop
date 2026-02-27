@@ -32,14 +32,19 @@ public class AuthService {
 
     /**
      * OAuth login/register:
-     * 1. If user exists by providerId → log in
-     * 2. If user exists by email → link provider and log in
-     * 3. If new → create account as CANDIDATE + initial profile
+     * 1. If user exists by providerId → log in (ensure email_verified)
+     * 2. If user exists by email → link provider, mark verified, log in
+     * 3. If new → create account as CANDIDATE + initial profile with Google name
      */
-    public static User loginOAuth(String email, String providerId) {
+    public static User loginOAuth(String email, String providerId, String givenName, String familyName) {
         // 1) Check by Google ID
         User user = userDao.findByProviderId(providerId);
         if (user != null) {
+            // Ensure email is marked verified for Google users
+            if (!user.isEmailVerified()) {
+                userDao.setEmailVerified(user.getId(), true);
+                user.setEmailVerified(true);
+            }
             currentUser = user;
             return user;
         }
@@ -47,6 +52,11 @@ public class AuthService {
         // 2) Check by email (maybe registered locally before)
         user = userDao.findByEmail(email);
         if (user != null) {
+            // Mark email as verified since Google already verified it
+            if (!user.isEmailVerified()) {
+                userDao.setEmailVerified(user.getId(), true);
+                user.setEmailVerified(true);
+            }
             currentUser = user;
             return user;
         }
@@ -54,7 +64,20 @@ public class AuthService {
         // 3) New user — create with CANDIDATE role
         User newUser = new User(email, User.Role.CANDIDATE, User.AuthProvider.GOOGLE, providerId);
         userDao.saveOAuth(newUser);
+        // Mark email verified (Google already verified it)
+        userDao.setEmailVerified(newUser.getId(), true);
+        newUser.setEmailVerified(true);
+
+        // Create initial profile with Google name pre-filled
         profileDao.createInitialProfile(newUser.getId());
+        if (givenName != null && !givenName.isEmpty()) {
+            talentospidev.models.Profile profile = profileDao.findByUserId(newUser.getId());
+            if (profile != null) {
+                profile.setFirstName(givenName);
+                profile.setLastName(familyName != null ? familyName : "");
+                profileDao.save(profile, newUser);
+            }
+        }
 
         currentUser = newUser;
         return newUser;

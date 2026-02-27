@@ -7,9 +7,9 @@ package talentospidev.config;
 public class GoogleOAuthConfig {
 
     // ── Your credentials ──
-    public static final String CLIENT_ID = "clientId";
+    public static final String CLIENT_ID = "";
 
-    public static final String CLIENT_SECRET = "ClientSecret";
+    public static final String CLIENT_SECRET = "";
 
     // ── OAuth endpoints ──
     public static final String REDIRECT_URI = "http://localhost:8888/callback";

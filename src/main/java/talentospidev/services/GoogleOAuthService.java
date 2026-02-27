@@ -41,13 +41,18 @@ public class GoogleOAuthService {
      * @return The access token string
      */
     public static String exchangeCodeForToken(String code) throws IOException {
+        // The code may arrive URL-encoded from the WebView redirect — decode it first
+        String decodedCode = java.net.URLDecoder.decode(code, StandardCharsets.UTF_8);
+
         // Build form body
         StringJoiner body = new StringJoiner("&");
-        body.add("code=" + encode(code));
+        body.add("code=" + encode(decodedCode));
         body.add("client_id=" + encode(GoogleOAuthConfig.CLIENT_ID));
         body.add("client_secret=" + encode(GoogleOAuthConfig.CLIENT_SECRET));
         body.add("redirect_uri=" + encode(GoogleOAuthConfig.REDIRECT_URI));
         body.add("grant_type=authorization_code");
+
+        System.out.println("[GoogleOAuth] Token exchange request body: " + body);
 
         // POST request
         HttpURLConnection conn = (HttpURLConnection) new URL(GoogleOAuthConfig.TOKEN_URL).openConnection();
@@ -59,8 +64,22 @@ public class GoogleOAuthService {
             os.write(body.toString().getBytes(StandardCharsets.UTF_8));
         }
 
-        // Read response
+        int responseCode = conn.getResponseCode();
+        if (responseCode != 200) {
+            // Read the error body for debugging
+            String errorBody = "";
+            try {
+                errorBody = readStream(conn.getErrorStream());
+            } catch (Exception ignored) {
+            }
+            System.err.println("[GoogleOAuth] Token exchange FAILED — HTTP " + responseCode);
+            System.err.println("[GoogleOAuth] Error body: " + errorBody);
+            throw new IOException("Token exchange failed (HTTP " + responseCode + "): " + errorBody);
+        }
+
+        // Read success response
         String response = readStream(conn.getInputStream());
+        System.out.println("[GoogleOAuth] Token response: " + response);
         JsonObject json = JsonParser.parseString(response).getAsJsonObject();
 
         return json.get("access_token").getAsString();
