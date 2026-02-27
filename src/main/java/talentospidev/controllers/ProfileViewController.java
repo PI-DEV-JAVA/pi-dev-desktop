@@ -56,6 +56,12 @@ public class ProfileViewController {
     private Label joinDateLabel;
     @FXML
     private Label birthDateLabel;
+    @FXML
+    private Button toDoTab;
+    @FXML
+    private Button activitiesTab;
+    @FXML
+    private Button projectsTab;
 
     private final ProfileDao profileDao = new ProfileDao();
     private final UserDao userDao = new UserDao();
@@ -67,6 +73,9 @@ public class ProfileViewController {
             SceneUtil.switchScene("login.fxml");
             return;
         }
+
+        // Toggle sidebar tabs based on role
+        talentospidev.utils.SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
 
         Profile profile = profileDao.findByUserId(user.getId());
 
@@ -417,6 +426,16 @@ public class ProfileViewController {
     @FXML
     private void handleToDo() {
         SceneUtil.switchScene("activities/activity_employee.fxml");
+    }
+
+    @FXML
+    private void handleActivities() {
+        SceneUtil.switchScene("activities/activities.fxml");
+    }
+
+    @FXML
+    private void handleProjects() {
+        SceneUtil.switchScene("projects/projects.fxml");
     }
 
     @FXML

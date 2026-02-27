@@ -40,6 +40,13 @@ public class OffersCardController implements Initializable {
     @FXML
     private ComboBox<String> sortComboBox;
 
+    @FXML
+    private Button toDoTab;
+    @FXML
+    private Button activitiesTab;
+    @FXML
+    private Button projectsTab;
+
     private final OfferService offerService = new OfferService();
     private final ApplicationService applicationService = new ApplicationService();
     private ObservableList<Offer> offersList = FXCollections.observableArrayList();
@@ -47,6 +54,7 @@ public class OffersCardController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        talentospidev.utils.SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
         loadFilters();
         loadSortOptions();
         loadOffers();
@@ -300,6 +308,16 @@ public class OffersCardController implements Initializable {
     @FXML
     private void handleToDo() {
         SceneUtil.switchScene("activities/activity_employee.fxml");
+    }
+
+    @FXML
+    private void handleActivities() {
+        SceneUtil.switchScene("activities/activities.fxml");
+    }
+
+    @FXML
+    private void handleProjects() {
+        SceneUtil.switchScene("projects/projects.fxml");
     }
 
     @FXML

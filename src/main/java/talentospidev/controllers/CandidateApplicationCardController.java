@@ -61,6 +61,12 @@ public class CandidateApplicationCardController implements Initializable {
     private Button backToOffersButton;
     @FXML
     private Label totalOffersLabel;
+    @FXML
+    private Button toDoTab;
+    @FXML
+    private Button activitiesTab;
+    @FXML
+    private Button projectsTab;
 
     private final OfferService offerService;
     private final ApplicationService applicationService;
@@ -78,6 +84,7 @@ public class CandidateApplicationCardController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        talentospidev.utils.SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
         setupFilters();
         loadOffers();
         setupApplicationForm();
@@ -568,6 +575,16 @@ public class CandidateApplicationCardController implements Initializable {
     @FXML
     private void handleToDo() {
         SceneUtil.switchScene("activities/activity_employee.fxml");
+    }
+
+    @FXML
+    private void handleActivities() {
+        SceneUtil.switchScene("activities/activities.fxml");
+    }
+
+    @FXML
+    private void handleProjects() {
+        SceneUtil.switchScene("projects/projects.fxml");
     }
 
     @FXML

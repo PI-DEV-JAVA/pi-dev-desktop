@@ -22,6 +22,12 @@ public class ApplyOfferController {
 
     @FXML
     private VBox formContainer;
+    @FXML
+    private Button toDoTab;
+    @FXML
+    private Button activitiesTab;
+    @FXML
+    private Button projectsTab;
 
     private final OfferService offerService = new OfferService();
     private final ApplicationService applicationService = new ApplicationService();
@@ -30,6 +36,7 @@ public class ApplyOfferController {
 
     @FXML
     public void initialize() {
+        talentospidev.utils.SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
         User currentUser = AuthService.getCurrentUser();
         if (currentUser == null) {
             showError("Vous devez être connecté pour postuler.");
@@ -323,6 +330,16 @@ public class ApplyOfferController {
     @FXML
     private void handleToDo() {
         SceneUtil.switchScene("activities/activity_employee.fxml");
+    }
+
+    @FXML
+    private void handleActivities() {
+        SceneUtil.switchScene("activities/activities.fxml");
+    }
+
+    @FXML
+    private void handleProjects() {
+        SceneUtil.switchScene("projects/projects.fxml");
     }
 
     @FXML

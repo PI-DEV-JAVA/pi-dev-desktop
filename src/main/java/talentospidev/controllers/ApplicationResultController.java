@@ -23,6 +23,12 @@ public class ApplicationResultController {
 
     @FXML
     private VBox resultContainer;
+    @FXML
+    private Button toDoTab;
+    @FXML
+    private Button activitiesTab;
+    @FXML
+    private Button projectsTab;
 
     private final ApplicationService applicationService = new ApplicationService();
     private final OfferService offerService = new OfferService();
@@ -30,6 +36,7 @@ public class ApplicationResultController {
 
     @FXML
     public void initialize() {
+        talentospidev.utils.SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
         int appId = ViewContext.getSelectedApplicationId();
         if (appId <= 0) {
             showError("Aucune candidature sélectionnée.");
@@ -340,6 +347,16 @@ public class ApplicationResultController {
     @FXML
     private void handleToDo() {
         SceneUtil.switchScene("activities/activity_employee.fxml");
+    }
+
+    @FXML
+    private void handleActivities() {
+        SceneUtil.switchScene("activities/activities.fxml");
+    }
+
+    @FXML
+    private void handleProjects() {
+        SceneUtil.switchScene("projects/projects.fxml");
     }
 
     @FXML

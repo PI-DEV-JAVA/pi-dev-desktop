@@ -37,7 +37,11 @@
         <Label text="MAIN" styleClass="sidebar-section-label"/>
         <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
         <Button text="💼  Job Offers" styleClass="sidebar-button-active" onAction="#handleJobOffers"/>
-        <Button text="✅  To Do" styleClass="sidebar-button" onAction="#handleToDo"/>
+        <!-- Candidate only -->
+        <Button fx:id="toDoTab" text="✅  To Do" styleClass="sidebar-button" onAction="#handleToDo" visible="false" managed="false"/>
+        <!-- Recruiter only -->
+        <Button fx:id="activitiesTab" text="📋  Activities" styleClass="sidebar-button" onAction="#handleActivities" visible="false" managed="false"/>
+        <Button fx:id="projectsTab" text="📁  Projects" styleClass="sidebar-button" onAction="#handleProjects" visible="false" managed="false"/>
 
         <Region VBox.vgrow="ALWAYS"/>
 

@@ -43,10 +43,18 @@ public class UpdateProfileController {
     @FXML
     private Label titleError;
 
+    @FXML
+    private Button toDoTab;
+    @FXML
+    private Button activitiesTab;
+    @FXML
+    private Button projectsTab;
+
     private final ProfileDao profileDao = new ProfileDao();
 
     @FXML
     public void initialize() {
+        talentospidev.utils.SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
         experienceBox.getItems().addAll(0, 1, 2, 3, 4, 5, 7, 10, 15, 20);
 
         // Attach onBlur validators
@@ -164,6 +172,16 @@ public class UpdateProfileController {
     @FXML
     private void handleToDo() {
         SceneUtil.switchScene("activities/activity_employee.fxml");
+    }
+
+    @FXML
+    private void handleActivities() {
+        SceneUtil.switchScene("activities/activities.fxml");
+    }
+
+    @FXML
+    private void handleProjects() {
+        SceneUtil.switchScene("projects/projects.fxml");
     }
 
     @FXML
