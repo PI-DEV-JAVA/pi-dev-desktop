@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Feb 27, 2026 at 01:05 AM
--- Server version: 9.1.0
--- PHP Version: 8.3.14
+-- Host: db:3306
+-- Generation Time: Feb 28, 2026 at 08:27 PM
+-- Server version: 8.1.0
+-- PHP Version: 8.3.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `pidev`
+-- Database: `main`
 --
 
 -- --------------------------------------------------------
@@ -27,18 +27,37 @@ SET time_zone = "+00:00";
 -- Table structure for table `activities`
 --
 
-DROP TABLE IF EXISTS `activities`;
-CREATE TABLE IF NOT EXISTS `activities` (
-  `id_activity` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `activities` (
+  `id_activity` int NOT NULL,
   `employee_id` int NOT NULL,
   `activity_date` date NOT NULL,
   `description` text,
   `hours_worked` decimal(5,2) DEFAULT NULL,
-  `project_id` int DEFAULT NULL,
-  PRIMARY KEY (`id_activity`),
-  KEY `fk_activity_employee` (`employee_id`),
-  KEY `fk_activity_project` (`project_id`)
+  `project_id` int DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `activities`
+--
+
+INSERT INTO `activities` (`id_activity`, `employee_id`, `activity_date`, `description`, `hours_worked`, `project_id`) VALUES
+(4, 18, '2026-02-18', 'test', 100.00, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `activity_files`
+--
+
+CREATE TABLE `activity_files` (
+  `id` int NOT NULL,
+  `activity_id` int NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(500) NOT NULL,
+  `file_size` bigint DEFAULT NULL,
+  `file_type` varchar(100) DEFAULT NULL,
+  `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -46,9 +65,8 @@ CREATE TABLE IF NOT EXISTS `activities` (
 -- Table structure for table `applications`
 --
 
-DROP TABLE IF EXISTS `applications`;
-CREATE TABLE IF NOT EXISTS `applications` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `applications` (
+  `id` int NOT NULL,
   `user_id` int NOT NULL,
   `offer_id` int NOT NULL,
   `cv_file_path` varchar(500) DEFAULT NULL,
@@ -61,11 +79,8 @@ CREATE TABLE IF NOT EXISTS `applications` (
   `interview_date` date DEFAULT NULL,
   `interview_result` varchar(100) DEFAULT NULL,
   `recruiter_response` text,
-  `response_date` date DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_user_offer` (`user_id`,`offer_id`),
-  KEY `offer_id` (`offer_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `response_date` date DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `applications`
@@ -76,7 +91,9 @@ INSERT INTO `applications` (`id`, `user_id`, `offer_id`, `cv_file_path`, `motiva
 (2, 15, 2, 'C:\\Users\\ayoub\\Downloads\\RH (3).pdf', 'hey', 'Nouvelle', '2026-02-26', 0, NULL, NULL, NULL, NULL, NULL, NULL),
 (3, 14, 3, 'C:\\Users\\ayoub\\Downloads\\RH (3).pdf', 'hello', 'Acceptée', '2026-02-26', 0, NULL, NULL, NULL, NULL, 'très bien', '2026-02-26'),
 (4, 17, 3, NULL, '', 'Refusée', '2026-02-26', 0, NULL, NULL, NULL, NULL, 'your profile is incomplete', '2026-02-26'),
-(5, 17, 2, NULL, '', 'Nouvelle', '2026-02-26', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+(5, 17, 2, NULL, '', 'Nouvelle', '2026-02-26', 0, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, 18, 3, '/home/baril/Downloads/Application RH de Recrutement Intelligent.pdf', 'please accept me', 'Nouvelle', '2026-02-28', 0, NULL, NULL, NULL, NULL, NULL, NULL),
+(7, 18, 4, '/home/baril/ospf4.pdf', 'yo please accept me', 'Acceptée', '2026-02-28', 0, NULL, NULL, NULL, NULL, 'ok you got it', '2026-02-28');
 
 -- --------------------------------------------------------
 
@@ -84,9 +101,8 @@ INSERT INTO `applications` (`id`, `user_id`, `offer_id`, `cv_file_path`, `motiva
 -- Table structure for table `offers`
 --
 
-DROP TABLE IF EXISTS `offers`;
-CREATE TABLE IF NOT EXISTS `offers` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `offers` (
+  `id` int NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text,
   `department` varchar(100) DEFAULT NULL,
@@ -100,10 +116,8 @@ CREATE TABLE IF NOT EXISTS `offers` (
   `closing_date` date DEFAULT NULL,
   `positions_available` int DEFAULT '1',
   `applications_received` int DEFAULT '0',
-  `recruiter_id` int NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `f1` (`recruiter_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `recruiter_id` int NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `offers`
@@ -111,7 +125,8 @@ CREATE TABLE IF NOT EXISTS `offers` (
 
 INSERT INTO `offers` (`id`, `title`, `description`, `department`, `contract_type`, `experience_level`, `salary_min`, `salary_max`, `location`, `status`, `publish_date`, `closing_date`, `positions_available`, `applications_received`, `recruiter_id`) VALUES
 (2, 'ijio', 'fejzifjjifezjoi', 'IT', 'CDI', 'Senior', 4555, 11555, 'Tunis', 'Ouverte', '2026-02-23', '2026-03-25', 6, 4, 0),
-(3, 'dev', 'hey there', 'Finance', 'CDI', 'Junior', 1000, 1666, 'tunis', 'Ouverte', '2026-02-26', '2026-03-27', 12, 2, 13);
+(3, 'dev', 'hey there', 'Finance', 'CDI', 'Junior', 1000, 1666, 'tunis', 'Ouverte', '2026-02-26', '2026-03-27', 12, 3, 13),
+(4, 'validation', 'this is a validation test', 'IT', 'CDD', 'Junior', 1000, 2000, 'tunis', 'Ouverte', '2026-02-28', '2026-03-28', 1, 1, 19);
 
 -- --------------------------------------------------------
 
@@ -119,9 +134,8 @@ INSERT INTO `offers` (`id`, `title`, `description`, `department`, `contract_type
 -- Table structure for table `profiles`
 --
 
-DROP TABLE IF EXISTS `profiles`;
-CREATE TABLE IF NOT EXISTS `profiles` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `profiles` (
+  `id` int NOT NULL,
   `user_id` int DEFAULT NULL,
   `first_name` varchar(50) DEFAULT NULL,
   `last_name` varchar(50) DEFAULT NULL,
@@ -133,10 +147,8 @@ CREATE TABLE IF NOT EXISTS `profiles` (
   `summary` text,
   `profile_completed` tinyint(1) DEFAULT '0',
   `profile_picture_path` varchar(500) DEFAULT NULL,
-  `cv_path` varchar(500) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `cv_path` varchar(500) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `profiles`
@@ -155,7 +167,9 @@ INSERT INTO `profiles` (`id`, `user_id`, `first_name`, `last_name`, `birth_date`
 (10, 13, 'amen', 'samader', '2000-10-22', '66555888', 'ariana', 'RH', 2, 'hey there, Im Amen , and Im so hungry and foolish!', 1, NULL, NULL),
 (11, 14, 'skander', 'nafti', '2004-02-06', '99888666', 'Nkhilet, Ariana', 'Product manager', 15, 'Hey there, I\'m Nafti and I like belotte alot !', 1, NULL, NULL),
 (12, 15, 'Ayoub', 'hm', '2003-02-14', '66555222', 'gafsa', 'Data Scienctist', 1, 'hey there , any welcome?', 1, NULL, NULL),
-(14, 17, 'omar', 'hamdi', '2004-02-20', '99666888', 'ariana ville', 'Student', 2, 'I love Nafti.', 1, 'C:\\Users\\ayoub\\Desktop\\fullmark.jpg', NULL);
+(14, 17, 'omar', 'hamdi', '2004-02-20', '99666888', 'ariana ville', 'Student', 2, 'I love Nafti.', 1, 'C:\\Users\\ayoub\\Desktop\\fullmark.jpg', NULL),
+(15, 18, 'Hamdi', 'Omar', '2004-10-27', '20404237', 'Tunisia', 'Etudiant', 0, 'yo this is me trying to debug', 1, '18.png', NULL),
+(16, 19, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -163,9 +177,8 @@ INSERT INTO `profiles` (`id`, `user_id`, `first_name`, `last_name`, `birth_date`
 -- Table structure for table `project`
 --
 
-DROP TABLE IF EXISTS `project`;
-CREATE TABLE IF NOT EXISTS `project` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `project` (
+  `id` int NOT NULL,
   `name` varchar(100) NOT NULL,
   `description` text,
   `status` enum('PLANNED','IN_PROGRESS','DONE','ON_HOLD') DEFAULT 'PLANNED',
@@ -173,9 +186,15 @@ CREATE TABLE IF NOT EXISTS `project` (
   `end_date` date DEFAULT NULL,
   `budget` decimal(10,2) DEFAULT NULL,
   `project_manager_id` int DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `project`
+--
+
+INSERT INTO `project` (`id`, `name`, `description`, `status`, `start_date`, `end_date`, `budget`, `project_manager_id`, `created_at`) VALUES
+(1, 'Validation', 'yo this is a test ', 'PLANNED', '2026-02-05', '2026-03-06', 100.00, 19, '2026-02-28 20:00:19');
 
 -- --------------------------------------------------------
 
@@ -183,9 +202,8 @@ CREATE TABLE IF NOT EXISTS `project` (
 -- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` int NOT NULL AUTO_INCREMENT,
+CREATE TABLE `users` (
+  `id` int NOT NULL,
   `email` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `password_hash` varchar(255) DEFAULT NULL,
   `role` enum('ADMIN','HR','CANDIDATE') NOT NULL,
@@ -193,10 +211,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `auth_provider` enum('LOCAL','GOOGLE') NOT NULL,
   `provider_id` varchar(255) DEFAULT NULL,
-  `email_verified` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `email_verified` tinyint(1) DEFAULT '0'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `users`
@@ -217,7 +233,96 @@ INSERT INTO `users` (`id`, `email`, `password_hash`, `role`, `active`, `created_
 (13, 'amen@disc.lol', '5fdf54dc68d6348b46c269d4c190f407d74de4b657b3c88a6b96750d7cc3b5bd', 'HR', 1, '2026-02-15 22:23:11', 'LOCAL', NULL, 0),
 (14, 'skan@nafti.tn', '380e75d7be969ac599b85be1a516618aafd679ba11922949241885802e7b37bb', 'CANDIDATE', 1, '2026-02-16 08:47:48', 'LOCAL', NULL, 0),
 (15, 'ayoub@tst.tn', '5fdf54dc68d6348b46c269d4c190f407d74de4b657b3c88a6b96750d7cc3b5bd', 'CANDIDATE', 1, '2026-02-16 10:24:25', 'LOCAL', NULL, 0),
-(17, 'omar@hamdi.tn', '87e5c999eb63fa472d4498109348861923598f1fe7cb36382def69071bb9df5a', 'CANDIDATE', 1, '2026-02-26 22:42:52', 'LOCAL', NULL, 0);
+(17, 'omar@hamdi.tn', '87e5c999eb63fa472d4498109348861923598f1fe7cb36382def69071bb9df5a', 'CANDIDATE', 1, '2026-02-26 22:42:52', 'LOCAL', NULL, 0),
+(18, 'omar.hamdi204@gmail.com', 'c86325f8a0c9922dfe5e73d89be7eeda2334d70b48e2cb7370cddc497790c259', 'CANDIDATE', 1, '2026-02-28 19:54:52', 'LOCAL', NULL, 0),
+(19, 'Hamdii.Omar204@gmail.com', 'c86325f8a0c9922dfe5e73d89be7eeda2334d70b48e2cb7370cddc497790c259', 'HR', 1, '2026-02-28 19:58:09', 'LOCAL', NULL, 0);
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `activities`
+--
+ALTER TABLE `activities`
+  ADD PRIMARY KEY (`id_activity`),
+  ADD KEY `fk_activity_employee` (`employee_id`),
+  ADD KEY `fk_activity_project` (`project_id`);
+
+--
+-- Indexes for table `applications`
+--
+ALTER TABLE `applications`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_offer` (`user_id`,`offer_id`),
+  ADD KEY `offer_id` (`offer_id`);
+
+--
+-- Indexes for table `offers`
+--
+ALTER TABLE `offers`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `f1` (`recruiter_id`);
+
+--
+-- Indexes for table `profiles`
+--
+ALTER TABLE `profiles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `project`
+--
+ALTER TABLE `project`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `activities`
+--
+ALTER TABLE `activities`
+  MODIFY `id_activity` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `applications`
+--
+ALTER TABLE `applications`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `offers`
+--
+ALTER TABLE `offers`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `profiles`
+--
+ALTER TABLE `profiles`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `project`
+--
+ALTER TABLE `project`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
