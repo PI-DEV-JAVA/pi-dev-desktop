@@ -11,6 +11,11 @@ import talentos.pidev.models.Application;
 import talentos.pidev.models.Offer;
 import talentos.pidev.services.ApplicationService;
 import talentos.pidev.services.OfferService;
+import talentos.pidev.services.AIScoringService;
+import talentos.pidev.models.AIScoreResult;
+import com.fasterxml.jackson.databind.JsonNode;
+import javafx.geometry.Pos;
+import javafx.application.Platform;
 
 import java.io.File;
 import java.net.URL;
@@ -327,12 +332,19 @@ public class ApplicationsCardController implements Initializable {
         Button viewBtn = createActionButton("👁 Voir", "rgba(99,102,241,0.2)", "#A5B4FC");
         Button evaluateBtn = createActionButton("📊 Évaluer", "rgba(245,158,11,0.2)", "#FBBF24");
         Button deleteBtn = createActionButton("🗑 Supprimer", "rgba(239,68,68,0.2)", "#F87171");
-
+        Button aiScoreBtn = createActionButton("🤖 Score IA", "rgba(139,92,246,0.2)", "#C4B5FD");
         viewBtn.setOnAction(e -> showApplicationDetails(app, offer));
         evaluateBtn.setOnAction(e -> showEvaluationDialog(app));
         deleteBtn.setOnAction(e -> deleteApplication(app));
+        // Dans la section des boutons d'action, après les autres boutons
 
-        actionsBox.getChildren().addAll(viewBtn, evaluateBtn, deleteBtn);
+        aiScoreBtn.setOnAction(e -> showAIScore(app, offer));
+
+
+// Ajoute-le au HBox actions
+        actionsBox.getChildren().addAll(viewBtn, evaluateBtn, aiScoreBtn, deleteBtn);
+
+
 
         // Assemblage final
         card.getChildren().addAll(headerBox, detailsRow, offerBox, sep, actionsBox);
@@ -404,7 +416,185 @@ public class ApplicationsCardController implements Initializable {
             return "-fx-text-fill: #F87171; -fx-font-weight: bold; -fx-font-size: 12px;";
         return "-fx-text-fill: #64748B; -fx-font-size: 12px;";
     }
+    private void showAIScore(Application app, Offer offer) {
+        // Vérifier que le fichier CV existe
+        if (app.getCvFilePath() == null || app.getCvFilePath().isEmpty()) {
+            showAlert("Erreur", "Aucun CV trouvé pour cette candidature", Alert.AlertType.ERROR);
+            return;
+        }
 
+        File cvFile = new File(app.getCvFilePath());
+        if (!cvFile.exists()) {
+            showAlert("Erreur", "Le fichier CV n'existe pas: " + app.getCvFilePath(), Alert.AlertType.ERROR);
+            return;
+        }
+
+        // Dialogue de chargement
+        Dialog<Void> loadingDialog = new Dialog<>();
+        loadingDialog.setTitle("Analyse IA en cours");
+        loadingDialog.setHeaderText("Notre IA analyse la compatibilité...");
+
+        VBox content = new VBox(20);
+        content.setAlignment(Pos.CENTER);
+        content.setPadding(new Insets(20));
+
+        ProgressIndicator progressIndicator = new ProgressIndicator();
+        progressIndicator.setPrefSize(50, 50);
+
+        Label statusLabel = new Label("Analyse du CV et de l'offre...");
+        statusLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748B;");
+
+        content.getChildren().addAll(progressIndicator, statusLabel);
+        loadingDialog.getDialogPane().setContent(content);
+        loadingDialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+
+        // Style du dialogue
+        loadingDialog.getDialogPane().setStyle("-fx-background-color: #0F172A;");
+        statusLabel.setStyle("-fx-text-fill: #E2E8F0; -fx-font-size: 14px;");
+
+        loadingDialog.show();
+
+        // Lancer l'analyse dans un thread séparé
+        new Thread(() -> {
+            try {
+                AIScoringService aiService = new AIScoringService();
+
+                Platform.runLater(() -> statusLabel.setText("📤 Soumission à l'API..."));
+                String jobId = aiService.submitScoringJob(cvFile, offer.getDescription(), "French");
+
+                Platform.runLater(() -> statusLabel.setText("⏳ Analyse en cours..."));
+
+                // ✅ POLLING OPTIMISÉ - Maximum 6 tentatives (30 secondes)
+                JsonNode result = null;
+                int attempts = 0;
+                int maxAttempts = 6;
+
+                while (attempts < maxAttempts) {
+                    Thread.sleep(5000); // 5 secondes entre chaque tentative
+                    attempts++;
+
+                    result = aiService.getScoringResult(jobId);
+
+                    // ✅ SORTIR DÈS QU'ON A UN RÉSULTAT
+                    if (result != null) {
+                        System.out.println("✅ Résultat obtenu en " + attempts + " tentatives");
+                        break;
+                    }
+
+                    final int currentAttempt = attempts;
+                    Platform.runLater(() ->
+                            statusLabel.setText("⏳ Analyse en cours... (tentative " + currentAttempt + "/" + maxAttempts + ")"));
+                }
+
+                // ✅ TRAITER LE RÉSULTAT
+                if (result != null) {
+                    AIScoreResult score = parseResult(result);
+                    Platform.runLater(() -> {
+                        loadingDialog.close();
+                        showScoreResult(score);
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        loadingDialog.close();
+                        showAlert("Information",
+                                "L'analyse prend plus de temps que prévu. " +
+                                        "Vous pourrez réessayer plus tard (5 appels/jour)",
+                                Alert.AlertType.INFORMATION);
+                    });
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    loadingDialog.close();
+                    showAlert("Erreur", "Échec de l'analyse IA: " + e.getMessage(),
+                            Alert.AlertType.ERROR);
+                });
+            }
+        }).start();
+    }
+
+    private AIScoreResult parseResult(JsonNode responseNode) {
+        AIScoreResult score = new AIScoreResult();
+
+        // ✅ Extraire le noeud result de la structure
+        JsonNode resultNode = responseNode.path("data")
+                .path("attributes")
+                .path("result");
+
+        // Extraire les scores
+        JsonNode matchScores = resultNode.path("match_scores");
+        score.setOverallScore(matchScores.path("overall_match").asDouble(0));
+        score.setSkillsScore(matchScores.path("skills_match").asDouble(0));
+        score.setExperienceScore(matchScores.path("experience_match").asDouble(0));
+        score.setEducationScore(matchScores.path("education_match").asDouble(0));
+
+        // Construire les explications
+        JsonNode explanations = resultNode.path("explanations");
+        StringBuilder explanationText = new StringBuilder();
+        explanations.fields().forEachRemaining(entry ->
+                explanationText.append(entry.getKey()).append(": ").append(entry.getValue().asText()).append("\n\n")
+        );
+        score.setExplanation(explanationText.toString());
+
+        return score;
+    }
+    private void showScoreResult(AIScoreResult score) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Résultat de l'analyse IA");
+        dialog.setHeaderText("Score de compatibilité");
+
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setStyle("-fx-background-color: #0F172A; -fx-background-radius: 12;");
+
+        // Score global
+        Label overallLabel = new Label("Score global: " + String.format("%.1f/100", score.getOverallScore()));
+        overallLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " +
+                getScoreColor(score.getOverallScore()) + ";");
+
+        // Détails
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(10);
+
+        addScoreRow(grid, "Compétences", score.getSkillsScore(), 0);
+        addScoreRow(grid, "Expérience", score.getExperienceScore(), 1);
+        addScoreRow(grid, "Formation", score.getEducationScore(), 2);
+
+        // Explications
+        Label explanationTitle = new Label("Explications:");
+        explanationTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        TextArea explanationArea = new TextArea(score.getExplanation());
+        explanationArea.setWrapText(true);
+        explanationArea.setEditable(false);
+        explanationArea.setPrefRowCount(5);
+        explanationArea.setStyle("-fx-background-color: #1E293B; -fx-text-fill: #E2E8F0; -fx-border-color: #334155;");
+
+        content.getChildren().addAll(overallLabel, grid, explanationTitle, explanationArea);
+
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.showAndWait();
+    }
+
+    private void addScoreRow(GridPane grid, String label, double score, int row) {
+        Label nameLabel = new Label(label + ":");
+        nameLabel.setStyle("-fx-text-fill: #94A3B8;");
+
+        Label scoreLabel = new Label(String.format("%.1f/100", score));
+        scoreLabel.setStyle("-fx-text-fill: " + getScoreColor(score) + "; -fx-font-weight: bold;");
+
+        grid.add(nameLabel, 0, row);
+        grid.add(scoreLabel, 1, row);
+    }
+
+    private String getScoreColor(double score) {
+        if (score >= 70) return "#10B981";
+        if (score >= 50) return "#F59E0B";
+        return "#EF4444";
+    }
     private void showNoResultsMessage() {
         VBox messageBox = new VBox(20);
         messageBox.setAlignment(javafx.geometry.Pos.CENTER);
