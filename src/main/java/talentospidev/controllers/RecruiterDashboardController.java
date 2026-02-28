@@ -29,6 +29,8 @@ public class RecruiterDashboardController {
     private TextField searchField;
     @FXML
     private FlowPane cardsContainer;
+    @FXML
+    private VBox sidebar;
 
     private final OfferService offerService = new OfferService();
     private final ApplicationService applicationService = new ApplicationService();
@@ -38,6 +40,7 @@ public class RecruiterDashboardController {
 
     @FXML
     public void initialize() {
+        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
         loadStats();
         loadOffers();
         searchField.textProperty().addListener((obs, old, val) -> filterOffers());

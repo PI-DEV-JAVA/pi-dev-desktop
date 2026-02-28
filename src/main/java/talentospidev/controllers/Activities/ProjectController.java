@@ -37,9 +37,12 @@ public class ProjectController {
     private final ProjectDAO projectDAO = new ProjectDAO();
     private final ObservableList<Project> masterList = FXCollections.observableArrayList();
     private Project selectedProject = null;
+    @FXML
+    private VBox sidebar;
 
     @FXML
     private void initialize() {
+        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
         statusCombo.setItems(FXCollections.observableArrayList("PLANNED", "IN_PROGRESS", "DONE", "ON_HOLD"));
 
         searchField.textProperty().addListener((obs, o, n) -> {

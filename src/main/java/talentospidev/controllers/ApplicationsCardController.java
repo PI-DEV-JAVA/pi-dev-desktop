@@ -49,6 +49,8 @@ public class ApplicationsCardController implements Initializable {
     private final ObservableList<Application> applicationsList;
     private final ObservableList<Offer> offersList;
     private final DateTimeFormatter dateFormatter;
+    @FXML
+    private VBox sidebar;
 
     public ApplicationsCardController() {
         this.applicationService = new ApplicationService();
@@ -60,6 +62,7 @@ public class ApplicationsCardController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
         setupFilters();
         loadOffers();
         loadApplications();

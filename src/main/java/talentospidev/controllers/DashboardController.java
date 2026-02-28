@@ -46,6 +46,8 @@ public class DashboardController {
     private ComboBox<String> sortOrderBox;
     @FXML
     private Label countLabel;
+    @FXML
+    private VBox sidebar;
 
     private final UserDao userDao = new UserDao();
     private final ProfileDao profileDao = new ProfileDao();
@@ -55,6 +57,7 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
+        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
         User currentUser = AuthService.getCurrentUser();
         if (currentUser == null)
             return;

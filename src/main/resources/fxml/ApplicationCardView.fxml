@@ -20,98 +20,63 @@
       stylesheets="@/style/app.css" style="-fx-background-color: #f0f2f5;">
 
     <!-- ======= LEFT SIDEBAR ======= -->
-    <VBox styleClass="sidebar">
+    <VBox fx:id="sidebar" styleClass="sidebar">
         <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 1 1 1 1;">
             <ImageView fitHeight="60" fitWidth="60" preserveRatio="true">
-                <image>
-                    <Image url="@/images/logo.png"/>
-                </image>
+                <image><Image url="@/images/logo.png"/></image>
             </ImageView>
             <Label text="Talentos" styleClass="sidebar-logo"/>
         </HBox>
-
         <Separator style="-fx-opacity: 0.1;"/>
-
         <Label text="MAIN" styleClass="sidebar-section-label"/>
         <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
         <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
-        <Button text="📋  Applications" styleClass="sidebar-button-active" onAction="#handleApplications"/>
+        <Button text="📝  Applications" styleClass="sidebar-button-active" onAction="#handleApplications"/>
         <Button text="📋  Activities" styleClass="sidebar-button" onAction="#handleActivities"/>
         <Button text="📂  Projects" styleClass="sidebar-button" onAction="#handleProjects"/>
-
         <Region VBox.vgrow="ALWAYS"/>
-
         <Separator style="-fx-opacity: 0.1;"/>
         <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
-        <Button text="👤  My Profile" styleClass="sidebar-button" onAction="#handleMyProfile"/>
         <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
     </VBox>
 
     <!-- ======= MAIN CONTENT ======= -->
-    <VBox HBox.hgrow="ALWAYS">
+    <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS"
+                style="-fx-background-color: transparent; -fx-background: transparent;">
+        <VBox spacing="24" style="-fx-padding: 30;">
 
-        <!-- Top Bar -->
-        <HBox alignment="CENTER_LEFT" spacing="16" styleClass="top-bar">
-            <VBox>
-                <Label text="Gestion des candidatures" styleClass="page-title"/>
-                <Label text="Suivez et évaluez les candidatures reçues" styleClass="page-subtitle"/>
-            </VBox>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="totalApplicationsLabel" styleClass="total-label"
-                   style="-fx-font-size: 12px; -fx-text-fill: #9ca3af;"/>
-            <Button text="🔄 Actualiser" onAction="#loadApplications" styleClass="sidebar-button"
-                    style="-fx-padding: 8 16;"/>
-        </HBox>
-
-        <!-- Search + Filters -->
-        <VBox spacing="12" style="-fx-padding: 12 24;">
-            <!-- Search bar -->
-            <HBox alignment="CENTER_LEFT" spacing="8"
-                  style="-fx-background-color: #f3f4f6; -fx-background-radius: 8; -fx-padding: 2 12;">
-                <Label text="🔍" style="-fx-text-fill: #9ca3af;"/>
-                <TextField fx:id="searchField" promptText="Rechercher par nom ou email du candidat..."
-                           style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8; -fx-pref-width: 400;"/>
-            </HBox>
-
-            <!-- Filters row 1 -->
-            <HBox spacing="16" alignment="CENTER_LEFT">
-                <Label text="Statut" style="-fx-font-size: 12px; -fx-text-fill: #6b7280; -fx-font-weight: bold;"/>
-                <ComboBox fx:id="statusFilter" promptText="Filtrer par statut" prefWidth="180"/>
-
-                <Region prefWidth="8"/>
-
-                <Label text="Offre" style="-fx-font-size: 12px; -fx-text-fill: #6b7280; -fx-font-weight: bold;"/>
-                <ComboBox fx:id="offerFilter" promptText="Filtrer par offre" prefWidth="200"/>
-            </HBox>
-
-            <!-- Filters row 2: dates -->
-            <HBox spacing="16" alignment="CENTER_LEFT">
-                <Label text="Du" style="-fx-font-size: 12px; -fx-text-fill: #6b7280; -fx-font-weight: bold;"/>
-                <DatePicker fx:id="fromDatePicker" promptText="Date début" prefWidth="180"/>
-
-                <Region prefWidth="8"/>
-
-                <Label text="Au" style="-fx-font-size: 12px; -fx-text-fill: #6b7280; -fx-font-weight: bold;"/>
-                <DatePicker fx:id="toDatePicker" promptText="Date fin" prefWidth="180"/>
-
+            <!-- Page Header -->
+            <HBox alignment="CENTER_LEFT" spacing="16">
+                <VBox spacing="4">
+                    <Label text="Applications" style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+                    <Label text="Review and manage all incoming job applications"
+                           style="-fx-font-size: 13px; -fx-text-fill: #6b7280;"/>
+                </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
-
-                <Button text="Réinitialiser" onAction="#loadApplications" styleClass="sidebar-button"
-                        style="-fx-padding: 8 16;"/>
+                <Label fx:id="totalApplicationsLabel" text="0 applications"
+                       style="-fx-font-size: 13px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
+                <Button text="⟳ Refresh" onAction="#refreshTable"
+                        style="-fx-background-color: #f3f4f6; -fx-background-radius: 16;
+                               -fx-text-fill: #6b7280; -fx-padding: 6 16; -fx-font-size: 11px;"/>
             </HBox>
-        </VBox>
 
-        <!-- Cards Container -->
-        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
-                    style="-fx-background: transparent; -fx-background-color: transparent;">
-            <FlowPane fx:id="cardsContainer"
-                      hgap="20"
-                      vgap="20"
-                      alignment="TOP_CENTER">
-                <padding>
-                    <Insets top="20" right="24" bottom="24" left="24"/>
-                </padding>
+            <!-- Filters -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 12 16;
+                         -fx-border-color: #e5e7eb; -fx-border-radius: 12;">
+                <TextField fx:id="searchField" promptText="🔍 Search by name..."
+                           style="-fx-background-color: #f3f4f6; -fx-border-color: transparent;
+                                  -fx-background-radius: 8; -fx-padding: 8 12; -fx-pref-width: 200; -fx-font-size: 12px;"/>
+                <ComboBox fx:id="statusFilter" promptText="Status" prefWidth="140" style="-fx-font-size: 11px;"/>
+                <ComboBox fx:id="offerFilter" promptText="Offer" prefWidth="200" style="-fx-font-size: 11px;"/>
+                <DatePicker fx:id="fromDatePicker" promptText="From date" style="-fx-font-size: 11px;"/>
+                <DatePicker fx:id="toDatePicker" promptText="To date" style="-fx-font-size: 11px;"/>
+            </HBox>
+
+            <!-- Application Cards -->
+            <FlowPane fx:id="cardsContainer" hgap="16" vgap="16"
+                      style="-fx-padding: 0;">
             </FlowPane>
-        </ScrollPane>
-    </VBox>
+        </VBox>
+    </ScrollPane>
 </HBox>

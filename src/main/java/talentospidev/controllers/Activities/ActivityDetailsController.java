@@ -56,9 +56,12 @@ public class ActivityDetailsController {
     private final ProjectDAO projectDAO = new ProjectDAO();
     private Activity currentActivity;
     private static final String UPLOAD_DIR = System.getProperty("user.home") + "/talentos_uploads/";
+    @FXML
+    private VBox sidebar;
 
     @FXML
     private void initialize() {
+        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
         createUploadDirectory();
         int activityId = ViewContext.getSelectedActivityId();
         if (activityId > 0) {

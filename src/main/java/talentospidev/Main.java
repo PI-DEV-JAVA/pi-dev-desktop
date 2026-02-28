@@ -11,6 +11,9 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
+        // Set AtlantaFX theme globally (modern Bootstrap-like styling)
+        Application.setUserAgentStylesheet(new atlantafx.base.theme.PrimerLight().getUserAgentStylesheet());
+
         // Register primary stage globally
         SceneUtil.setStage(stage);
 

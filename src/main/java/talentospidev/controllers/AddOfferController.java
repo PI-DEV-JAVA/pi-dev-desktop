@@ -45,12 +45,29 @@ public class AddOfferController {
     @FXML
     private Button submitBtn;
 
+    // Inline validation error labels
+    @FXML
+    private Label titleError;
+    @FXML
+    private Label departmentError;
+    @FXML
+    private Label contractError;
+    @FXML
+    private Label salaryMinError;
+    @FXML
+    private Label salaryMaxError;
+    @FXML
+    private Label positionsError;
+
     private final OfferService offerService = new OfferService();
     private Offer editingOffer = null;
     private boolean isEditMode = false;
+    @FXML
+    private VBox sidebar;
 
     @FXML
     public void initialize() {
+        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
         // Populate combo boxes
         departmentBox.getItems().addAll("IT", "Finance", "Marketing", "RH", "Commercial", "Logistique");
         contractBox.getItems().addAll("CDI", "CDD", "Stage", "Freelance");
@@ -60,6 +77,14 @@ public class AddOfferController {
         // Default values
         closingDatePicker.setValue(LocalDate.now().plusMonths(1));
         positionsField.setText("1");
+
+        // ── Instant validation (on blur) ──
+        talentospidev.utils.FormValidator.requireNotEmpty(titleField, titleError, "Job title");
+        talentospidev.utils.FormValidator.requireComboBox(departmentBox, departmentError, "Department");
+        talentospidev.utils.FormValidator.requireComboBox(contractBox, contractError, "Contract type");
+        talentospidev.utils.FormValidator.requirePositiveNumber(salaryMinField, salaryMinError, "Minimum salary");
+        talentospidev.utils.FormValidator.requirePositiveNumber(salaryMaxField, salaryMaxError, "Maximum salary");
+        talentospidev.utils.FormValidator.requirePositiveNumber(positionsField, positionsError, "Positions");
 
         // Check if editing an existing offer
         int offerId = ViewContext.getSelectedOfferId();
@@ -100,12 +125,28 @@ public class AddOfferController {
         if (user == null)
             return;
 
-        // Validate title
-        String title = titleField.getText().trim();
-        if (title.isEmpty()) {
-            showAlert("Erreur", "Le titre est obligatoire.", Alert.AlertType.WARNING);
+        // Trigger inline validation on all required fields
+        triggerAllValidation();
+
+        boolean hasErrors = talentospidev.utils.FormValidator.hasError(titleField)
+                || !talentospidev.utils.FormValidator.isValid(titleField)
+                || talentospidev.utils.FormValidator.hasError(departmentBox)
+                || !talentospidev.utils.FormValidator.isValid(departmentBox)
+                || talentospidev.utils.FormValidator.hasError(contractBox)
+                || !talentospidev.utils.FormValidator.isValid(contractBox)
+                || talentospidev.utils.FormValidator.hasError(salaryMinField)
+                || !talentospidev.utils.FormValidator.isValid(salaryMinField)
+                || talentospidev.utils.FormValidator.hasError(salaryMaxField)
+                || !talentospidev.utils.FormValidator.isValid(salaryMaxField)
+                || talentospidev.utils.FormValidator.hasError(positionsField)
+                || !talentospidev.utils.FormValidator.isValid(positionsField);
+
+        if (hasErrors) {
+            showAlert("Erreur", "Veuillez corriger les champs en erreur.", Alert.AlertType.WARNING);
             return;
         }
+
+        String title = titleField.getText().trim();
 
         try {
             double salaryMin = Double.parseDouble(salaryMinField.getText().trim());
@@ -161,6 +202,59 @@ public class AddOfferController {
         } catch (NumberFormatException e) {
             showAlert("Erreur", "Les champs numériques (salaire, postes) doivent être des nombres valides.",
                     Alert.AlertType.WARNING);
+        }
+    }
+
+    /**
+     * Manually trigger validation on all required fields (for when user clicks
+     * submit without tabbing through fields first).
+     */
+    private void triggerAllValidation() {
+        // Title
+        String title = titleField.getText();
+        if (title == null || title.trim().isEmpty()) {
+            talentospidev.utils.FormValidator.markError(titleField, titleError, "Job title is required.");
+        } else {
+            talentospidev.utils.FormValidator.markValid(titleField, titleError);
+        }
+
+        // Department
+        if (departmentBox.getValue() == null) {
+            talentospidev.utils.FormValidator.markError(departmentBox, departmentError, "Department is required.");
+        } else {
+            talentospidev.utils.FormValidator.markValid(departmentBox, departmentError);
+        }
+
+        // Contract type
+        if (contractBox.getValue() == null) {
+            talentospidev.utils.FormValidator.markError(contractBox, contractError, "Contract type is required.");
+        } else {
+            talentospidev.utils.FormValidator.markValid(contractBox, contractError);
+        }
+
+        // Salary min
+        validateNumber(salaryMinField, salaryMinError, "Minimum salary");
+        // Salary max
+        validateNumber(salaryMaxField, salaryMaxError, "Maximum salary");
+        // Positions
+        validateNumber(positionsField, positionsError, "Positions");
+    }
+
+    private void validateNumber(TextField field, Label errorLabel, String fieldName) {
+        String text = field.getText();
+        if (text == null || text.trim().isEmpty()) {
+            talentospidev.utils.FormValidator.markError(field, errorLabel, fieldName + " is required.");
+        } else {
+            try {
+                double val = Double.parseDouble(text.trim());
+                if (val < 0) {
+                    talentospidev.utils.FormValidator.markError(field, errorLabel, fieldName + " must be positive.");
+                } else {
+                    talentospidev.utils.FormValidator.markValid(field, errorLabel);
+                }
+            } catch (NumberFormatException e) {
+                talentospidev.utils.FormValidator.markError(field, errorLabel, fieldName + " must be a valid number.");
+            }
         }
     }
 

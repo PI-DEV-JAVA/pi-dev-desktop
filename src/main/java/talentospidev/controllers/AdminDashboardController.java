@@ -43,9 +43,12 @@ public class AdminDashboardController {
 
     private final UserDao userDao = new UserDao();
     private ObservableList<UserViewModel> masterData = FXCollections.observableArrayList();
+    @FXML
+    private VBox sidebar;
 
     @FXML
     public void initialize() {
+        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
         // Sort controls
         sortByBox.setItems(FXCollections.observableArrayList("Name", "Job", "Age", "Location"));
         sortByBox.setValue("Name");

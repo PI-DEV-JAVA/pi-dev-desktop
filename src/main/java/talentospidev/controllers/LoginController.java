@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
@@ -25,8 +26,38 @@ public class LoginController {
     private PasswordField passwordField;
     @FXML
     private Label loginError;
+    @FXML
+    private Button googleBtn;
+    @FXML
+    private TextField passwordVisible;
+    @FXML
+    private Button togglePasswordBtn;
+
+    private boolean passwordShown = false;
 
     private final ProfileDao profileDao = new ProfileDao();
+
+    @FXML
+    private void initialize() {
+        // Google icon
+        org.kordamp.ikonli.javafx.FontIcon googleIcon = new org.kordamp.ikonli.javafx.FontIcon(
+                org.kordamp.ikonli.fontawesome5.FontAwesomeBrands.GOOGLE);
+        googleIcon.setIconSize(16);
+        googleIcon.setIconColor(Color.web("#4285F4"));
+        googleBtn.setGraphic(googleIcon);
+        googleBtn.setGraphicTextGap(8);
+
+        // Eye icon for password toggle
+        org.kordamp.ikonli.javafx.FontIcon eyeIcon = new org.kordamp.ikonli.javafx.FontIcon(
+                org.kordamp.ikonli.fontawesome5.FontAwesomeSolid.EYE);
+        eyeIcon.setIconSize(14);
+        eyeIcon.setIconColor(Color.web("#9ca3af"));
+        togglePasswordBtn.setGraphic(eyeIcon);
+        togglePasswordBtn.setText("");
+
+        // Sync text between password fields
+        passwordVisible.textProperty().bindBidirectional(passwordField.textProperty());
+    }
 
     // ───────────────────────────────────────────────
     // LOCAL LOGIN
@@ -182,5 +213,27 @@ public class LoginController {
     @FXML
     private void goToRegister() {
         SceneUtil.switchScene("register.fxml");
+    }
+
+    @FXML
+    private void togglePasswordVisibility() {
+        passwordShown = !passwordShown;
+        passwordField.setVisible(!passwordShown);
+        passwordField.setManaged(!passwordShown);
+        passwordVisible.setVisible(passwordShown);
+        passwordVisible.setManaged(passwordShown);
+
+        // Swap icon between EYE and EYE_SLASH
+        org.kordamp.ikonli.javafx.FontIcon icon = new org.kordamp.ikonli.javafx.FontIcon(
+                passwordShown ? org.kordamp.ikonli.fontawesome5.FontAwesomeSolid.EYE_SLASH
+                        : org.kordamp.ikonli.fontawesome5.FontAwesomeSolid.EYE);
+        icon.setIconSize(14);
+        icon.setIconColor(Color.web("#9ca3af"));
+        togglePasswordBtn.setGraphic(icon);
+    }
+
+    @FXML
+    private void handleForgotPassword() {
+        SceneUtil.switchScene("forgot_password.fxml");
     }
 }

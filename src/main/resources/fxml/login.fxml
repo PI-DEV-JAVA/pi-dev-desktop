@@ -58,14 +58,24 @@
                         <Label text="Password" styleClass="field-label"/>
                         <Label text="*" styleClass="required-star"/>
                     </HBox>
-                    <PasswordField fx:id="passwordField"
+                    <StackPane>
+                        <PasswordField fx:id="passwordField"
+                                       promptText="Enter your password"
+                                       styleClass="input-field"/>
+                        <TextField fx:id="passwordVisible"
                                    promptText="Enter your password"
-                                   styleClass="input-field"/>
+                                   styleClass="input-field"
+                                   visible="false" managed="false"/>
+                        <Button fx:id="togglePasswordBtn" text="👁"
+                                style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 0 8;"
+                                onAction="#togglePasswordVisibility"
+                                StackPane.alignment="CENTER_RIGHT"/>
+                    </StackPane>
                 </VBox>
 
                 <!-- Reset Password -->
                 <HBox alignment="CENTER_RIGHT">
-                    <Hyperlink text="Forgot password?" styleClass="reset-link"/>
+                    <Hyperlink text="Forgot password?" styleClass="reset-link" onAction="#handleForgotPassword"/>
                 </HBox>
 
                 <!-- Login Button -->
@@ -82,7 +92,7 @@
                 </HBox>
 
                 <!-- Google Login -->
-                <Button text="𝐆 Continue with Google"
+                <Button fx:id="googleBtn" text="Continue with Google"
                         styleClass="google-button"
                         maxWidth="Infinity"
                         onAction="#handleGoogleLogin"/>

@@ -185,4 +185,52 @@ public class FormValidator {
     public static boolean hasError(Control field) {
         return field.getStyleClass().contains("input-error");
     }
+
+    /**
+     * Attach a positive-number validator on focus-lost for a TextField.
+     */
+    public static void requirePositiveNumber(TextField field, Label errorLabel, String fieldName) {
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
+        errorLabel.getStyleClass().add("error-label");
+
+        field.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (!isFocused) {
+                String text = field.getText();
+                if (text == null || text.trim().isEmpty()) {
+                    markError(field, errorLabel, fieldName + " is required.");
+                } else {
+                    try {
+                        double val = Double.parseDouble(text.trim());
+                        if (val < 0) {
+                            markError(field, errorLabel, fieldName + " must be positive.");
+                        } else {
+                            markValid(field, errorLabel);
+                        }
+                    } catch (NumberFormatException e) {
+                        markError(field, errorLabel, fieldName + " must be a valid number.");
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Attach a required-selection validator on focus-lost for a ComboBox.
+     */
+    public static <T> void requireComboBox(ComboBox<T> combo, Label errorLabel, String fieldName) {
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
+        errorLabel.getStyleClass().add("error-label");
+
+        combo.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (!isFocused) {
+                if (combo.getValue() == null) {
+                    markError(combo, errorLabel, fieldName + " is required.");
+                } else {
+                    markValid(combo, errorLabel);
+                }
+            }
+        });
+    }
 }

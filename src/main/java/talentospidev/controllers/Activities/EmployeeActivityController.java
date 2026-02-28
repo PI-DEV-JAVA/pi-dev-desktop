@@ -59,9 +59,12 @@ public class EmployeeActivityController {
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
     private final DateTimeFormatter displayFormatter = DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy");
+    @FXML
+    private VBox sidebar;
 
     @FXML
     private void initialize() {
+        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
         User user = AuthService.getCurrentUser();
         if (user == null) {
             SceneUtil.switchScene("login.fxml");

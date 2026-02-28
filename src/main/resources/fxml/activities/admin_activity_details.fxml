@@ -10,7 +10,7 @@
       stylesheets="@/style/app.css" style="-fx-background-color: #f0f2f5;">
 
     <!-- ======= SIDEBAR (Recruiter) ======= -->
-    <VBox styleClass="sidebar">
+    <VBox fx:id="sidebar" styleClass="sidebar">
        <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 1 1 1 1;">
             <ImageView fitHeight="60" fitWidth="60" preserveRatio="true">
                 <image><Image url="@/images/logo.png"/></image>

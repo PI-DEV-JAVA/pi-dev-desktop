@@ -270,6 +270,22 @@ public class UserDao {
     }
 
     /**
+     * [UPDATE] Updates only the password hash for a user (used by forgot-password
+     * flow).
+     */
+    public boolean updatePassword(int userId, String newPasswordHash) {
+        String sql = "UPDATE users SET password_hash = ? WHERE id = ?";
+        try (PreparedStatement stmt = DB.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, newPasswordHash);
+            stmt.setInt(2, userId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating password: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
      * [UPDATE] Toggles the active status of a user.
      */
     public void setActive(int userId, boolean active) {

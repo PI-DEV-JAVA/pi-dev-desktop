@@ -55,9 +55,12 @@ public class AdminActivityDetailsController {
     private final ProjectDAO projectDAO = new ProjectDAO();
     private final ActivityFileDAO fileDAO = new ActivityFileDAO();
     private Activity currentActivity;
+    @FXML
+    private VBox sidebar;
 
     @FXML
     private void initialize() {
+        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
         int activityId = ViewContext.getSelectedActivityId();
         if (activityId > 0) {
             currentActivity = activityDAO.getById(activityId);

@@ -7,6 +7,7 @@ import talentospidev.models.User;
 import talentospidev.utils.FormValidator;
 import talentospidev.utils.PasswordUtil;
 import talentospidev.utils.SceneUtil;
+import javafx.scene.paint.Color;
 
 public class RegisterController {
 
@@ -26,6 +27,18 @@ public class RegisterController {
     @FXML
     private Label confirmError;
 
+    // Password toggle fields
+    @FXML
+    private TextField passwordVisible;
+    @FXML
+    private TextField confirmVisible;
+    @FXML
+    private Button togglePasswordBtn;
+    @FXML
+    private Button toggleConfirmBtn;
+    private boolean passwordShown = false;
+    private boolean confirmShown = false;
+
     private final UserDao userDao = new UserDao();
     private final talentospidev.dao.ProfileDao profileDao = new talentospidev.dao.ProfileDao();
 
@@ -38,6 +51,23 @@ public class RegisterController {
         FormValidator.requireEmail(emailField, emailError);
         FormValidator.requirePassword(passwordField, passwordError);
         FormValidator.requireConfirmPassword(confirmPasswordField, passwordField, confirmError);
+
+        // Eye icons for password toggles
+        setupEyeIcon(togglePasswordBtn);
+        setupEyeIcon(toggleConfirmBtn);
+
+        // Sync text between hidden/visible fields
+        passwordVisible.textProperty().bindBidirectional(passwordField.textProperty());
+        confirmVisible.textProperty().bindBidirectional(confirmPasswordField.textProperty());
+    }
+
+    private void setupEyeIcon(Button btn) {
+        org.kordamp.ikonli.javafx.FontIcon icon = new org.kordamp.ikonli.javafx.FontIcon(
+                org.kordamp.ikonli.fontawesome5.FontAwesomeSolid.EYE);
+        icon.setIconSize(14);
+        icon.setIconColor(Color.web("#9ca3af"));
+        btn.setGraphic(icon);
+        btn.setText("");
     }
 
     @FXML
@@ -114,5 +144,34 @@ public class RegisterController {
     @FXML
     private void goToLogin() {
         SceneUtil.switchScene("login.fxml");
+    }
+
+    @FXML
+    private void togglePasswordVisibility() {
+        passwordShown = !passwordShown;
+        passwordField.setVisible(!passwordShown);
+        passwordField.setManaged(!passwordShown);
+        passwordVisible.setVisible(passwordShown);
+        passwordVisible.setManaged(passwordShown);
+        swapEyeIcon(togglePasswordBtn, passwordShown);
+    }
+
+    @FXML
+    private void toggleConfirmVisibility() {
+        confirmShown = !confirmShown;
+        confirmPasswordField.setVisible(!confirmShown);
+        confirmPasswordField.setManaged(!confirmShown);
+        confirmVisible.setVisible(confirmShown);
+        confirmVisible.setManaged(confirmShown);
+        swapEyeIcon(toggleConfirmBtn, confirmShown);
+    }
+
+    private void swapEyeIcon(Button btn, boolean shown) {
+        org.kordamp.ikonli.javafx.FontIcon icon = new org.kordamp.ikonli.javafx.FontIcon(
+                shown ? org.kordamp.ikonli.fontawesome5.FontAwesomeSolid.EYE_SLASH
+                        : org.kordamp.ikonli.fontawesome5.FontAwesomeSolid.EYE);
+        icon.setIconSize(14);
+        icon.setIconColor(Color.web("#9ca3af"));
+        btn.setGraphic(icon);
     }
 }

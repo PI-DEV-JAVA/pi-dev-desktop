@@ -83,7 +83,11 @@ public class ActivityController {
     }
 
     @FXML
+    private VBox sidebar;
+
+    @FXML
     private void initialize() {
+        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
         User user = AuthService.getCurrentUser();
         if (user == null || user.getRole() != User.Role.HR)
             return;
