@@ -16,6 +16,12 @@ import talentos.pidev.models.AIScoreResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import javafx.geometry.Pos;
 import javafx.application.Platform;
+import javafx.animation.*;
+import javafx.util.Duration;
+import javafx.scene.shape.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 import java.io.File;
 import java.net.URL;
@@ -118,6 +124,8 @@ public class ApplicationsCardController implements Initializable {
         offerFilter.getItems().addAll(offersList);
         offerFilter.setValue(null);
     }
+    private VBox aiDetailsPanel;
+    private boolean isAIPanelVisible = false;
 
     @FXML
     private void showStatistics() {
@@ -127,6 +135,8 @@ public class ApplicationsCardController implements Initializable {
         alert.setContentText("Fonctionnalité à implémenter");
         alert.showAndWait();
     }
+    // Variables pour le panneau latéral IA
+
 
     @FXML
     private void loadApplications() {
@@ -491,7 +501,7 @@ public class ApplicationsCardController implements Initializable {
                     AIScoreResult score = parseResult(result);
                     Platform.runLater(() -> {
                         loadingDialog.close();
-                        showScoreResult(score);
+                        showScoreResult(app,score);
                     });
                 } else {
                     Platform.runLater(() -> {
@@ -539,46 +549,423 @@ public class ApplicationsCardController implements Initializable {
 
         return score;
     }
-    private void showScoreResult(AIScoreResult score) {
-        Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Résultat de l'analyse IA");
-        dialog.setHeaderText("Score de compatibilité");
+    private void showScoreResult(Application app, AIScoreResult score) {
+        // Créer ou récupérer le panneau latéral
+        if (aiDetailsPanel == null) {
+            aiDetailsPanel = createAIDetailsPanel();
+            // Ajouter le panneau au BorderPane principal
+            BorderPane mainPane = (BorderPane) cardsContainer.getScene().getRoot();
+            mainPane.setRight(aiDetailsPanel);
+        }
 
-        VBox content = new VBox(15);
-        content.setPadding(new Insets(20));
-        content.setStyle("-fx-background-color: #0F172A; -fx-background-radius: 12;");
+        // Mettre à jour le contenu avec les nouveaux résultats
+        updateAIPanelContent(app, score);
 
-        // Score global
-        Label overallLabel = new Label("Score global: " + String.format("%.1f/100", score.getOverallScore()));
-        overallLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " +
-                getScoreColor(score.getOverallScore()) + ";");
+        // Afficher le panneau avec animation
+        aiDetailsPanel.setVisible(true);
+        aiDetailsPanel.setTranslateX(0);
+        isAIPanelVisible = true;
 
-        // Détails
-        GridPane grid = new GridPane();
-        grid.setHgap(15);
-        grid.setVgap(10);
-
-        addScoreRow(grid, "Compétences", score.getSkillsScore(), 0);
-        addScoreRow(grid, "Expérience", score.getExperienceScore(), 1);
-        addScoreRow(grid, "Formation", score.getEducationScore(), 2);
-
-        // Explications
-        Label explanationTitle = new Label("Explications:");
-        explanationTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
-
-        TextArea explanationArea = new TextArea(score.getExplanation());
-        explanationArea.setWrapText(true);
-        explanationArea.setEditable(false);
-        explanationArea.setPrefRowCount(5);
-        explanationArea.setStyle("-fx-background-color: #1E293B; -fx-text-fill: #E2E8F0; -fx-border-color: #334155;");
-
-        content.getChildren().addAll(overallLabel, grid, explanationTitle, explanationArea);
-
-        dialog.getDialogPane().setContent(content);
-        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
-        dialog.showAndWait();
+        // Animation d'apparition
+        animatePanelIn();
     }
 
+    /**
+     * Crée le panneau de détails IA
+     */
+    /**
+     * Crée le panneau de détails IA avec ScrollPane
+     */
+    private VBox createAIDetailsPanel() {
+        VBox panel = new VBox(20);
+        panel.setPrefWidth(380);
+        panel.setMaxWidth(380);
+        panel.setStyle(
+                "-fx-background-color: #0F172A;" +
+                        "-fx-background-radius: 24 0 0 24;" +
+                        "-fx-border-color: #334155;" +
+                        "-fx-border-width: 1 0 0 1;" +
+                        "-fx-border-radius: 24 0 0 24;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0, -5, 0);" +
+                        "-fx-padding: 25 20 25 20;"
+        );
+        panel.setVisible(false);
+
+        // En-tête avec bouton de fermeture (FIXE)
+        HBox header = new HBox();
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setPadding(new Insets(0, 0, 10, 0));
+
+        Label titleLabel = new Label("🔬 Analyse IA détaillée");
+        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button closeBtn = new Button("✕");
+        closeBtn.setStyle(
+                "-fx-background-color: #334155;" +
+                        "-fx-text-fill: #94A3B8;" +
+                        "-fx-font-size: 16px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-padding: 5 12;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-cursor: hand;"
+        );
+        closeBtn.setOnAction(e -> hideAIPanel());
+
+        // Effets de survol
+        closeBtn.setOnMouseEntered(e ->
+                closeBtn.setStyle(
+                        "-fx-background-color: #475569;" +
+                                "-fx-text-fill: #F1F5F9;" +
+                                "-fx-font-size: 16px;" +
+                                "-fx-font-weight: bold;" +
+                                "-fx-padding: 5 12;" +
+                                "-fx-background-radius: 8;" +
+                                "-fx-cursor: hand;"
+                )
+        );
+        closeBtn.setOnMouseExited(e ->
+                closeBtn.setStyle(
+                        "-fx-background-color: #334155;" +
+                                "-fx-text-fill: #94A3B8;" +
+                                "-fx-font-size: 16px;" +
+                                "-fx-font-weight: bold;" +
+                                "-fx-padding: 5 12;" +
+                                "-fx-background-radius: 8;" +
+                                "-fx-cursor: hand;"
+                )
+        );
+
+        header.getChildren().addAll(titleLabel, spacer, closeBtn);
+
+        // Conteneur pour le contenu dynamique (SCROLLABLE)
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle(
+                "-fx-background: transparent;" +
+                        "-fx-background-color: transparent;" +
+                        "-fx-border-color: transparent;"
+        );
+
+        // Style de la barre de défilement
+        scrollPane.setStyle(
+                "-fx-background: transparent;" +
+                        "-fx-background-color: transparent;" +
+                        "-fx-border-color: transparent;"
+        );
+
+        // Conteneur du contenu (sera mis à jour dynamiquement)
+        VBox contentContainer = new VBox(20);
+        contentContainer.setId("aiContentContainer");
+        contentContainer.setStyle("-fx-padding: 0 0 20 0;");
+
+        scrollPane.setContent(contentContainer);
+
+        // Assemblage : HEADER fixe + SCROLLPANE
+        panel.getChildren().addAll(header, new Separator(), scrollPane);
+
+        // Ajuster la croissance du ScrollPane
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        return panel;
+    }
+    /**
+     * Met à jour le contenu du panneau IA
+     */
+    private void updateAIPanelContent(Application app, AIScoreResult score) {
+        VBox contentContainer = (VBox) aiDetailsPanel.lookup("#aiContentContainer");
+        if (contentContainer == null) return;
+
+        contentContainer.getChildren().clear();
+
+        // ===== 1. SCORE GLOBAL AVEC JAUGE =====
+        VBox globalScoreBox = new VBox(15);
+        globalScoreBox.setAlignment(Pos.CENTER);
+        globalScoreBox.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #1E293B, #0F172A);" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-padding: 25 20;" +
+                        "-fx-border-color: rgba(99,102,241,0.3);" +
+                        "-fx-border-radius: 20;" +
+                        "-fx-border-width: 1;"
+        );
+
+        // Score avec cercle de progression
+        StackPane scoreCircle = new StackPane();
+        scoreCircle.setPrefSize(140, 140);
+
+        // Cercle extérieur
+        Circle outerCircle = new Circle(70);
+        outerCircle.setFill(null);
+        outerCircle.setStroke(Color.rgb(51, 65, 85));
+        outerCircle.setStrokeWidth(8);
+
+        // Cercle de progression
+        Circle progressCircle = new Circle(70);
+        progressCircle.setFill(null);
+        outerCircle.setStroke(Color.web(getScoreColor(score.getOverallScore())));
+        progressCircle.setStrokeWidth(8);
+        progressCircle.setStrokeLineCap(StrokeLineCap.ROUND);
+
+        // Calcul de l'angle pour le cercle de progression
+        double percentage = score.getOverallScore() / 100.0;
+        double angle = 360 * percentage;
+
+        // Créer un arc pour représenter la progression
+        Arc progressArc = new Arc(70, 70, 65, 65, 90, -angle);
+        progressArc.setFill(null);
+        progressArc.setStroke(Color.web(getScoreColor(score.getOverallScore())));
+        progressArc.setStrokeWidth(8);
+        progressArc.setStrokeLineCap(StrokeLineCap.ROUND);
+        progressArc.setType(ArcType.OPEN);
+
+        // Texte du score
+        VBox scoreText = new VBox(0);
+        scoreText.setAlignment(Pos.CENTER);
+
+        Label scoreValue = new Label(String.format("%.0f", score.getOverallScore()));
+        scoreValue.setStyle(
+                "-fx-font-size: 42px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: " + getScoreColor(score.getOverallScore()) + ";"
+        );
+
+        Label scoreMax = new Label("/100");
+        scoreMax.setStyle("-fx-font-size: 16px; -fx-text-fill: #94A3B8;");
+
+        scoreText.getChildren().addAll(scoreValue, scoreMax);
+
+        scoreCircle.getChildren().addAll(outerCircle, progressArc, scoreText);
+
+        // Label de niveau
+        Label levelLabel = new Label(getScoreLevel(score.getOverallScore()));
+        levelLabel.setStyle(
+                "-fx-font-size: 16px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: " + getScoreColor(score.getOverallScore()) + ";"
+        );
+
+        globalScoreBox.getChildren().addAll(scoreCircle, levelLabel);
+
+        // ===== 2. SCORES DÉTAILLÉS AVEC BARRES DE PROGRESSION =====
+        VBox detailedScoresBox = new VBox(15);
+        detailedScoresBox.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-padding: 20;"
+        );
+
+        Label detailsTitle = new Label("📊 Scores détaillés");
+        detailsTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        detailedScoresBox.getChildren().add(detailsTitle);
+        detailedScoresBox.getChildren().add(createProgressBarWithIcon("🎯 Compétences", score.getSkillsScore(), "💪"));
+        detailedScoresBox.getChildren().add(createProgressBarWithIcon("⏱️ Expérience", score.getExperienceScore(), "📅"));
+        detailedScoresBox.getChildren().add(createProgressBarWithIcon("🎓 Formation", score.getEducationScore(), "📚"));
+
+        // ===== 3. ANALYSE DÉTAILLÉE =====
+        VBox analysisBox = new VBox(15);
+        analysisBox.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-padding: 20;"
+        );
+
+        Label analysisTitle = new Label("📝 Analyse détaillée");
+        analysisTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        // Zone de texte stylisée pour l'analyse
+        TextFlow analysisText = new TextFlow();
+        analysisText.setStyle("-fx-background-color: #0F172A; -fx-background-radius: 12; -fx-padding: 15;");
+
+        String[] explanations = score.getExplanation().split("\n\n");
+        for (String exp : explanations) {
+            if (!exp.trim().isEmpty()) {
+                Text text = new Text(exp + "\n\n");
+                text.setStyle("-fx-fill: #E2E8F0; -fx-font-size: 13px;");
+                analysisText.getChildren().add(text);
+            }
+        }
+
+        // Ajouter un ScrollPane pour l'analyse si trop longue
+        ScrollPane analysisScroll = new ScrollPane(analysisText);
+        analysisScroll.setFitToWidth(true);
+        analysisScroll.setPrefHeight(200);
+        analysisScroll.setStyle(
+                "-fx-background: #0F172A;" +
+                        "-fx-background-color: #0F172A;" +
+                        "-fx-border-color: #334155;" +
+                        "-fx-border-radius: 12;"
+        );
+
+        analysisBox.getChildren().addAll(analysisTitle, analysisScroll);
+
+        // ===== 4. INFORMATIONS CANDIDAT =====
+        VBox candidateBox = new VBox(10);
+        candidateBox.setStyle(
+                "-fx-background-color: rgba(99,102,241,0.1);" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-padding: 15;" +
+                        "-fx-border-color: rgba(99,102,241,0.3);" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-border-width: 1;"
+        );
+
+        Label candidateTitle = new Label("👤 Candidat");
+        candidateTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #A5B4FC;");
+
+        Label candidateName = new Label(app.getCandidateName());
+        candidateName.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Label candidateEmail = new Label("✉ " + app.getCandidateEmail());
+        candidateEmail.setStyle("-fx-font-size: 12px; -fx-text-fill: #94A3B8;");
+
+        HBox actionsBox = new HBox(10);
+        actionsBox.setAlignment(Pos.CENTER_RIGHT);
+        actionsBox.setPadding(new Insets(10, 0, 0, 0));
+
+        Button viewCVBtn = new Button("📄 Voir CV");
+        viewCVBtn.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-text-fill: #94A3B8;" +
+                        "-fx-border-color: #475569;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-padding: 6 12;" +
+                        "-fx-cursor: hand;"
+        );
+        viewCVBtn.setOnAction(e -> openCVFile(app.getCvFilePath()));
+
+        Button recalculateBtn = new Button("⟳ Recalculer");
+        recalculateBtn.setStyle(
+                "-fx-background-color: #6366F1;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-border-radius: 8;" +
+                        "-fx-padding: 6 12;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-font-weight: bold;"
+        );
+        recalculateBtn.setOnAction(e -> {
+            hideAIPanel();
+            // Déclencher un nouveau calcul
+            Offer offer = offersList.stream()
+                    .filter(o -> o.getId() == app.getOfferId())
+                    .findFirst()
+                    .orElse(null);
+            if (offer != null) {
+                showAIScore(app, offer);
+            }
+        });
+
+        actionsBox.getChildren().addAll(viewCVBtn, recalculateBtn);
+
+        candidateBox.getChildren().addAll(candidateTitle, candidateName, candidateEmail, actionsBox);
+
+        // Assemblage final
+        contentContainer.getChildren().addAll(
+                globalScoreBox,
+                detailedScoresBox,
+                analysisBox,
+                candidateBox
+        );
+    }
+
+    /**
+     * Crée une barre de progression avec icône et label
+     */
+    private VBox createProgressBarWithIcon(String label, double score, String icon) {
+        VBox container = new VBox(8);
+
+        HBox labelRow = new HBox();
+        labelRow.setAlignment(Pos.CENTER_LEFT);
+
+        Label iconLabel = new Label(icon);
+        iconLabel.setStyle("-fx-font-size: 14px; -fx-min-width: 30;");
+
+        Label nameLabel = new Label(label);
+        nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label scoreLabel = new Label(String.format("%.0f%%", score));
+        scoreLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: " + getScoreColor(score) + ";");
+
+        labelRow.getChildren().addAll(iconLabel, nameLabel, spacer, scoreLabel);
+
+        // Barre de progression personnalisée
+        StackPane progressBar = new StackPane();
+        progressBar.setPrefHeight(8);
+        progressBar.setStyle("-fx-background-color: #334155; -fx-background-radius: 4;");
+
+        Region progress = new Region();
+        progress.setStyle("-fx-background-color: " + getScoreColor(score) + "; -fx-background-radius: 4;");
+        progress.setPrefWidth(score * 2.8); // 280px max * pourcentage
+        progress.setMaxWidth(280);
+        progress.setMinWidth(0);
+
+        progressBar.getChildren().add(progress);
+        StackPane.setAlignment(progress, Pos.CENTER_LEFT);
+
+        container.getChildren().addAll(labelRow, progressBar);
+
+        return container;
+    }
+
+    /**
+     * Cache le panneau IA avec animation
+     */
+    private void hideAIPanel() {
+        if (aiDetailsPanel != null && isAIPanelVisible) {
+            animatePanelOut();
+            isAIPanelVisible = false;
+        }
+    }
+
+    /**
+     * Animation d'entrée du panneau
+     */
+    private void animatePanelIn() {
+        if (aiDetailsPanel == null) return;
+
+        aiDetailsPanel.setTranslateX(400);
+
+        Timeline timeline = new Timeline();
+        timeline.getKeyFrames().add(
+                new KeyFrame(Duration.millis(300),
+                        new KeyValue(aiDetailsPanel.translateXProperty(), 0, Interpolator.EASE_BOTH)
+                )
+        );
+        timeline.play();
+    }
+
+    /**
+     * Animation de sortie du panneau
+     */
+    private void animatePanelOut() {
+        if (aiDetailsPanel == null) return;
+
+        Timeline timeline = new Timeline();
+        timeline.getKeyFrames().add(
+                new KeyFrame(Duration.millis(300),
+                        new KeyValue(aiDetailsPanel.translateXProperty(), 400, Interpolator.EASE_BOTH)
+                )
+        );
+        timeline.setOnFinished(e -> aiDetailsPanel.setVisible(false));
+        timeline.play();
+    }
+
+    /**
+     * Obtient le niveau de score
+     */
+    private String getScoreLevel(double score) {
+        if (score >= 85) return "🌟 Excellent";
+        if (score >= 70) return "✅ Très bon";
+        if (score >= 50) return "📊 Moyen";
+        if (score >= 30) return "⚠️ Faible";
+        return "❌ Insuffisant";
+    }
     private void addScoreRow(GridPane grid, String label, double score, int row) {
         Label nameLabel = new Label(label + ":");
         nameLabel.setStyle("-fx-text-fill: #94A3B8;");

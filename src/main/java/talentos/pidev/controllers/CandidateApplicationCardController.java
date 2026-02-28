@@ -625,9 +625,33 @@ public class CandidateApplicationCardController implements Initializable {
                 );
             }
 
-            // ✅ Activer/désactiver le bouton
+            // ✅ Activer/Désactiver le bouton
             submitBtn.setDisable(!isValid);
-            submitBtn.setOpacity(isValid ? 1.0 : 0.5);
+
+            if (isValid) {
+                submitBtn.setStyle(
+                        "-fx-background-color: linear-gradient(to right, #6366F1, #06B6D4);" +
+                                "-fx-text-fill: white;" +
+                                "-fx-padding: 12 24;" +
+                                "-fx-background-radius: 8;" +
+                                "-fx-font-size: 14px;" +
+                                "-fx-font-weight: bold;" +
+                                "-fx-cursor: hand;"
+                );
+                submitBtn.setOpacity(1.0);
+            } else {
+                submitBtn.setStyle(
+                        "-fx-background-color: #475569;" +
+                                "-fx-text-fill: #94A3B8;" +
+                                "-fx-padding: 12 24;" +
+                                "-fx-background-radius: 8;" +
+                                "-fx-font-size: 14px;" +
+                                "-fx-font-weight: bold;" +
+                                "-fx-cursor: hand;"
+                );
+                submitBtn.setOpacity(0.5);
+            }
+
         };
 
 // ✅ Écouteurs en temps réel
