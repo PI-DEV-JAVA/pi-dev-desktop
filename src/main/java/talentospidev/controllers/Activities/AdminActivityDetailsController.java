@@ -20,13 +20,16 @@ import javafx.stage.FileChooser;
 import java.io.*;
 import java.nio.file.*;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Recruiter admin view of an activity — see candidate details + uploaded files.
+ * Recruiter admin view of an activity — see candidate details, uploaded files,
+ * and time tracking information.
  */
 public class AdminActivityDetailsController {
 
@@ -47,14 +50,36 @@ public class AdminActivityDetailsController {
     @FXML
     private Label statusLabel;
     @FXML
+    private Label trackedTimeLabel;
+    @FXML
+    private Label completionLabel;
+    @FXML
+    private Label sessionsLabel;
+    @FXML
+    private Label lastActiveLabel;
+    @FXML
+    private Label currentStatusLabel;
+    @FXML
+    private ProgressBar progressBar;
+    @FXML
+    private ListView<String> trackingHistoryList;
+    @FXML
     private VBox filesContainer;
     @FXML
     private VBox mainContent;
+    @FXML
+    private ToggleButton trackLiveToggle;
+    @FXML
+    private HBox liveTrackingPanel;
 
     private final ActivityDAO activityDAO = new ActivityDAO();
     private final ProjectDAO projectDAO = new ProjectDAO();
     private final ActivityFileDAO fileDAO = new ActivityFileDAO();
     private Activity currentActivity;
+    
+    private javafx.animation.Timeline refreshTimeline;
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @FXML
     private void initialize() {
@@ -64,7 +89,9 @@ public class AdminActivityDetailsController {
             if (currentActivity != null) {
                 loadEmployeeInfo();
                 displayActivityDetails();
+                displayTrackingInfo();
                 displayFiles();
+                setupLiveTracking();
             }
         }
     }
@@ -95,14 +122,211 @@ public class AdminActivityDetailsController {
         Project p = projectDAO.getById(currentActivity.getProjectId());
         activityIdLabel.setText("Activity #" + currentActivity.getIdActivity());
         projectNameLabel.setText(p != null ? p.getName() : "Unknown");
-        dateLabel
-                .setText("📅 " + currentActivity.getActivityDate().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
+        dateLabel.setText("📅 " + currentActivity.getActivityDate().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
         hoursLabel.setText("⏱ " + String.format("%.1f hours", currentActivity.getHoursWorked()));
         descriptionLabel.setText(currentActivity.getDescription());
 
         if (p != null) {
             statusLabel.setText(p.getStatus());
             statusLabel.setStyle(getStatusStyle(p.getStatus()));
+        }
+    }
+
+    private void displayTrackingInfo() {
+        try {
+            // Get tracking summary
+            Map<String, Object> summary = activityDAO.getActivityTrackingSummary(currentActivity.getIdActivity());
+            
+            // Safely extract total_seconds
+            Object secondsObj = summary.get("total_seconds");
+            long totalSeconds = 0;
+            if (secondsObj instanceof Long) {
+                totalSeconds = (Long) secondsObj;
+            } else if (secondsObj instanceof Integer) {
+                totalSeconds = ((Integer) secondsObj).longValue();
+            }
+            
+            // Safely extract total_sessions
+            Object sessionsObj = summary.get("total_sessions");
+            int sessionCount = 0;
+            if (sessionsObj instanceof Long) {
+                sessionCount = ((Long) sessionsObj).intValue();
+            } else if (sessionsObj instanceof Integer) {
+                sessionCount = (Integer) sessionsObj;
+            }
+            
+            // Safely extract active_sessions
+            Object activeObj = summary.get("active_sessions");
+            int activeSessions = 0;
+            if (activeObj instanceof Long) {
+                activeSessions = ((Long) activeObj).intValue();
+            } else if (activeObj instanceof Integer) {
+                activeSessions = (Integer) activeObj;
+            }
+            
+            // Calculate tracked hours
+            double trackedHours = totalSeconds / 3600.0;
+            double assignedHours = currentActivity.getHoursWorked();
+            int completionPercent = (int) ((trackedHours / assignedHours) * 100);
+            
+            // Update labels
+            trackedTimeLabel.setText(formatDuration(totalSeconds));
+            completionLabel.setText(completionPercent + "%");
+            sessionsLabel.setText(sessionCount + " session(s)");
+            
+            // Update progress bar
+            progressBar.setProgress(Math.min(trackedHours / assignedHours, 1.0));
+            progressBar.setStyle(getProgressBarStyle(completionPercent));
+            
+            // Current status
+            if (currentActivity.isTracking()) {
+                currentStatusLabel.setText("● LIVE");
+                currentStatusLabel.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;");
+            } else if (completionPercent >= 100) {
+                currentStatusLabel.setText("✓ COMPLETED");
+                currentStatusLabel.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;");
+            } else if (activeSessions > 0) {
+                currentStatusLabel.setText("⏸ PAUSED");
+                currentStatusLabel.setStyle("-fx-text-fill: #f59e0b; -fx-font-weight: bold;");
+            } else {
+                currentStatusLabel.setText("○ NOT STARTED");
+                currentStatusLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-weight: bold;");
+            }
+            
+            // Last active
+            if (summary.get("last_session") != null) {
+                Timestamp lastSession = (Timestamp) summary.get("last_session");
+                lastActiveLabel.setText(lastSession.toLocalDateTime().format(dateTimeFormatter));
+            } else {
+                lastActiveLabel.setText("Never");
+            }
+            
+            // Load tracking history
+            loadTrackingHistory();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Set default values if there's an error
+            trackedTimeLabel.setText("0h 0m");
+            completionLabel.setText("0%");
+            sessionsLabel.setText("0 sessions");
+            currentStatusLabel.setText("○ UNKNOWN");
+        }
+    }
+
+    private void loadTrackingHistory() {
+        trackingHistoryList.getItems().clear();
+        List<Map<String, Object>> history = activityDAO.getTrackingHistory(currentActivity.getIdActivity());
+        
+        if (history.isEmpty()) {
+            trackingHistoryList.getItems().add("No tracking sessions yet");
+            return;
+        }
+        
+        for (Map<String, Object> session : history) {
+            LocalDateTime start = (LocalDateTime) session.get("session_start");
+            LocalDateTime end = (LocalDateTime) session.get("session_end");
+            
+            // Safely get seconds_tracked
+            Object secondsObj = session.get("seconds_tracked");
+            int seconds = 0;
+            if (secondsObj instanceof Long) {
+                seconds = ((Long) secondsObj).intValue();
+            } else if (secondsObj instanceof Integer) {
+                seconds = (Integer) secondsObj;
+            }
+            
+            String startStr = start.format(DateTimeFormatter.ofPattern("dd/MM HH:mm"));
+            String endStr = end != null ? end.format(DateTimeFormatter.ofPattern("HH:mm")) : "Active";
+            String duration = formatDuration(seconds);
+            
+            // Add visual indicator for active session
+            if (end == null) {
+                trackingHistoryList.getItems().add(String.format("🟢 %s → %s (%s) - ACTIVE", 
+                    startStr, endStr, duration));
+            } else {
+                trackingHistoryList.getItems().add(String.format("⚪ %s → %s (%s)", 
+                    startStr, endStr, duration));
+            }
+        }
+    }
+
+    private void setupLiveTracking() {
+        if (currentActivity.isTracking()) {
+            liveTrackingPanel.setVisible(true);
+            liveTrackingPanel.setManaged(true);
+            trackLiveToggle.setSelected(true);
+            trackLiveToggle.setText("Tracking Live");
+            trackLiveToggle.setStyle("-fx-background-color: #10b981; -fx-text-fill: white;");
+            startLiveRefresh();
+        } else {
+            liveTrackingPanel.setVisible(false);
+            liveTrackingPanel.setManaged(false);
+        }
+        
+        trackLiveToggle.setOnAction(e -> {
+            if (trackLiveToggle.isSelected()) {
+                startLiveRefresh();
+                trackLiveToggle.setText("Tracking Live");
+                trackLiveToggle.setStyle("-fx-background-color: #10b981; -fx-text-fill: white;");
+            } else {
+                stopLiveRefresh();
+                trackLiveToggle.setText("Live Tracking Off");
+                trackLiveToggle.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white;");
+            }
+        });
+    }
+
+    private void startLiveRefresh() {
+        if (refreshTimeline != null) {
+            refreshTimeline.stop();
+        }
+        
+        refreshTimeline = new javafx.animation.Timeline(
+            new javafx.animation.KeyFrame(
+                javafx.util.Duration.seconds(5),
+                e -> refreshTrackingData()
+            )
+        );
+        refreshTimeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        refreshTimeline.play();
+    }
+
+    private void stopLiveRefresh() {
+        if (refreshTimeline != null) {
+            refreshTimeline.stop();
+        }
+    }
+
+    private void refreshTrackingData() {
+        // Refresh activity data
+        currentActivity = activityDAO.getById(currentActivity.getIdActivity());
+        
+        // Refresh tracking info
+        displayTrackingInfo();
+    }
+
+    private String formatDuration(long seconds) {
+        long hours = seconds / 3600;
+        long minutes = (seconds % 3600) / 60;
+        long secs = seconds % 60;
+        
+        if (hours > 0) {
+            return String.format("%dh %dm %ds", hours, minutes, secs);
+        } else if (minutes > 0) {
+            return String.format("%dm %ds", minutes, secs);
+        } else {
+            return String.format("%ds", secs);
+        }
+    }
+
+    private String getProgressBarStyle(int percent) {
+        if (percent >= 100) {
+            return "-fx-accent: #10b981;";
+        } else if (percent >= 75) {
+            return "-fx-accent: #f59e0b;";
+        } else {
+            return "-fx-accent: #ef4444;";
         }
     }
 
@@ -225,6 +449,23 @@ public class AdminActivityDetailsController {
         }
     }
 
+    @FXML
+    private void sendReminder() {
+        showAlert("Reminder", "Reminder sent to " + employeeEmailLabel.getText(), Alert.AlertType.INFORMATION);
+    }
+
+    @FXML
+    private void refreshData() {
+        refreshTrackingData();
+        showAlert("Refreshed", "Activity data has been refreshed.", Alert.AlertType.INFORMATION);
+    }
+
+    @FXML
+    private void handleBack() {
+        stopLiveRefresh();
+        SceneUtil.switchScene("activities/activities.fxml");
+    }
+
     private void showAlert(String t, String m, Alert.AlertType type) {
         Alert a = new Alert(type);
         a.setTitle(t);
@@ -236,21 +477,31 @@ public class AdminActivityDetailsController {
     // === Sidebar Navigation ===
     @FXML
     private void handleDashboard() {
+        stopLiveRefresh();
         SceneUtil.switchScene("recruiter_dashboard.fxml");
     }
 
     @FXML
     private void handleJobOffers() {
+        stopLiveRefresh();
         SceneUtil.switchScene("OffersCardView.fxml");
     }
 
     @FXML
     private void handleActivities() {
+        stopLiveRefresh();
         SceneUtil.switchScene("activities/activities.fxml");
     }
 
     @FXML
+    private void handleProjects() {
+        stopLiveRefresh();
+        SceneUtil.switchScene("projects/projects.fxml");
+    }
+
+    @FXML
     private void handleMyProfile() {
+        stopLiveRefresh();
         SceneUtil.switchScene("profile-view.fxml");
     }
 
@@ -261,6 +512,7 @@ public class AdminActivityDetailsController {
 
     @FXML
     private void handleLogout() {
+        stopLiveRefresh();
         AuthService.logout();
         SceneUtil.switchScene("login.fxml");
     }

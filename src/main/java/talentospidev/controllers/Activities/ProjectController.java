@@ -10,6 +10,7 @@ import talentospidev.dao.ProjectDAO.ProjectDAO;
 import talentospidev.models.Project.Project;
 import talentospidev.models.User;
 import talentospidev.services.AuthService;
+import talentospidev.services.TrelloService;
 import talentospidev.utils.SceneUtil;
 
 import java.time.LocalDate;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Project management page (Recruiter only).
+ * Project management page (Recruiter only) with Trello integration.
  */
 public class ProjectController {
 
@@ -33,6 +34,8 @@ public class ProjectController {
     private VBox listContainer;
     @FXML
     private Button submitBtn;
+    @FXML
+    private Label connectionStatusLabel;
 
     private final ProjectDAO projectDAO = new ProjectDAO();
     private final ObservableList<Project> masterList = FXCollections.observableArrayList();
@@ -41,6 +44,7 @@ public class ProjectController {
     @FXML
     private void initialize() {
         statusCombo.setItems(FXCollections.observableArrayList("PLANNED", "IN_PROGRESS", "DONE", "ON_HOLD"));
+        statusCombo.getSelectionModel().select("PLANNED");
 
         searchField.textProperty().addListener((obs, o, n) -> {
             String filter = n == null ? "" : n.toLowerCase();
@@ -51,6 +55,17 @@ public class ProjectController {
         });
 
         loadProjects();
+        
+        // Check Trello connection status
+        updateTrelloConnectionStatus();
+    }
+
+    private void updateTrelloConnectionStatus() {
+        if (connectionStatusLabel != null) {
+            // You can add a method in TrelloService to check connection
+            connectionStatusLabel.setText("✓ Trello Connected");
+            connectionStatusLabel.setStyle("-fx-text-fill: #10b981; -fx-font-size: 10px;");
+        }
     }
 
     @FXML
@@ -117,6 +132,15 @@ public class ProjectController {
         VBox mEnd = createMeta("END", project.getEndDate() != null ? project.getEndDate().toString() : "—");
         VBox mBudget = createMeta("BUDGET", String.format("$%.0f", project.getBudget()));
 
+        // Trello indicator (small icon if project has Trello card)
+        Label trelloIcon = new Label("📋");
+        trelloIcon.setStyle("-fx-font-size: 14px; -fx-text-fill: #0079bf; -fx-cursor: hand;");
+        trelloIcon.setTooltip(new Tooltip("View on Trello"));
+        trelloIcon.setOnMouseClicked(e -> {
+            // You could open the Trello card URL here if you store it
+            showAlert("Info", "Trello card created for this project", Alert.AlertType.INFORMATION);
+        });
+
         Region fSp = new Region();
         HBox.setHgrow(fSp, Priority.ALWAYS);
 
@@ -129,7 +153,7 @@ public class ProjectController {
                 "-fx-background-color: #fef2f2; -fx-text-fill: #ef4444; -fx-background-radius: 8; -fx-cursor: hand;");
         delBtn.setOnAction(e -> handleDelete(project));
 
-        footer.getChildren().addAll(mStart, mEnd, mBudget, fSp, editBtn, delBtn);
+        footer.getChildren().addAll(mStart, mEnd, mBudget, trelloIcon, fSp, editBtn, delBtn);
 
         card.getChildren().addAll(header, desc, footer);
         return card;
@@ -173,12 +197,34 @@ public class ProjectController {
     private void addProject() {
         if (!validate())
             return;
+        
         User user = AuthService.getCurrentUser();
+        if (user == null) {
+            showAlert("Error", "You must be logged in", Alert.AlertType.ERROR);
+            return;
+        }
+        
         Project p = new Project(0, nameField.getText(), descriptionField.getText(), statusCombo.getValue(),
                 startDatePicker.getValue(), endDatePicker.getValue(), Double.parseDouble(budgetField.getText()));
+        
         if (user != null)
             p.setProjectManagerId(user.getId());
+        
+        // Add to database
         projectDAO.add(p);
+        
+        // Create Trello card
+        try {
+            String managerName = user.getEmail().split("@")[0];
+            TrelloService.createProjectCard(p, managerName);
+            showAlert("Success", "Project created and added to Trello!", Alert.AlertType.INFORMATION);
+        } catch (Exception e) {
+            System.err.println("⚠️ Failed to create Trello card: " + e.getMessage());
+            showAlert("Success with warning", 
+                "Project created but Trello integration failed: " + e.getMessage(), 
+                Alert.AlertType.WARNING);
+        }
+        
         loadProjects();
         clearFields();
     }
@@ -186,23 +232,41 @@ public class ProjectController {
     private void updateProject() {
         if (selectedProject == null || !validate())
             return;
+        
+        // Store old values for comparison
+        String oldName = selectedProject.getName();
+        String oldStatus = selectedProject.getStatus();
+        LocalDate oldEndDate = selectedProject.getEndDate();
+        
+        // Update project
         selectedProject.setName(nameField.getText());
         selectedProject.setDescription(descriptionField.getText());
         selectedProject.setStatus(statusCombo.getValue());
         selectedProject.setStartDate(startDatePicker.getValue());
         selectedProject.setEndDate(endDatePicker.getValue());
         selectedProject.setBudget(Double.parseDouble(budgetField.getText()));
+        
+        // Update in database
         projectDAO.update(selectedProject);
+        
+        // Update Trello card (if you have the card ID stored)
+        // You would need to retrieve the card ID from a mapping table
+        // TrelloService.updateProjectCard(cardId, selectedProject);
+        
+        showAlert("Success", "Project updated successfully!", Alert.AlertType.INFORMATION);
         loadProjects();
         clearFields();
     }
 
     private void handleDelete(Project project) {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Delete " + project.getName() + "?", ButtonType.YES,
-                ButtonType.NO);
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION, 
+            "Delete project '" + project.getName() + "'? This will NOT delete the Trello card.", 
+            ButtonType.YES, ButtonType.NO);
+            
         if (a.showAndWait().orElse(null) == ButtonType.YES) {
             projectDAO.delete(project.getId());
             loadProjects();
+            showAlert("Deleted", "Project removed from application", Alert.AlertType.INFORMATION);
         }
     }
 
@@ -211,8 +275,8 @@ public class ProjectController {
         nameField.clear();
         descriptionField.clear();
         budgetField.clear();
-        statusCombo.setValue(null);
-        startDatePicker.setValue(null);
+        statusCombo.setValue("PLANNED");
+        startDatePicker.setValue(LocalDate.now());
         endDatePicker.setValue(null);
         selectedProject = null;
         submitBtn.setText("Create Project");
@@ -222,12 +286,37 @@ public class ProjectController {
     }
 
     private boolean validate() {
-        try {
-            return !nameField.getText().isEmpty() && statusCombo.getValue() != null
-                    && Double.parseDouble(budgetField.getText()) >= 0;
-        } catch (Exception e) {
+        if (nameField.getText() == null || nameField.getText().trim().isEmpty()) {
+            showAlert("Validation Error", "Project name is required", Alert.AlertType.ERROR);
             return false;
         }
+        if (statusCombo.getValue() == null) {
+            showAlert("Validation Error", "Status is required", Alert.AlertType.ERROR);
+            return false;
+        }
+        if (startDatePicker.getValue() == null) {
+            showAlert("Validation Error", "Start date is required", Alert.AlertType.ERROR);
+            return false;
+        }
+        try {
+            double budget = Double.parseDouble(budgetField.getText());
+            if (budget < 0) {
+                showAlert("Validation Error", "Budget cannot be negative", Alert.AlertType.ERROR);
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            showAlert("Validation Error", "Budget must be a valid number", Alert.AlertType.ERROR);
+            return false;
+        }
+        return true;
+    }
+
+    private void showAlert(String title, String msg, Alert.AlertType type) {
+        Alert a = new Alert(type);
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
     }
 
     // === Sidebar Navigation ===

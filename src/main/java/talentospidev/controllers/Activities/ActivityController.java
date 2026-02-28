@@ -1,5 +1,5 @@
 package talentospidev.controllers.Activities;
-
+import talentospidev.services.TrelloService;
 import javafx.collections.*;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -321,6 +321,15 @@ public class ActivityController {
         } catch (Exception e) {
             showAlert("Success with warning", "Activity assigned but email notification failed: " + e.getMessage(), 
                      Alert.AlertType.WARNING);
+        }
+        
+        // Create Trello card
+        try {
+            TrelloService.createActivityCard(a, emp.getName(), proj.getName());
+            System.out.println("✅ Trello card created for activity");
+        } catch (Exception e) {
+            System.err.println("⚠️ Failed to create Trello card: " + e.getMessage());
+            // Don't show alert to user, just log it
         }
         
         loadAllActivities();
