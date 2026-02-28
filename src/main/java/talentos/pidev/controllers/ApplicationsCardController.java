@@ -50,6 +50,9 @@ public class ApplicationsCardController implements Initializable {
         loadApplications();
         showAlert("Info", "Liste des candidatures actualisée", Alert.AlertType.INFORMATION);
     }
+    private VBox aiDetailsPanel;
+    private boolean isAIPanelVisible = false;
+
 
     private final ApplicationService applicationService;
     private final OfferService offerService;
@@ -124,8 +127,6 @@ public class ApplicationsCardController implements Initializable {
         offerFilter.getItems().addAll(offersList);
         offerFilter.setValue(null);
     }
-    private VBox aiDetailsPanel;
-    private boolean isAIPanelVisible = false;
 
     @FXML
     private void showStatistics() {
@@ -573,9 +574,6 @@ public class ApplicationsCardController implements Initializable {
     /**
      * Crée le panneau de détails IA
      */
-    /**
-     * Crée le panneau de détails IA avec ScrollPane
-     */
     private VBox createAIDetailsPanel() {
         VBox panel = new VBox(20);
         panel.setPrefWidth(380);
@@ -591,10 +589,9 @@ public class ApplicationsCardController implements Initializable {
         );
         panel.setVisible(false);
 
-        // En-tête avec bouton de fermeture (FIXE)
+        // En-tête avec bouton de fermeture
         HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(0, 0, 10, 0));
 
         Label titleLabel = new Label("🔬 Analyse IA détaillée");
         titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
@@ -613,8 +610,6 @@ public class ApplicationsCardController implements Initializable {
                         "-fx-cursor: hand;"
         );
         closeBtn.setOnAction(e -> hideAIPanel());
-
-        // Effets de survol
         closeBtn.setOnMouseEntered(e ->
                 closeBtn.setStyle(
                         "-fx-background-color: #475569;" +
@@ -640,37 +635,15 @@ public class ApplicationsCardController implements Initializable {
 
         header.getChildren().addAll(titleLabel, spacer, closeBtn);
 
-        // Conteneur pour le contenu dynamique (SCROLLABLE)
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle(
-                "-fx-background: transparent;" +
-                        "-fx-background-color: transparent;" +
-                        "-fx-border-color: transparent;"
-        );
-
-        // Style de la barre de défilement
-        scrollPane.setStyle(
-                "-fx-background: transparent;" +
-                        "-fx-background-color: transparent;" +
-                        "-fx-border-color: transparent;"
-        );
-
-        // Conteneur du contenu (sera mis à jour dynamiquement)
+        // Conteneur pour le contenu dynamique
         VBox contentContainer = new VBox(20);
         contentContainer.setId("aiContentContainer");
-        contentContainer.setStyle("-fx-padding: 0 0 20 0;");
 
-        scrollPane.setContent(contentContainer);
-
-        // Assemblage : HEADER fixe + SCROLLPANE
-        panel.getChildren().addAll(header, new Separator(), scrollPane);
-
-        // Ajuster la croissance du ScrollPane
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        panel.getChildren().addAll(header, new Separator(), contentContainer);
 
         return panel;
     }
+
     /**
      * Met à jour le contenu du panneau IA
      */
@@ -705,7 +678,7 @@ public class ApplicationsCardController implements Initializable {
         // Cercle de progression
         Circle progressCircle = new Circle(70);
         progressCircle.setFill(null);
-        outerCircle.setStroke(Color.web(getScoreColor(score.getOverallScore())));
+        progressCircle.setStroke(Color.web(getScoreColor(score.getOverallScore())));
         progressCircle.setStrokeWidth(8);
         progressCircle.setStrokeLineCap(StrokeLineCap.ROUND);
 
@@ -857,6 +830,7 @@ public class ApplicationsCardController implements Initializable {
                 showAIScore(app, offer);
             }
         });
+
 
         actionsBox.getChildren().addAll(viewCVBtn, recalculateBtn);
 

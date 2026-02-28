@@ -11,11 +11,20 @@ import java.time.temporal.ChronoUnit;
 import javafx.util.Callback;
 import talentos.pidev.models.Offer;
 import talentos.pidev.services.OfferService;
-
+import javafx.geometry.Pos;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Arc;
+import javafx.scene.shape.ArcType;
+import javafx.scene.paint.Color;
+import talentos.pidev.services.CandidateMatchingService;
+import talentos.pidev.models.CandidateMatch;
+import java.util.List;
+import java.util.ArrayList;
 
 public class OffersCardController implements Initializable {
 
@@ -234,7 +243,11 @@ public class OffersCardController implements Initializable {
         Button deleteBtn = createDarkButton("🗑 Supprimer", "rgba(239,68,68,0.2)", "#F87171");
         deleteBtn.setOnAction(e -> deleteOffer(offer));
 
-        actions.getChildren().addAll(viewBtn, editBtn, deleteBtn);
+        Button matchBtn = createDarkButton("🎯 Match", "rgba(139,92,246,0.2)", "#C4B5FD");
+        matchBtn.setOnAction(e -> showCandidateMatching(offer));
+
+
+        actions.getChildren().addAll(viewBtn, editBtn, deleteBtn,matchBtn);
 
         card.getChildren().addAll(header, deptLabel, locationLabel, salaryLabel, expLabel, footer, sep, actions);
 
@@ -1333,6 +1346,288 @@ public class OffersCardController implements Initializable {
     /**
      * Affiche le formulaire de modification d'offre
      */
+    private void showCandidateMatching(Offer offer) {
+        // Vider le conteneur actuel
+        cardsContainer.getChildren().clear();
+
+        // Créer et afficher la vue de matching
+        VBox matchingView = createMatchingView(offer);
+        cardsContainer.getChildren().add(matchingView);
+    }
+    private VBox createMatchingView(Offer offer) {
+        VBox container = new VBox(25);
+        container.setStyle("-fx-background-color: #0F172A; -fx-padding: 30; -fx-background-radius: 16;");
+        container.setMaxWidth(900);
+        container.setAlignment(Pos.TOP_CENTER);
+
+        // ===== EN-TÊTE AVEC BOUTON RETOUR =====
+        HBox headerBox = new HBox(15);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+
+        Button backBtn = new Button("← Retour aux offres");
+        backBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 14px; -fx-cursor: hand;");
+        backBtn.setOnAction(e -> backToOffers());
+
+        Label titleLabel = new Label("🎯 Trouver des candidats pour");
+        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Label offerTitle = new Label(offer.getTitle());
+        offerTitle.setStyle("-fx-font-size: 20px; -fx-text-fill: #A5B4FC; -fx-font-weight: 600;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        headerBox.getChildren().addAll(backBtn, spacer, titleLabel, offerTitle);
+
+        // ===== PARAMÈTRES =====
+        HBox paramsBox = new HBox(20);
+        paramsBox.setAlignment(Pos.CENTER_LEFT);
+        paramsBox.setPadding(new Insets(20, 0, 20, 0));
+
+        Label limitLabel = new Label("Nombre de candidats à analyser:");
+        limitLabel.setStyle("-fx-text-fill: #94A3B8;");
+
+        Spinner<Integer> limitSpinner = new Spinner<>(1, 10, 3);
+        limitSpinner.setStyle("-fx-background-color: #1E293B; -fx-text-fill: #E2E8F0;");
+
+        Button startBtn = new Button("🚀 Lancer l'analyse");
+        startBtn.setStyle("-fx-background-color: linear-gradient(to right, #6366F1, #06B6D4); -fx-text-fill: white; -fx-padding: 10 24; -fx-background-radius: 8; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand;");
+
+        ProgressIndicator progressIndicator = new ProgressIndicator();
+        progressIndicator.setPrefSize(25, 25);
+        progressIndicator.setVisible(false);
+
+        // ✅ AJOUT DE statusLabel ICI
+        Label statusLabel = new Label("Prêt à analyser");
+        statusLabel.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 13px;");
+
+        paramsBox.getChildren().addAll(limitLabel, limitSpinner, startBtn, progressIndicator, statusLabel);
+
+        // ===== ZONE DE RÉSULTATS =====
+        VBox resultsContainer = new VBox(20);
+        resultsContainer.setId("matchingResults");
+
+        // Message par défaut
+        VBox defaultMessage = new VBox(20);
+        defaultMessage.setAlignment(Pos.CENTER);
+        defaultMessage.setPrefHeight(300);
+
+        Label icon = new Label("🎯");
+        icon.setStyle("-fx-font-size: 56px;");
+
+        Label defaultTitle = new Label("Prêt à trouver les meilleurs candidats");
+        defaultTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #94A3B8;");
+
+        Label defaultSubtitle = new Label("Cliquez sur 'Lancer l'analyse' pour commencer");
+        defaultSubtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748B;");
+
+        defaultMessage.getChildren().addAll(icon, defaultTitle, defaultSubtitle);
+        resultsContainer.getChildren().add(defaultMessage);
+
+        // ===== ACTION DU BOUTON =====
+        startBtn.setOnAction(e -> {
+            int limit = limitSpinner.getValue();
+            startBtn.setDisable(true);
+            progressIndicator.setVisible(true);
+            defaultMessage.setVisible(false);
+            statusLabel.setText("Soumission des CV...");  // ✅ MAINTENANT statusLabel EXISTE
+
+            new Thread(() -> {
+                try {
+                    CandidateMatchingService matchingService = new CandidateMatchingService();
+
+                    Platform.runLater(() -> statusLabel.setText("Analyse en cours (cela peut prendre 30-60 secondes)..."));
+
+                    List<CandidateMatch> results = matchingService.findBestCandidatesForOffer(offer, limit);
+
+                    Platform.runLater(() -> {
+                        displayMatchingResults(resultsContainer, results);
+                        startBtn.setDisable(false);
+                        progressIndicator.setVisible(false);
+                        statusLabel.setText("Analyse terminée - " + results.size() + " candidats");
+                    });
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    Platform.runLater(() -> {
+                        showAlert("Erreur", "Échec de l'analyse: " + ex.getMessage(), Alert.AlertType.ERROR);
+                        startBtn.setDisable(false);
+                        progressIndicator.setVisible(false);
+                        statusLabel.setText("Erreur lors de l'analyse");
+                    });
+                }
+            }).start();
+        });
+
+        container.getChildren().addAll(headerBox, paramsBox, new Separator(), resultsContainer);
+
+        return container;
+    }
+
+    private void displayMatchingResults(VBox container, List<CandidateMatch> results) {
+        container.getChildren().clear();
+
+        if (results.isEmpty()) {
+            VBox emptyBox = new VBox(20);
+            emptyBox.setAlignment(Pos.CENTER);
+            emptyBox.setPrefHeight(300);
+
+            Label icon = new Label("😕");
+            icon.setStyle("-fx-font-size: 56px;");
+
+            Label title = new Label("Aucun candidat trouvé");
+            title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #94A3B8;");
+
+            Label subtitle = new Label("Essayez avec plus de candidats ou une autre offre");
+            subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748B;");
+
+            emptyBox.getChildren().addAll(icon, title, subtitle);
+            container.getChildren().add(emptyBox);
+            return;
+        }
+
+        // En-tête des résultats
+        HBox headerBox = new HBox(15);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        headerBox.setPadding(new Insets(10, 0, 10, 0));
+
+        Label resultsTitle = new Label("📊 Résultats - " + results.size() + " candidats analysés");
+        resultsTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        ComboBox<String> sortFilter = new ComboBox<>();
+        sortFilter.getItems().addAll("Score (décroissant)", "Score (croissant)", "Nom (A-Z)");
+        sortFilter.setValue("Score (décroissant)");
+
+        headerBox.getChildren().addAll(resultsTitle, spacer, sortFilter);
+        container.getChildren().add(headerBox);
+
+        // Cartes des candidats
+        for (CandidateMatch match : results) {
+            VBox card = createCandidateCard(match);
+            container.getChildren().add(card);
+        }
+
+        // Action du filtre
+        sortFilter.setOnAction(e -> sortResults(container, results, sortFilter.getValue()));
+    }
+
+    private VBox createCandidateCard(CandidateMatch match) {
+        VBox card = new VBox(15);
+        card.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-padding: 20;" +
+                        "-fx-border-color: rgba(99,102,241,0.3);" +
+                        "-fx-border-radius: 16;"
+        );
+        card.setMaxWidth(Double.MAX_VALUE);
+
+        // En-tête avec score
+        HBox headerBox = new HBox(15);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+
+        // Cercle de score
+        StackPane scoreCircle = new StackPane();
+        scoreCircle.setPrefSize(60, 60);
+
+        Circle background = new Circle(30);
+        background.setFill(null);
+        background.setStroke(Color.rgb(51, 65, 85));
+        background.setStrokeWidth(3);
+
+        double score = match.getOverallScore();
+        double angle = 360 * (score / 100.0);
+        Arc progressArc = new Arc(30, 30, 27, 27, 90, -angle);
+        progressArc.setFill(null);
+        progressArc.setStroke(getScoreColor(score));
+        progressArc.setStrokeWidth(3);
+        progressArc.setType(ArcType.OPEN);
+
+        Label scoreLabel = new Label(String.format("%.0f", score));
+        scoreLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + getScoreColorHex(score) + ";");
+
+        scoreCircle.getChildren().addAll(background, progressArc, scoreLabel);
+
+        // Infos candidat
+        VBox infoBox = new VBox(5);
+
+        Label nameLabel = new Label(match.getCandidateName());
+        nameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Label emailLabel = new Label("✉ " + match.getCandidateEmail());
+        emailLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #94A3B8;");
+
+        infoBox.getChildren().addAll(nameLabel, emailLabel);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button detailsBtn = new Button("Voir détails");
+        detailsBtn.setStyle("-fx-background-color: #334155; -fx-text-fill: white; -fx-padding: 6 12; -fx-background-radius: 6;");
+
+        headerBox.getChildren().addAll(scoreCircle, infoBox, spacer, detailsBtn);
+
+        // Scores détaillés
+        GridPane scoresGrid = new GridPane();
+        scoresGrid.setHgap(20);
+        scoresGrid.setVgap(8);
+        scoresGrid.setPadding(new Insets(10, 0, 0, 0));
+
+        addScoreRow(scoresGrid, "Compétences", match.getScore().getSkillsScore(), 0);
+        addScoreRow(scoresGrid, "Expérience", match.getScore().getExperienceScore(), 1);
+        addScoreRow(scoresGrid, "Formation", match.getScore().getEducationScore(), 2);
+
+        card.getChildren().addAll(headerBox, scoresGrid);
+
+        return card;
+    }
+
+    private void addScoreRow(GridPane grid, String label, double score, int row) {
+        Label nameLabel = new Label(label + ":");
+        nameLabel.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 13px;");
+
+        Label scoreLabel = new Label(String.format("%.0f/100", score));
+        scoreLabel.setStyle("-fx-text-fill: " + getScoreColorHex(score) + "; -fx-font-weight: bold;");
+
+        ProgressBar progressBar = new ProgressBar(score / 100);
+        progressBar.setPrefWidth(200);
+        progressBar.setStyle("-fx-accent: " + getScoreColorHex(score) + ";");
+
+        grid.add(nameLabel, 0, row);
+        grid.add(scoreLabel, 1, row);
+        grid.add(progressBar, 2, row);
+    }
+
+    private Color getScoreColor(double score) {
+        if (score >= 70) return Color.web("#10B981");
+        if (score >= 50) return Color.web("#F59E0B");
+        return Color.web("#EF4444");
+    }
+
+    private String getScoreColorHex(double score) {
+        if (score >= 70) return "#10B981";
+        if (score >= 50) return "#F59E0B";
+        return "#EF4444";
+    }
+
+    private void sortResults(VBox container, List<CandidateMatch> results, String sortBy) {
+        List<CandidateMatch> sorted = new ArrayList<>(results);
+
+        if ("Score (décroissant)".equals(sortBy)) {
+            sorted.sort((a, b) -> Double.compare(b.getOverallScore(), a.getOverallScore()));
+        } else if ("Score (croissant)".equals(sortBy)) {
+            sorted.sort((a, b) -> Double.compare(a.getOverallScore(), b.getOverallScore()));
+        } else if ("Nom (A-Z)".equals(sortBy)) {
+            sorted.sort((a, b) -> a.getCandidateName().compareTo(b.getCandidateName()));
+        }
+
+        // Mettre à jour l'affichage
+        container.getChildren().clear();
+        displayMatchingResults(container, sorted);
+    }
     private void showEditForm(Offer offer) {
         // Vider le conteneur des cartes
         cardsContainer.getChildren().clear();

@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 public class AIScoringService {
 
     private static final String API_URL = "https://api.apyhub.com/sharpapi/api/v1/hr/resume_job_match_score";
-    private static final String API_TOKEN = "APY0z4SjoHVhwfc2iRLSb8rCeLm8ZS9YGfOFMW9g5DEfbBZ1NInOdlKFZ6a2uOhV"; // Remplace par ton vrai token
+    private static final String API_TOKEN = "APY08cGGA2Q6jDeoH1Umq6qYAUx40o5lr4znXveOKu6H9z3bUYJhf0b5yaOckBYHcMeNSrn"; // Remplace par ton vrai token
 
     private final OkHttpClient client;
     private final ObjectMapper objectMapper;
