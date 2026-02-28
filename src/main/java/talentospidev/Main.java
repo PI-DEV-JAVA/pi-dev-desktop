@@ -11,8 +11,8 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        // Set AtlantaFX theme globally (modern Bootstrap-like styling)
-        Application.setUserAgentStylesheet(new atlantafx.base.theme.PrimerLight().getUserAgentStylesheet());
+        // Initialize theme (restores saved light/dark preference)
+        talentospidev.utils.ThemeManager.init();
 
         // Register primary stage globally
         SceneUtil.setStage(stage);
@@ -21,6 +21,7 @@ public class Main extends Application {
                 getClass().getResource("/fxml/login.fxml"));
 
         Scene scene = new Scene(loader.load(), SceneUtil.APP_WIDTH, SceneUtil.APP_HEIGHT);
+        talentospidev.utils.ThemeManager.applyToScene(scene);
 
         stage.setTitle("TalentOs");
         stage.getIcons().add(new javafx.scene.image.Image(getClass().getResourceAsStream("/images/logo.png")));

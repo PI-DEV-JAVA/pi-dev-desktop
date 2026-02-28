@@ -300,6 +300,11 @@ public class EmployeeActivityController {
     }
 
     @FXML
+    private void handleSettings() {
+        SceneUtil.switchScene("settings.fxml");
+    }
+
+    @FXML
     private void handleLogout() {
         AuthService.logout();
         SceneUtil.switchScene("login.fxml");

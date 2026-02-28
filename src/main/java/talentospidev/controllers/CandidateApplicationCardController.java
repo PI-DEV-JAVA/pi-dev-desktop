@@ -593,6 +593,11 @@ public class CandidateApplicationCardController implements Initializable {
     }
 
     @FXML
+    private void handleSettings() {
+        SceneUtil.switchScene("settings.fxml");
+    }
+
+    @FXML
     private void handleLogout() {
         AuthService.logout();
         SceneUtil.switchScene("login.fxml");

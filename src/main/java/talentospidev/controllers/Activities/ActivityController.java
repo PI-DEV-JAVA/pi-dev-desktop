@@ -13,7 +13,6 @@ import talentospidev.models.Activity.Activity;
 import talentospidev.models.Project.Project;
 import talentospidev.models.User;
 import talentospidev.services.AuthService;
-import talentospidev.services.EmailService;
 import talentospidev.utils.DB;
 import talentospidev.utils.SceneUtil;
 import talentospidev.utils.ViewContext;
@@ -299,34 +298,12 @@ public class ActivityController {
     private void addActivity() {
         if (!validate())
             return;
-        
         Employee emp = employeeCombo.getValue();
         Project proj = projectCombo.getValue();
-        
         Activity a = new Activity(emp.getId(), proj.getId(), datePicker.getValue(),
                 descriptionField.getText(), Double.parseDouble(hoursField.getText()));
-        
-        // Add activity to database
         activityDAO.add(a);
-        
-        // Send email notification
-        try {
-            String formattedDate = a.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            EmailService.sendActivityAssignmentEmail(
-                emp.getEmail(),
-                emp.getName(),
-                proj.getName(),
-                a.getDescription(),
-                a.getHoursWorked(),
-                formattedDate
-            );
-            showAlert("Success", "Activity assigned to " + emp.getName() + "! An email notification has been sent.", 
-                     Alert.AlertType.INFORMATION);
-        } catch (Exception e) {
-            showAlert("Success with warning", "Activity assigned but email notification failed: " + e.getMessage(), 
-                     Alert.AlertType.WARNING);
-        }
-        
+        showAlert("Success", "Activity assigned to " + emp.getName() + "!", Alert.AlertType.INFORMATION);
         loadAllActivities();
         clear();
     }
@@ -334,72 +311,15 @@ public class ActivityController {
     private void updateActivity() {
         if (selectedActivity == null || !validate())
             return;
-        
         Employee emp = employeeCombo.getValue();
         Project proj = projectCombo.getValue();
-        
-        // Store old values for comparison
-        int oldEmployeeId = selectedActivity.getEmployeeId();
-        double oldHours = selectedActivity.getHoursWorked();
-        String oldDescription = selectedActivity.getDescription();
-        
-        // Update activity
         selectedActivity.setEmployeeId(emp.getId());
         selectedActivity.setProjectId(proj.getId());
         selectedActivity.setDate(datePicker.getValue());
         selectedActivity.setDescription(descriptionField.getText());
         selectedActivity.setHoursWorked(Double.parseDouble(hoursField.getText()));
-        
         activityDAO.update(selectedActivity);
-        
-        // Send email notification
-        try {
-            String formattedDate = selectedActivity.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            
-            if (oldEmployeeId != emp.getId()) {
-                // Activity reassigned to different employee
-                EmailService.sendActivityAssignmentEmail(
-                    emp.getEmail(),
-                    emp.getName(),
-                    proj.getName(),
-                    selectedActivity.getDescription(),
-                    selectedActivity.getHoursWorked(),
-                    formattedDate
-                );
-                showAlert("Success", "Activity updated and reassigned! Email notification sent to new employee.", 
-                         Alert.AlertType.INFORMATION);
-            } else {
-                // Activity updated for same employee
-                StringBuilder changes = new StringBuilder();
-                if (!oldDescription.equals(selectedActivity.getDescription())) {
-                    changes.append("• Description was updated\n");
-                }
-                if (oldHours != selectedActivity.getHoursWorked()) {
-                    changes.append(String.format("• Hours changed from %.1f to %.1f\n", oldHours, selectedActivity.getHoursWorked()));
-                }
-                
-                if (changes.length() > 0) {
-                    EmailService.sendActivityUpdateEmail(
-                        emp.getEmail(),
-                        emp.getName(),
-                        proj.getName(),
-                        selectedActivity.getDescription(),
-                        selectedActivity.getHoursWorked(),
-                        formattedDate,
-                        changes.toString()
-                    );
-                    showAlert("Success", "Activity updated! Notification sent to employee.", 
-                             Alert.AlertType.INFORMATION);
-                } else {
-                    showAlert("Success", "Activity updated! (No changes detected, email not sent)", 
-                             Alert.AlertType.INFORMATION);
-                }
-            }
-        } catch (Exception e) {
-            showAlert("Success with warning", "Activity updated but email notification failed: " + e.getMessage(), 
-                     Alert.AlertType.WARNING);
-        }
-        
+        showAlert("Success", "Activity updated!", Alert.AlertType.INFORMATION);
         loadAllActivities();
         clear();
     }
@@ -472,6 +392,11 @@ public class ActivityController {
     @FXML
     private void handlePlaceholder() {
         new Alert(Alert.AlertType.INFORMATION, "Coming soon!").show();
+    }
+
+    @FXML
+    private void handleSettings() {
+        SceneUtil.switchScene("settings.fxml");
     }
 
     @FXML

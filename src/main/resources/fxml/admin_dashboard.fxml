@@ -26,6 +26,7 @@
         <Region VBox.vgrow="ALWAYS"/>
         <Separator style="-fx-opacity: 0.1;"/>
         <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
+        <Button text="⚙  Settings" styleClass="sidebar-button" onAction="#handleSettings"/>
         <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
     </VBox>
 

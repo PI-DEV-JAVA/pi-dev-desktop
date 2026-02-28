@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="talentospidev.controllers.SettingsController"
+      stylesheets="@/style/app.css" style="-fx-background-color: #f0f2f5;">
+
+    <!-- ======= LEFT SIDEBAR ======= -->
+    <VBox fx:id="sidebar" styleClass="sidebar">
+       <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 1 1 1 1;">
+            <ImageView fitHeight="60" fitWidth="60" preserveRatio="true">
+                <image><Image url="@/images/logo.png"/></image>
+            </ImageView>
+            <Label text="Talentos" styleClass="sidebar-logo"/>
+        </HBox>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="MAIN" styleClass="sidebar-section-label"/>
+        <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
+        <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
+        <Region VBox.vgrow="ALWAYS"/>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
+        <Button text="👤  My Profile" styleClass="sidebar-button" onAction="#handleMyProfile"/>
+        <Button text="⚙  Settings" styleClass="sidebar-button-active" onAction="#handleSettings"/>
+        <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
+    </VBox>
+
+    <!-- ======= MAIN CONTENT ======= -->
+    <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS"
+                style="-fx-background-color: transparent; -fx-background: transparent;">
+        <VBox spacing="24" style="-fx-padding: 30;" alignment="TOP_CENTER">
+
+            <!-- Page Header -->
+            <VBox spacing="4">
+                <Label text="Settings" style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+                <Label text="Customize your TalentOs experience"
+                       style="-fx-font-size: 13px; -fx-text-fill: #6b7280;"/>
+            </VBox>
+
+            <!-- Settings Cards -->
+            <VBox maxWidth="600" spacing="16">
+
+                <!-- Appearance Section -->
+                <VBox spacing="0"
+                      style="-fx-background-color: white; -fx-background-radius: 16;
+                             -fx-border-color: #e5e7eb; -fx-border-radius: 16;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);">
+
+                    <VBox style="-fx-padding: 20 24 12 24;">
+                        <Label text="APPEARANCE" style="-fx-font-size: 11px; -fx-font-weight: 800;
+                                                         -fx-text-fill: #6b7280; -fx-letter-spacing: 1px;"/>
+                    </VBox>
+
+                    <!-- Dark Mode Toggle Row -->
+                    <HBox alignment="CENTER_LEFT" spacing="16"
+                          style="-fx-padding: 16 24; -fx-border-color: transparent transparent #f3f4f6 transparent;
+                                 -fx-border-width: 0 0 1 0;">
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Dark Mode"
+                                   style="-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #111827;"/>
+                            <Label text="Switch to a darker color scheme that's easier on the eyes"
+                                   style="-fx-font-size: 12px; -fx-text-fill: #9ca3af;" wrapText="true"/>
+                        </VBox>
+                        <ToggleButton fx:id="darkModeToggle"
+                                      style="-fx-background-color: #e5e7eb; -fx-background-radius: 14;
+                                             -fx-padding: 4 20 4 8; -fx-min-width: 52; -fx-min-height: 28;
+                                             -fx-cursor: hand;"
+                                      onAction="#handleDarkModeToggle"/>
+                    </HBox>
+
+                    <!-- Current Theme Info -->
+                    <HBox alignment="CENTER_LEFT" spacing="16" style="-fx-padding: 16 24 20 24;">
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Current Theme"
+                                   style="-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #111827;"/>
+                            <Label fx:id="themeStatusLabel" text="Light (Primer Light)"
+                                   style="-fx-font-size: 12px; -fx-text-fill: #9ca3af;"/>
+                        </VBox>
+                        <Label fx:id="themeIcon" text="☀"
+                               style="-fx-font-size: 24px;"/>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</HBox>

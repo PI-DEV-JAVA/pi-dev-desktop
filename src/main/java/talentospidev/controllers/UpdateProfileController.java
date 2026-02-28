@@ -190,6 +190,11 @@ public class UpdateProfileController {
     }
 
     @FXML
+    private void handleSettings() {
+        talentospidev.utils.SceneUtil.switchScene("settings.fxml");
+    }
+
+    @FXML
     private void handleLogout() {
         AuthService.logout();
         SceneUtil.switchScene("login.fxml");

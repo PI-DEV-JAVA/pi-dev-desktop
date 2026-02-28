@@ -25,6 +25,7 @@ public class SceneUtil {
             FXMLLoader loader = new FXMLLoader(
                     SceneUtil.class.getResource("/fxml/" + fxml));
             Scene scene = new Scene(loader.load(), APP_WIDTH, APP_HEIGHT);
+            ThemeManager.applyToScene(scene);
             stage.setScene(scene);
             stage.centerOnScreen();
         } catch (Exception e) {
