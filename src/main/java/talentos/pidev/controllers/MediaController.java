@@ -12,6 +12,7 @@ import talentos.pidev.models.schema.ChatMessage;
 import talentos.pidev.services.ChatService;
 import talentos.pidev.services.MediaService;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -33,13 +34,17 @@ public class MediaController {
     private boolean isMuted = false;
     private boolean isCamOff = false;
     private final ConcurrentHashMap<Integer, MediaService> activeServices = new ConcurrentHashMap<>();
+    private ServerSocket discoverSocket;
 
     private ChatService client;
     private String currentRoom = "1234";
     private String username = "speedweed";
 
+    private volatile boolean isDiscoveryActive = false;
+
     @FXML
     public void initialize() {
+        isDiscoveryActive = true;
         startDiscoveryListener();
 
         try {
@@ -48,6 +53,13 @@ public class MediaController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Platform.runLater(() -> {
+            javafx.stage.Stage stage = (javafx.stage.Stage) videoGrid.getScene().getWindow();
+            stage.setOnCloseRequest(event -> {
+                stopAll();
+            });
+        });
     }
 
     @FXML
@@ -62,7 +74,7 @@ public class MediaController {
         isCamOff = !isCamOff;
         camBtn.setStyle(isCamOff ? "-fx-background-color: #ea4335; -fx-background-radius: 50;"
                 : "-fx-background-color: #3c4043; -fx-background-radius: 50;");
-       
+
     }
 
     public void displayMessage(String text, boolean isUser) {
@@ -91,33 +103,83 @@ public class MediaController {
         }
     }
 
+    // private void startDiscoveryListener() {
+    // Thread discovery = new Thread(() -> {
+    // try {
+    // discoverSocket=new ServerSocket();
+    // discoverSocket.setReuseAddress(true);
+    // System.out.println("Java Discovery Server active on port 8888...");
+    // while (isDiscoveryActive) {
+    // try (Socket client = discoverSocket.accept();
+    // BufferedReader in = new BufferedReader(new
+    // InputStreamReader(client.getInputStream()))) {
+
+    // String msg = in.readLine(); // Expects "NEW_PORT:9991"
+    // if (msg.startsWith("NEW_PORT:")) {
+    // int port = Integer.parseInt(msg.split(":")[1]);
+    // addStream(port);
+    // } else if (msg.startsWith("REMOVE_PORT:")) {
+    // int port = Integer.parseInt(msg.split(":")[1]);
+    // removeStream(port);
+    // }
+    // }catch (java.net.SocketTimeoutException e) {
+    // } catch (Exception e) {
+    // if (isDiscoveryActive) e.printStackTrace();
+    // }
+    // }
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // });
+    // discovery.setDaemon(true);
+    // discovery.start();
+    // }
+
+    private void cleanupSocket() {
+    try {
+        if (discoverSocket != null && !discoverSocket.isClosed()) {
+            discoverSocket.close();
+        }
+    } catch (IOException e) {}
+}
+
     private void startDiscoveryListener() {
         Thread discovery = new Thread(() -> {
-            try (ServerSocket server = new ServerSocket(8888)) {
-                System.out.println("Java Discovery Server active on port 8888...");
-                while (true) {
-                    try (Socket client = server.accept();
-                            BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()))) {
+            try {
+                discoverSocket = new ServerSocket(8888);
+                discoverSocket.setReuseAddress(true);
 
-                        String msg = in.readLine(); // Expects "NEW_PORT:9991"
-                        if (msg.startsWith("NEW_PORT:")) {
+                System.out.println("Java Discovery Server active on port 8888...");
+
+                while (isDiscoveryActive) {
+                    Socket client = discoverSocket.accept();
+
+                    try (BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()))) {
+                        String msg = in.readLine();
+                        if (msg != null && msg.startsWith("NEW_PORT:")) {
                             int port = Integer.parseInt(msg.split(":")[1]);
                             addStream(port);
                         } else if (msg.startsWith("REMOVE_PORT:")) {
                             int port = Integer.parseInt(msg.split(":")[1]);
                             removeStream(port);
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                if (isDiscoveryActive) {
+                    System.err.println("Discovery Error: " + e.getMessage());
+                } else {
+                    System.out.println("Discovery Server closed safely.");
+                }
+            } finally {
+                cleanupSocket();
             }
         });
         discovery.setDaemon(true);
         discovery.start();
     }
+
+
 
     private void addStream(int port) {
         if (activeServices.containsKey(port))
@@ -154,15 +216,23 @@ public class MediaController {
 
     @FXML
     private void stopAll() {
-        activeServices.values().forEach(MediaService::stop);
-        activeServices.clear();
-        videoGrid.getChildren().clear();
-
         try (Socket s = new Socket("127.0.0.1", 8889);
                 PrintWriter out = new PrintWriter(s.getOutputStream(), true)) {
             out.println("SHUTDOWN");
         } catch (Exception e) {
             System.out.println("Could not reach Python Control Port.");
         }
+        activeServices.values().forEach(MediaService::stop);
+        activeServices.clear();
+
+        this.isDiscoveryActive = false;
+        cleanupSocket();
+        videoGrid.getChildren().clear();
+
+        Platform.runLater(() -> {
+            javafx.stage.Stage stage = (javafx.stage.Stage) videoGrid.getScene().getWindow();
+            stage.close();
+        });
+
     }
 }
