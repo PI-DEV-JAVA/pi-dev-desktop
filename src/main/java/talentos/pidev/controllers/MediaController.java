@@ -72,6 +72,7 @@ public class MediaController {
 
     @FXML
     private void toggleCam() {
+        sendPublisherCommand("TOGGLE_CAM");
         isCamOff = !isCamOff;
         camBtn.setStyle(isCamOff ? "-fx-background-color: #ea4335; -fx-background-radius: 50;"
                 : "-fx-background-color: #3c4043; -fx-background-radius: 50;");
@@ -137,12 +138,13 @@ public class MediaController {
     // }
 
     private void cleanupSocket() {
-    try {
-        if (discoverSocket != null && !discoverSocket.isClosed()) {
-            discoverSocket.close();
+        try {
+            if (discoverSocket != null && !discoverSocket.isClosed()) {
+                discoverSocket.close();
+            }
+        } catch (IOException e) {
         }
-    } catch (IOException e) {}
-}
+    }
 
     private void startDiscoveryListener() {
         Thread discovery = new Thread(() -> {
@@ -180,51 +182,55 @@ public class MediaController {
         discovery.start();
     }
 
-
-
     private void addStream(int port) {
-        if (activeServices.containsKey(port)) return;
-    
+        if (activeServices.containsKey(port))
+            return;
+
         Platform.runLater(() -> {
             VBox container = new VBox();
             container.setAlignment(Pos.CENTER);
             container.setUserData(port);
             container.setStyle("-fx-background-color: #3c4043; -fx-background-radius: 10; -fx-overflow-hidden: true;");
-    
+
             ImageView iv = new ImageView();
-            
-           
-            iv.setPreserveRatio(true); 
-    
+
+            iv.setPreserveRatio(true);
+
             iv.fitWidthProperty().bind(
-                videoGrid.widthProperty().subtract(30).divide(2)
-            );
-    
-           
+                    videoGrid.widthProperty().subtract(30).divide(2));
+
             iv.fitHeightProperty().bind(
-                videoGrid.heightProperty().subtract(30).divide(2)
-            );
-    
+                    videoGrid.heightProperty().subtract(30).divide(2));
+
             container.getChildren().add(iv);
             videoGrid.getChildren().add(container);
-    
+
             MediaService service = new MediaService(iv, port);
             service.start();
             activeServices.put(port, service);
         });
     }
 
-private void removeStream(int port) {
-    Platform.runLater(() -> {
-        MediaService service = activeServices.remove(port);
-        if (service != null) {
-            service.stop();
-            videoGrid.getChildren().removeIf(node -> 
-                node.getUserData() != null && node.getUserData().equals(port)
-            );
-        }
-    });
-}
+    private void removeStream(int port) {
+        Platform.runLater(() -> {
+            MediaService service = activeServices.remove(port);
+            if (service != null) {
+                service.stop();
+                videoGrid.getChildren().removeIf(node -> node.getUserData() != null && node.getUserData().equals(port));
+            }
+        });
+    }
+
+    private void sendPublisherCommand(String command) {
+        new Thread(() -> {
+            try (Socket socket = new Socket("127.0.0.1", 8890);
+                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+                out.println(command);
+            } catch (IOException e) {
+                System.err.println("Publisher control error: " + e.getMessage());
+            }
+        }).start();
+    }
 
     @FXML
     private void stopAll() {
@@ -234,6 +240,7 @@ private void removeStream(int port) {
         } catch (Exception e) {
             System.out.println("Could not reach Python Control Port.");
         }
+        sendPublisherCommand("TERMINATE");
         activeServices.values().forEach(MediaService::stop);
         activeServices.clear();
 
