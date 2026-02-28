@@ -11,6 +11,7 @@
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/controllers/SidebarController.java
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/utils/DB.java
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/services/ChatService.java
+/home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/services/WebRTCService.java
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/models/schema/InterviewMeet.java
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/controllers/MediaController.java
 /home/speedweed/Desktop/PI_dev/desktop-app/talenos/src/main/java/talentos/pidev/controllers/InterviewController.java

@@ -12,6 +12,8 @@ import javafx.scene.layout.VBox;
 import talentos.pidev.models.schema.ChatMessage;
 import talentos.pidev.services.ChatService;
 import talentos.pidev.services.MediaService;
+import talentos.pidev.services.WebRTCService;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -47,6 +49,8 @@ public class MediaController {
     public void initialize() {
         isDiscoveryActive = true;
         startDiscoveryListener();
+        WebRTCService.startScripts();
+        
 
         try {
             client = new ChatService(new URI("ws://4.233.136.0:3000"), this);
