@@ -17,10 +17,11 @@ public class MediaService {
     public MediaService(ImageView imageView, int port) {
         this.imageView = imageView;
         this.port = port;
-        // Standardized 640x480 resolution
         this.writableImage = new WritableImage(640, 480);
         this.imageView.setImage(writableImage);
     }
+
+    public ImageView getImageView() { return this.imageView; }
 
     public void start() {
         if (running) return;
@@ -32,22 +33,17 @@ public class MediaService {
     }
 
     private void listenToPython() {
-        // Buffer for 640*480*4 (BGRA) = 1,228,800 bytes
         byte[] frameBuffer = new byte[640 * 480 * 4];
-
         while (running) {
             try (Socket socket = new Socket("127.0.0.1", port);
                  DataInputStream in = new DataInputStream(socket.getInputStream())) {
                 
-                System.out.println("[Service] Connected to port " + port);
-
+                socket.setSoTimeout(5000); 
                 while (running) {
-                    long size = in.readLong(); // Read 8-byte header
-                    
-                    if (size <= 0 || size > frameBuffer.length) break;
-
+                    long size = in.readLong();
+                    if (size <= 0) break;
                     in.readFully(frameBuffer, 0, (int) size);
-
+    
                     Platform.runLater(() -> {
                         writableImage.getPixelWriter().setPixels(
                             0, 0, 640, 480,
@@ -57,9 +53,7 @@ public class MediaService {
                     });
                 }
             } catch (Exception e) {
-                if (running) {
-                    try { Thread.sleep(2000); } catch (InterruptedException ie) { break; }
-                }
+                try { Thread.sleep(1000); } catch (InterruptedException ie) { break; }
             }
         }
     }
