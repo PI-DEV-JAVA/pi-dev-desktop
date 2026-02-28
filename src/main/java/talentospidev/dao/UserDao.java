@@ -210,6 +210,7 @@ public class UserDao {
                     FROM users u
                     JOIN profiles p ON u.id = p.user_id
                     WHERE u.id != ? AND p.profile_completed = true
+                      AND u.role != 'ADMIN'
                     ORDER BY u.created_at DESC
                 """;
 

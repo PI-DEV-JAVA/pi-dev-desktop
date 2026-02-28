@@ -24,7 +24,6 @@ import talentospidev.utils.ProfilePopup;
 import talentospidev.utils.SceneUtil;
 import talentospidev.utils.ViewContext;
 
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
@@ -40,6 +39,8 @@ public class DashboardController {
     private ListView<UserViewModel> feedListView;
     @FXML
     private TextField searchField;
+    @FXML
+    private ComboBox<String> roleFilterBox;
     @FXML
     private ComboBox<String> sortByBox;
     @FXML
@@ -69,8 +70,11 @@ public class DashboardController {
 
         buildWelcomeSection(currentUser);
 
-        sortByBox.setItems(FXCollections.observableArrayList("Name", "Job", "Age", "Location"));
-        sortByBox.setValue("Name");
+        // Filter & Sort setup
+        roleFilterBox.setItems(FXCollections.observableArrayList("All Roles", "Candidates", "Recruiters"));
+        roleFilterBox.setValue("All Roles");
+        sortByBox.setItems(FXCollections.observableArrayList("Name", "Title", "Age", "Location", "Newest"));
+        sortByBox.setValue("Newest");
         sortOrderBox.setItems(FXCollections.observableArrayList("ASC", "DESC"));
         sortOrderBox.setValue("ASC");
 
@@ -84,7 +88,9 @@ public class DashboardController {
             applicationsSection.setManaged(false);
         }
 
+        // Live filter listeners
         searchField.textProperty().addListener((obs, o, n) -> applyFilterAndSort());
+        roleFilterBox.valueProperty().addListener((obs, o, n) -> applyFilterAndSort());
         sortByBox.valueProperty().addListener((obs, o, n) -> applyFilterAndSort());
         sortOrderBox.valueProperty().addListener((obs, o, n) -> applyFilterAndSort());
     }
@@ -116,7 +122,6 @@ public class DashboardController {
         Label subtitleLabel = new Label("Here's what's happening with your career");
         subtitleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.75);");
         welcomeText.getChildren().addAll(greetingLabel, subtitleLabel);
-
         welcomeCard.getChildren().add(welcomeText);
 
         // Stats row (for candidates)
@@ -154,7 +159,7 @@ public class DashboardController {
         return stat;
     }
 
-    // ===== LEFT PANEL: MY APPLICATIONS =====
+    // ===== APPLICATIONS SECTION (horizontal scrollable) =====
 
     private void loadMyApplications(User user) {
         List<Application> apps = applicationService.getApplicationsByUserId(user.getId());
@@ -164,7 +169,7 @@ public class DashboardController {
         HBox headerRow = new HBox(8);
         headerRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label sectionTitle = new Label("📋 Mes Candidatures");
+        Label sectionTitle = new Label("📋 My Applications");
         sectionTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #111827;");
         Region hSpacer = new Region();
         HBox.setHgrow(hSpacer, Priority.ALWAYS);
@@ -203,18 +208,28 @@ public class DashboardController {
             return;
         }
 
-        // Application cards (max 6)
+        // Horizontal scroll of application cards (max 6)
+        HBox cardsRow = new HBox(12);
+        cardsRow.setAlignment(Pos.CENTER_LEFT);
         int limit = Math.min(apps.size(), 6);
         for (int i = 0; i < limit; i++) {
             Application app = apps.get(i);
             Offer offer = offerService.getOfferById(app.getOfferId());
-            applicationsSection.getChildren().add(createApplicationCard(app, offer));
+            cardsRow.getChildren().add(createApplicationCard(app, offer));
         }
+
+        ScrollPane hScroll = new ScrollPane(cardsRow);
+        hScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        hScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        hScroll.setFitToHeight(true);
+        hScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;");
+        hScroll.setPrefHeight(110);
+        applicationsSection.getChildren().add(hScroll);
 
         if (apps.size() > limit) {
             Label more = new Label("View all " + apps.size() + " applications →");
-            more.setStyle(
-                    "-fx-font-size: 11px; -fx-text-fill: #6366f1; -fx-font-weight: 700; -fx-cursor: hand; -fx-padding: 4 0 0 4;");
+            more.setStyle("-fx-font-size: 11px; -fx-text-fill: #6366f1; -fx-font-weight: 700; " +
+                    "-fx-cursor: hand; -fx-padding: 4 0 0 4;");
             more.setOnMouseClicked(e -> handleJobOffers());
             applicationsSection.getChildren().add(more);
         }
@@ -222,6 +237,9 @@ public class DashboardController {
 
     private VBox createApplicationCard(Application app, Offer offer) {
         VBox card = new VBox(6);
+        card.setMinWidth(220);
+        card.setPrefWidth(240);
+        card.setMaxWidth(260);
 
         boolean hasResponse = app.hasResponse();
         String leftAccent = hasResponse ? (app.getStatus().toLowerCase().contains("accept") ? "#22c55e" : "#ef4444")
@@ -240,40 +258,32 @@ public class DashboardController {
         card.setOnMouseEntered(e -> card.setStyle(hover));
         card.setOnMouseExited(e -> card.setStyle(base));
 
-        // Title row
-        HBox titleRow = new HBox(6);
-        titleRow.setAlignment(Pos.CENTER_LEFT);
+        // Title
         String offerTitle = offer != null ? offer.getTitle() : "Offer #" + app.getOfferId();
         Label title = new Label(offerTitle);
-        title.setStyle("-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #111827;");
+        title.setStyle("-fx-font-size: 12px; -fx-font-weight: 700; -fx-text-fill: #111827;");
         title.setWrapText(true);
-        title.setMaxWidth(220);
-        HBox.setHgrow(title, Priority.ALWAYS);
+        title.setMaxWidth(200);
+
+        // Status badge
         Label statusBadge = new Label(getDisplayStatus(app));
         statusBadge.setStyle(getStatusBadgeStyle(app));
-        titleRow.getChildren().addAll(title, statusBadge);
 
-        // Meta row
-        HBox metaRow = new HBox(10);
+        // Meta
+        HBox metaRow = new HBox(8);
         metaRow.setAlignment(Pos.CENTER_LEFT);
         if (offer != null) {
             Label dept = new Label("🏢 " + offer.getDepartment());
-            dept.setStyle("-fx-font-size: 10px; -fx-text-fill: #6b7280;");
+            dept.setStyle("-fx-font-size: 9px; -fx-text-fill: #6b7280;");
             metaRow.getChildren().add(dept);
         }
         long daysAgo = ChronoUnit.DAYS.between(app.getApplicationDate(), java.time.LocalDate.now());
         String timeText = daysAgo == 0 ? "Today" : daysAgo + "d ago";
         Label timeLabel = new Label("⏱ " + timeText);
-        timeLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #9ca3af;");
+        timeLabel.setStyle("-fx-font-size: 9px; -fx-text-fill: #9ca3af;");
         metaRow.getChildren().add(timeLabel);
 
-        if (hasResponse) {
-            Label respIcon = new Label("✉️");
-            respIcon.setStyle("-fx-font-size: 10px;");
-            metaRow.getChildren().add(respIcon);
-        }
-
-        card.getChildren().addAll(titleRow, metaRow);
+        card.getChildren().addAll(title, statusBadge, metaRow);
 
         card.setOnMouseClicked(e -> {
             ViewContext.setSelectedApplicationId(app.getId());
@@ -299,13 +309,16 @@ public class DashboardController {
         if (app.hasResponse()) {
             String s = app.getStatus() != null ? app.getStatus().toLowerCase() : "";
             if (s.contains("accept"))
-                return "-fx-background-color: #dcfce7; -fx-text-fill: #16a34a; -fx-padding: 2 8; -fx-background-radius: 12; -fx-font-size: 9px; -fx-font-weight: bold;";
-            return "-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-padding: 2 8; -fx-background-radius: 12; -fx-font-size: 9px; -fx-font-weight: bold;";
+                return "-fx-background-color: #dcfce7; -fx-text-fill: #16a34a; -fx-padding: 2 8; " +
+                        "-fx-background-radius: 12; -fx-font-size: 9px; -fx-font-weight: bold;";
+            return "-fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-padding: 2 8; " +
+                    "-fx-background-radius: 12; -fx-font-size: 9px; -fx-font-weight: bold;";
         }
-        return "-fx-background-color: #fef3c7; -fx-text-fill: #d97706; -fx-padding: 2 8; -fx-background-radius: 12; -fx-font-size: 9px; -fx-font-weight: bold;";
+        return "-fx-background-color: #fef3c7; -fx-text-fill: #d97706; -fx-padding: 2 8; " +
+                "-fx-background-radius: 12; -fx-font-size: 9px; -fx-font-weight: bold;";
     }
 
-    // ===== RIGHT PANEL: PROFILES FEED =====
+    // ===== PROFILES FEED =====
 
     private void setupListView() {
         feedListView.setCellFactory(param -> new ListCell<>() {
@@ -319,7 +332,7 @@ public class DashboardController {
                 } else {
                     setGraphic(createProfileCard(item));
                     setText(null);
-                    setStyle("-fx-background-color: transparent; -fx-padding: 0 0 4 0;");
+                    setStyle("-fx-background-color: transparent; -fx-padding: 0 0 6 0;");
                 }
             }
         });
@@ -333,17 +346,27 @@ public class DashboardController {
 
     private void applyFilterAndSort() {
         String query = searchField.getText();
+        String roleFilter = roleFilterBox.getValue();
         String sortBy = sortByBox.getValue();
         String sortOrder = sortOrderBox.getValue();
 
         List<UserViewModel> filtered = masterData.stream()
                 .filter(p -> {
+                    // Role filter
+                    if (roleFilter != null && !roleFilter.equals("All Roles")) {
+                        if (roleFilter.equals("Candidates") && !p.getRole().equalsIgnoreCase("CANDIDATE"))
+                            return false;
+                        if (roleFilter.equals("Recruiters") && !p.getRole().equalsIgnoreCase("HR"))
+                            return false;
+                    }
+                    // Text search
                     if (query == null || query.trim().isEmpty())
                         return true;
                     String lower = query.toLowerCase();
                     return p.getFullName().toLowerCase().contains(lower)
                             || p.getProfessionalTitle().toLowerCase().contains(lower)
-                            || p.getLocation().toLowerCase().contains(lower);
+                            || p.getLocation().toLowerCase().contains(lower)
+                            || p.getSummary().toLowerCase().contains(lower);
                 }).collect(Collectors.toList());
 
         Comparator<UserViewModel> comparator = getComparator(sortBy);
@@ -359,56 +382,90 @@ public class DashboardController {
         if (sortBy == null)
             return Comparator.comparing(UserViewModel::getFullName, String.CASE_INSENSITIVE_ORDER);
         return switch (sortBy) {
-            case "Job" -> Comparator.comparing(UserViewModel::getProfessionalTitle, String.CASE_INSENSITIVE_ORDER);
+            case "Title" -> Comparator.comparing(UserViewModel::getProfessionalTitle, String.CASE_INSENSITIVE_ORDER);
             case "Age" -> Comparator.comparingInt(UserViewModel::getAge);
             case "Location" -> Comparator.comparing(UserViewModel::getLocation, String.CASE_INSENSITIVE_ORDER);
+            case "Newest" -> Comparator.comparing(UserViewModel::getJoinDate,
+                    Comparator.nullsLast(Comparator.reverseOrder()));
             default -> Comparator.comparing(UserViewModel::getFullName, String.CASE_INSENSITIVE_ORDER);
         };
     }
 
-    private VBox createProfileCard(UserViewModel profile) {
-        VBox card = new VBox(6);
-        card.getStyleClass().add("card");
+    private VBox createProfileCard(UserViewModel p) {
+        VBox card = new VBox(8);
+        card.setPadding(new Insets(14, 18, 14, 18));
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1); -fx-cursor: hand;");
+        card.setOnMouseEntered(e -> card.setStyle("-fx-background-color: #fafbff; -fx-background-radius: 12; " +
+                "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.1), 8, 0, 0, 2); -fx-cursor: hand;"));
+        card.setOnMouseExited(e -> card.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1); -fx-cursor: hand;"));
 
-        HBox header = new HBox(10);
+        // ── Row 1: Avatar + Name + Role badge ──
+        HBox header = new HBox(12);
         header.setAlignment(Pos.CENTER_LEFT);
 
-        Label avatar = new Label(profile.getFullName().substring(0, 1).toUpperCase());
+        // Avatar
+        Label avatar = new Label(p.getFullName().substring(0, 1).toUpperCase());
         avatar.getStyleClass().add("avatar-small");
 
-        VBox info = new VBox(2);
-        HBox.setHgrow(info, Priority.ALWAYS);
-        Label name = new Label(profile.getFullName());
-        name.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #111827;");
-        Label subtitle = new Label(
-                profile.getProfessionalTitle().isEmpty() ? profile.getRole() : profile.getProfessionalTitle());
-        subtitle.setStyle("-fx-font-size: 10px; -fx-text-fill: #6b7280;");
-        info.getChildren().addAll(name, subtitle);
+        // Name + Title
+        VBox nameBox = new VBox(2);
+        HBox.setHgrow(nameBox, Priority.ALWAYS);
+        Label nameLabel = new Label(p.getFullName());
+        nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 800; -fx-text-fill: #111827;");
+        Label titleLabel = new Label(p.getProfessionalTitle().isEmpty() ? "No title yet" : p.getProfessionalTitle());
+        titleLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 600;");
+        nameBox.getChildren().addAll(nameLabel, titleLabel);
 
-        VBox meta = new VBox(2);
-        meta.setAlignment(Pos.CENTER_RIGHT);
-        if (!profile.getLocation().isEmpty()) {
-            Label loc = new Label("📍 " + profile.getLocation());
-            loc.setStyle("-fx-font-size: 9px; -fx-text-fill: #9ca3af;");
-            meta.getChildren().add(loc);
+        // Role badge
+        String roleText = p.getRole().equalsIgnoreCase("CANDIDATE") ? "Candidate" : "Recruiter";
+        String roleBadgeClass = p.getRole().equalsIgnoreCase("CANDIDATE") ? "badge-blue" : "badge-purple";
+        Label roleBadge = new Label(roleText);
+        roleBadge.getStyleClass().addAll("badge", roleBadgeClass);
+
+        header.getChildren().addAll(avatar, nameBox, roleBadge);
+
+        // ── Row 2: Summary (if available) ──
+        VBox detailsBox = new VBox(6);
+        if (!p.getSummary().isEmpty()) {
+            Label summary = new Label(
+                    p.getSummary().length() > 120 ? p.getSummary().substring(0, 120) + "..." : p.getSummary());
+            summary.setStyle("-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-wrap-text: true;");
+            summary.setWrapText(true);
+            detailsBox.getChildren().add(summary);
         }
-        Label roleBadge = new Label(profile.getRole());
-        roleBadge.getStyleClass().addAll("badge",
-                profile.getRole().equalsIgnoreCase("CANDIDATE") ? "badge-blue" : "badge-purple");
-        meta.getChildren().add(roleBadge);
 
-        header.getChildren().addAll(avatar, info, meta);
+        // ── Row 3: Meta chips (location, age, email) ──
+        HBox chips = new HBox(10);
+        chips.setAlignment(Pos.CENTER_LEFT);
 
-        // Quick view button
-        HBox actions = new HBox();
+        if (!p.getLocation().isEmpty()) {
+            Label loc = new Label("📍 " + p.getLocation());
+            loc.setStyle("-fx-font-size: 10px; -fx-text-fill: #6b7280; -fx-font-weight: 600;");
+            chips.getChildren().add(loc);
+        }
+        if (p.getAge() > 0) {
+            Label age = new Label("🎂 " + p.getAge() + " yrs");
+            age.setStyle("-fx-font-size: 10px; -fx-text-fill: #6b7280; -fx-font-weight: 600;");
+            chips.getChildren().add(age);
+        }
+        if (p.getEmail() != null && !p.getEmail().isEmpty()) {
+            Label email = new Label("✉ " + p.getEmail());
+            email.setStyle("-fx-font-size: 10px; -fx-text-fill: #9ca3af;");
+            chips.getChildren().add(email);
+        }
+
+        // ── Row 4: Actions ──
+        HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER_RIGHT);
-        Button viewBtn = new Button("View Profile");
+        Button viewBtn = new Button("👁 View Profile");
         viewBtn.setStyle("-fx-background-color: #eef2ff; -fx-text-fill: #6366f1; -fx-font-size: 10px; " +
-                "-fx-font-weight: 700; -fx-padding: 4 12; -fx-background-radius: 6; -fx-cursor: hand;");
-        viewBtn.setOnAction(e -> ProfilePopup.show(profile));
+                "-fx-font-weight: 700; -fx-padding: 5 14; -fx-background-radius: 6; -fx-cursor: hand;");
+        viewBtn.setOnAction(e -> ProfilePopup.show(p));
         actions.getChildren().add(viewBtn);
 
-        card.getChildren().addAll(header, actions);
+        card.getChildren().addAll(header, detailsBox, chips, actions);
         return card;
     }
 

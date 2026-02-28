@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
 
 import java.util.prefs.Preferences;
 
@@ -24,8 +25,24 @@ public class ThemeManager {
 
     private static boolean darkMode = false;
 
-    private static final String APP_CSS = ThemeManager.class.getResource("/style/app.css").toExternalForm();
-    private static final String DARK_CSS = ThemeManager.class.getResource("/style/app-dark.css").toExternalForm();
+    private static String appCss;
+    private static String darkCss;
+
+    private static String getAppCss() {
+        if (appCss == null) {
+            var r = ThemeManager.class.getResource("/style/app.css");
+            appCss = r != null ? r.toExternalForm() : "";
+        }
+        return appCss;
+    }
+
+    private static String getDarkCss() {
+        if (darkCss == null) {
+            var r = ThemeManager.class.getResource("/style/app-dark.css");
+            darkCss = r != null ? r.toExternalForm() : "";
+        }
+        return darkCss;
+    }
 
     /** Called once at startup to restore the saved preference. */
     public static void init() {
@@ -73,9 +90,13 @@ public class ThemeManager {
         root.getStylesheets().clear();
 
         // Add our stylesheets at root-node level (highest CSS priority after inline)
-        root.getStylesheets().add(APP_CSS);
+        String css = getAppCss();
+        if (!css.isEmpty())
+            root.getStylesheets().add(css);
         if (darkMode) {
-            root.getStylesheets().add(DARK_CSS);
+            String dark = getDarkCss();
+            if (!dark.isEmpty())
+                root.getStylesheets().add(dark);
             // Override inline background styles that hardcode light colors
             fixInlineStyles(root);
         }
@@ -84,31 +105,48 @@ public class ThemeManager {
     /**
      * Recursively walks the scene graph and replaces inline light-mode
      * background colors with dark-mode equivalents.
+     * SKIPS sidebar nodes to preserve their icon/button contrast.
      */
     private static void fixInlineStyles(Node node) {
+        // Skip sidebar — it has its own dark styling already
+        if (node instanceof VBox vbox && vbox.getStyleClass().contains("sidebar")) {
+            return;
+        }
+
         String style = node.getStyle();
         if (style != null && !style.isEmpty()) {
-            // Replace common light background colors with dark equivalents
             String fixed = style;
-            fixed = fixed.replaceAll("-fx-background-color:\\s*#f0f2f5", "-fx-background-color: #1a1a2e");
-            fixed = fixed.replaceAll("-fx-background-color:\\s*white", "-fx-background-color: #16213e");
-            fixed = fixed.replaceAll("-fx-background-color:\\s*#ffffff", "-fx-background-color: #16213e");
-            fixed = fixed.replaceAll("-fx-background-color:\\s*#f9fafb", "-fx-background-color: #1e293b");
-            fixed = fixed.replaceAll("-fx-background-color:\\s*#f8fafc", "-fx-background-color: #1a1a2e");
-            fixed = fixed.replaceAll("-fx-background-color:\\s*transparent;\\s*-fx-background:\\s*transparent",
-                    "-fx-background-color: transparent; -fx-background: transparent");
 
-            // Fix text colors
-            fixed = fixed.replaceAll("-fx-text-fill:\\s*#111827", "-fx-text-fill: #e2e8f0");
-            fixed = fixed.replaceAll("-fx-text-fill:\\s*#1f2937", "-fx-text-fill: #e2e8f0");
-            fixed = fixed.replaceAll("-fx-text-fill:\\s*#374151", "-fx-text-fill: #cbd5e1");
-            fixed = fixed.replaceAll("-fx-text-fill:\\s*#4b5563", "-fx-text-fill: #94a3b8");
-            fixed = fixed.replaceAll("-fx-text-fill:\\s*#6b7280", "-fx-text-fill: #94a3b8");
-            fixed = fixed.replaceAll("-fx-text-fill:\\s*#9ca3af", "-fx-text-fill: #64748b");
+            // ── Background colors ──────────────────────────────
+            fixed = replaceProp(fixed, "-fx-background-color", "white", "#16213e");
+            fixed = replaceProp(fixed, "-fx-background-color", "#ffffff", "#16213e");
+            fixed = replaceProp(fixed, "-fx-background-color", "#f0f2f5", "#1a1a2e");
+            fixed = replaceProp(fixed, "-fx-background-color", "#f9fafb", "#1e293b");
+            fixed = replaceProp(fixed, "-fx-background-color", "#f8fafc", "#1a1a2e");
+            fixed = replaceProp(fixed, "-fx-background-color", "#f3f4f6", "#283548");
+            fixed = replaceProp(fixed, "-fx-background-color", "#e5e7eb", "#334155");
+            fixed = replaceProp(fixed, "-fx-background-color", "#eff6ff", "#1e3a5f");
+            // Login page gradient
+            fixed = fixed.replace(
+                    "linear-gradient(to bottom right, #eef2ff, #f0f2f5, #ede9fe)",
+                    "linear-gradient(to bottom right, #0f172a, #1a1a2e, #1e1b4b)");
 
-            // Fix border colors
-            fixed = fixed.replaceAll("-fx-border-color:\\s*#e5e7eb", "-fx-border-color: #334155");
-            fixed = fixed.replaceAll("-fx-border-color:\\s*#f3f4f6", "-fx-border-color: #1e293b");
+            // ── Text colors ────────────────────────────────────
+            fixed = replaceProp(fixed, "-fx-text-fill", "#111827", "#e2e8f0");
+            fixed = replaceProp(fixed, "-fx-text-fill", "#1f2937", "#e2e8f0");
+            fixed = replaceProp(fixed, "-fx-text-fill", "#374151", "#cbd5e1");
+            fixed = replaceProp(fixed, "-fx-text-fill", "#4b5563", "#94a3b8");
+            fixed = replaceProp(fixed, "-fx-text-fill", "#6b7280", "#94a3b8");
+            fixed = replaceProp(fixed, "-fx-text-fill", "#9ca3af", "#94a3b8");
+
+            // ── Fill (Text nodes use -fx-fill) ─────────────────
+            fixed = replaceProp(fixed, "-fx-fill", "#111827", "#e2e8f0");
+            fixed = replaceProp(fixed, "-fx-fill", "#6b7280", "#94a3b8");
+
+            // ── Border colors ──────────────────────────────────
+            fixed = replaceProp(fixed, "-fx-border-color", "#e5e7eb", "#334155");
+            fixed = replaceProp(fixed, "-fx-border-color", "#f3f4f6", "#1e293b");
+            fixed = replaceProp(fixed, "-fx-border-color", "#d1d5db", "#475569");
 
             if (!fixed.equals(style)) {
                 node.setStyle(fixed);
@@ -121,5 +159,16 @@ public class ThemeManager {
                 fixInlineStyles(child);
             }
         }
+    }
+
+    /**
+     * Safely replaces a CSS property value, handling both mid-string (followed by
+     * ;)
+     * and end-of-string occurrences.
+     */
+    private static String replaceProp(String style, String prop, String oldVal, String newVal) {
+        // Case-insensitive to catch "White", "WHITE", etc.
+        String pattern = "(?i)" + prop.replace("-", "\\-") + ":\\s*" + oldVal.replace("#", "\\#") + "(?=[;\\s]|$)";
+        return style.replaceAll(pattern, prop + ": " + newVal);
     }
 }

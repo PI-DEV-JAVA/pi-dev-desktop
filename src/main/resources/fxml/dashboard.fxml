@@ -45,7 +45,7 @@
         <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
     </VBox>
 
-    <!-- ======= MAIN CONTENT ======= -->
+    <!-- ======= MAIN CONTENT (stacked layout) ======= -->
     <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS"
                 style="-fx-background-color: transparent; -fx-background: transparent;">
         <VBox spacing="20" style="-fx-padding: 28;">
@@ -53,37 +53,46 @@
             <!-- Welcome Header + Quick Stats -->
             <VBox fx:id="welcomeSection" spacing="6"/>
 
-            <!-- 2-Column Grid -->
-            <HBox spacing="20" VBox.vgrow="ALWAYS">
+            <!-- My Applications (full width, compact) -->
+            <VBox fx:id="applicationsSection" spacing="12"/>
 
-                <!-- LEFT: My Applications (380px fixed width) -->
-                <VBox fx:id="applicationsSection" spacing="12"
-                      prefWidth="380" minWidth="340" maxWidth="420"/>
+            <!-- ====== Profiles Discovery (full width) ====== -->
+            <VBox spacing="0">
+                <!-- Section Header -->
+                <HBox alignment="CENTER_LEFT" spacing="12"
+                      style="-fx-padding: 0 0 12 0;">
+                    <Label text="🌐 Discover People" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="countLabel" text="0 profiles"
+                           style="-fx-font-size: 11px; -fx-text-fill: #9ca3af; -fx-font-weight: 600;"/>
+                </HBox>
 
-                <!-- RIGHT: Profiles Discovery -->
-                <VBox spacing="0" HBox.hgrow="ALWAYS">
-                    <!-- Filter Bar -->
-                    <HBox alignment="CENTER_LEFT" spacing="10"
-                          style="-fx-background-color: white; -fx-background-radius: 12 12 0 0;
-                                 -fx-padding: 10 16; -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;">
-                        <HBox alignment="CENTER_LEFT" spacing="6"
-                              style="-fx-background-color: #f3f4f6; -fx-background-radius: 8; -fx-padding: 2 10;">
-                            <Label text="🔍" style="-fx-text-fill: #9ca3af; -fx-font-size: 12px;"/>
-                            <TextField fx:id="searchField" promptText="Search..."
-                                       style="-fx-background-color: transparent; -fx-border-color: transparent;
-                                              -fx-padding: 5; -fx-pref-width: 150; -fx-font-size: 12px;"/>
-                        </HBox>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <ComboBox fx:id="sortByBox" style="-fx-font-size: 11px;" prefWidth="90"/>
-                        <ComboBox fx:id="sortOrderBox" style="-fx-font-size: 11px;" prefWidth="70"/>
-                        <Label fx:id="countLabel" text="0" style="-fx-font-size: 10px; -fx-text-fill: #9ca3af;"/>
+                <!-- Filter / Search Bar -->
+                <HBox alignment="CENTER_LEFT" spacing="12"
+                      style="-fx-background-color: white; -fx-background-radius: 12 12 0 0;
+                             -fx-padding: 12 20; -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;">
+                    <HBox alignment="CENTER_LEFT" spacing="6"
+                          style="-fx-background-color: #f3f4f6; -fx-background-radius: 8; -fx-padding: 4 12;"
+                          HBox.hgrow="ALWAYS" maxWidth="280">
+                        <Label text="🔍" style="-fx-text-fill: #9ca3af; -fx-font-size: 12px;"/>
+                        <TextField fx:id="searchField" promptText="Search by name, title, location..."
+                                   style="-fx-background-color: transparent; -fx-border-color: transparent;
+                                          -fx-padding: 5; -fx-font-size: 12px;"
+                                   HBox.hgrow="ALWAYS"/>
                     </HBox>
 
-                    <!-- Profiles List -->
-                    <ListView fx:id="feedListView" VBox.vgrow="ALWAYS" prefHeight="500"
-                              style="-fx-background-radius: 0 0 12 12;"/>
-                </VBox>
-            </HBox>
+                    <ComboBox fx:id="roleFilterBox" style="-fx-font-size: 11px;" prefWidth="130"
+                              promptText="Role"/>
+                    <ComboBox fx:id="sortByBox" style="-fx-font-size: 11px;" prefWidth="120"
+                              promptText="Sort by"/>
+                    <ComboBox fx:id="sortOrderBox" style="-fx-font-size: 11px;" prefWidth="100"
+                              promptText="Order"/>
+                </HBox>
+
+                <!-- Profiles List -->
+                <ListView fx:id="feedListView" VBox.vgrow="ALWAYS" prefHeight="450"
+                          style="-fx-background-radius: 0 0 12 12;"/>
+            </VBox>
         </VBox>
     </ScrollPane>
 </HBox>
