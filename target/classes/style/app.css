@@ -56,3 +56,7 @@
     -fx-padding: 20;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);
 }
+
+.tile-pane {
+    -fx-transition: all 0.3s ease-in-out;
+}

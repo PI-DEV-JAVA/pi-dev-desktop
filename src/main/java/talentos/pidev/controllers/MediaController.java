@@ -2,6 +2,7 @@ package talentos.pidev.controllers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -182,37 +183,48 @@ public class MediaController {
 
 
     private void addStream(int port) {
-        if (activeServices.containsKey(port))
-            return;
-
+        if (activeServices.containsKey(port)) return;
+    
         Platform.runLater(() -> {
+            VBox container = new VBox();
+            container.setAlignment(Pos.CENTER);
+            container.setUserData(port);
+            container.setStyle("-fx-background-color: #3c4043; -fx-background-radius: 10; -fx-overflow-hidden: true;");
+    
             ImageView iv = new ImageView();
-            iv.setFitWidth(320);
-            iv.setPreserveRatio(true);
-            iv.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);");
-
-            videoGrid.getChildren().add(iv);
-
+            
+           
+            iv.setPreserveRatio(true); 
+    
+            iv.fitWidthProperty().bind(
+                videoGrid.widthProperty().subtract(30).divide(2)
+            );
+    
+           
+            iv.fitHeightProperty().bind(
+                videoGrid.heightProperty().subtract(30).divide(2)
+            );
+    
+            container.getChildren().add(iv);
+            videoGrid.getChildren().add(container);
+    
             MediaService service = new MediaService(iv, port);
             service.start();
             activeServices.put(port, service);
         });
     }
 
-    private void removeStream(int port) {
-        Platform.runLater(() -> {
-            MediaService service = activeServices.remove(port);
-            if (service != null) {
-                service.stop();
-                videoGrid.getChildren().removeIf(node -> {
-                    if (node instanceof ImageView) {
-                        return ((ImageView) node).equals(service.getImageView());
-                    }
-                    return false;
-                });
-            }
-        });
-    }
+private void removeStream(int port) {
+    Platform.runLater(() -> {
+        MediaService service = activeServices.remove(port);
+        if (service != null) {
+            service.stop();
+            videoGrid.getChildren().removeIf(node -> 
+                node.getUserData() != null && node.getUserData().equals(port)
+            );
+        }
+    });
+}
 
     @FXML
     private void stopAll() {
