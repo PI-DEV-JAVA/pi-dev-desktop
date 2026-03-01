@@ -6,8 +6,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.Gson;
@@ -21,7 +19,7 @@ public class WebRTCService {
     static Gson gson = new Gson();
     static HttpClient httpClient = HttpClient.newHttpClient();
 
-    public static void startScripts() {
+    public static void startScripts(int roomId) {
         if (isAnyScriptRunning()) {
             System.out.println("Scripts already running. Skipping start.");
             return;
@@ -31,13 +29,13 @@ public class WebRTCService {
             File directory = new File(SCRIPTS_PATH);
 
             ProcessBuilder pubBuilder = new ProcessBuilder(
-                    "/home/speedweed/Desktop/PI_dev/webRTCHandler/venv/bin/python3", "publisher.py");
+                    "/home/speedweed/Desktop/PI_dev/webRTCHandler/venv/bin/python3", "publisher.py",Integer.toString(roomId));
             pubBuilder.directory(directory);
             pubBuilder.inheritIO();
             publisherProcess = pubBuilder.start();
 
             ProcessBuilder subBuilder = new ProcessBuilder(
-                    "/home/speedweed/Desktop/PI_dev/webRTCHandler/venv/bin/python3", "multi_subscribers.py");
+                    "/home/speedweed/Desktop/PI_dev/webRTCHandler/venv/bin/python3", "multi_subscribers.py",Integer.toString(roomId));
             subBuilder.directory(directory);
             subBuilder.inheritIO();
             subscriberProcess = subBuilder.start();
@@ -68,7 +66,6 @@ public class WebRTCService {
     public static void createJanusRoomFlow(long roomId) {
         String baseUrl = "http://4.233.136.0:8088/janus";
 
-        // 1. Create Session
         sendJanusRequest(baseUrl, "{\"janus\":\"create\",\"transaction\":\"ts1\"}")
                 .thenCompose(resp -> {
                     long sessionId = resp.getAsJsonObject("data").get("id").getAsLong();
@@ -101,7 +98,6 @@ public class WebRTCService {
                 });
     }
 
-    // Helper to handle the HTTP logic
     public static CompletableFuture<JsonObject> sendJanusRequest(String url, String json) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))

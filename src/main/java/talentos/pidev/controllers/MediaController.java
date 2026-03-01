@@ -49,7 +49,7 @@ public class MediaController {
     public void initialize() {
         isDiscoveryActive = true;
         startDiscoveryListener();
-        WebRTCService.startScripts();
+        WebRTCService.startScripts(17);
         
 
         try {
@@ -108,39 +108,6 @@ public class MediaController {
             messageInput.clear();
         }
     }
-
-    // private void startDiscoveryListener() {
-    // Thread discovery = new Thread(() -> {
-    // try {
-    // discoverSocket=new ServerSocket();
-    // discoverSocket.setReuseAddress(true);
-    // System.out.println("Java Discovery Server active on port 8888...");
-    // while (isDiscoveryActive) {
-    // try (Socket client = discoverSocket.accept();
-    // BufferedReader in = new BufferedReader(new
-    // InputStreamReader(client.getInputStream()))) {
-
-    // String msg = in.readLine(); // Expects "NEW_PORT:9991"
-    // if (msg.startsWith("NEW_PORT:")) {
-    // int port = Integer.parseInt(msg.split(":")[1]);
-    // addStream(port);
-    // } else if (msg.startsWith("REMOVE_PORT:")) {
-    // int port = Integer.parseInt(msg.split(":")[1]);
-    // removeStream(port);
-    // }
-    // }catch (java.net.SocketTimeoutException e) {
-    // } catch (Exception e) {
-    // if (isDiscoveryActive) e.printStackTrace();
-    // }
-    // }
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // });
-    // discovery.setDaemon(true);
-    // discovery.start();
-    // }
-
     private void cleanupSocket() {
         try {
             if (discoverSocket != null && !discoverSocket.isClosed()) {
