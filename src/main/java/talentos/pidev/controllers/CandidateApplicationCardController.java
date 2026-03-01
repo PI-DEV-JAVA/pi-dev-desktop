@@ -20,9 +20,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ResourceBundle;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 public class CandidateApplicationCardController implements Initializable {
 
@@ -32,8 +30,8 @@ public class CandidateApplicationCardController implements Initializable {
     @FXML private FlowPane offersCardsContainer;
     @FXML private Label totalOffersLabel;
     @FXML private ToggleButton savedFilterToggle;
-    private BookmarkService bookmarkService;
 
+    private BookmarkService bookmarkService;
     private final OfferService offerService;
     private final ApplicationService applicationService;
     private final ObservableList<Offer> offersList;
@@ -51,24 +49,19 @@ public class CandidateApplicationCardController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         bookmarkService = new BookmarkService();
-
-        // ✅ Le toggle est déjà dans le FXML, juste configurer le listener
         savedFilterToggle.setOnAction(e -> filterSavedOffers());
-
         setupFilters();
         loadOffers();
         styleComponents();
     }
 
-    // ========== STYLES MODE SOMBRE ==========
+    // ========== STYLES ==========
     private void styleComponents() {
-        // Style des filtres
         String filterStyle = "-fx-background-color: #1E293B; -fx-text-fill: #E2E8F0; -fx-prompt-text-fill: #64748B; -fx-border-color: #334155; -fx-border-radius: 8; -fx-background-radius: 8;";
         searchField.setStyle(filterStyle);
         departmentFilter.setStyle(filterStyle);
         contractFilter.setStyle(filterStyle);
 
-        // Style du label total
         totalOffersLabel.setStyle(
                 "-fx-background-color: #1E293B;" +
                         "-fx-text-fill: #94A3B8;" +
@@ -79,6 +72,7 @@ public class CandidateApplicationCardController implements Initializable {
         );
     }
 
+    // ========== FILTRES ==========
     private void setupFilters() {
         departmentFilter.getItems().addAll(
                 "Tous", "IT", "RH", "Finance", "Marketing", "Production", "Logistique", "Commerce"
@@ -93,11 +87,9 @@ public class CandidateApplicationCardController implements Initializable {
         searchField.textProperty().addListener((obs, old, newVal) -> filterOffers());
         departmentFilter.setOnAction(e -> filterOffers());
         contractFilter.setOnAction(e -> filterOffers());
-
-
-
     }
 
+    // ========== CHARGEMENT DES OFFRES ==========
     private void loadOffers() {
         offersList.clear();
         offersList.addAll(offerService.searchOffers("", "", "Ouverte"));
@@ -143,16 +135,14 @@ public class CandidateApplicationCardController implements Initializable {
 
     private void filterSavedOffers() {
         if (savedFilterToggle.isSelected()) {
-            // Mode sauvegardes
             List<Offer> saved = bookmarkService.getBookmarkedOffers();
 
-            // Convertir List en ObservableList
-            ObservableList<Offer> savedObservable = FXCollections.observableArrayList();
-            savedObservable.addAll(saved);
+            if (saved.isEmpty()) {
+                showNoSavedMessage();
+            } else {
+                showSavedOffersWithSelection(saved);
+            }
 
-            displayOffersCards(savedObservable);
-
-            // ✅ Style quand sélectionné (adapté de ton FXML)
             savedFilterToggle.setStyle(
                     "-fx-background-color: #FBBF24;" +
                             "-fx-text-fill: #0F172A;" +
@@ -162,10 +152,7 @@ public class CandidateApplicationCardController implements Initializable {
                             "-fx-cursor: hand;"
             );
         } else {
-            // Mode normal
             filterOffers();
-
-            // ✅ Style par défaut (copié de ton FXML)
             savedFilterToggle.setStyle(
                     "-fx-background-color: transparent;" +
                             "-fx-text-fill: #94A3B8;" +
@@ -176,6 +163,8 @@ public class CandidateApplicationCardController implements Initializable {
             );
         }
     }
+
+    // ========== AFFICHAGE DES OFFRES ==========
     private void displayOffersCards(ObservableList<Offer> offers) {
         offersCardsContainer.getChildren().clear();
 
@@ -189,7 +178,7 @@ public class CandidateApplicationCardController implements Initializable {
         }
     }
 
-    // ========== CARTE OFFRE EN MODE SOMBRE ==========
+    // ========== CRÉATION DE CARTE OFFRE ==========
     private VBox createOfferCard(Offer offer) {
         VBox card = new VBox(15);
         String defaultStyle = "-fx-background-color: #1E293B; -fx-background-radius: 16; -fx-padding: 20; " +
@@ -207,9 +196,8 @@ public class CandidateApplicationCardController implements Initializable {
         card.setOnMouseEntered(e -> card.setStyle(hoverStyle));
         card.setOnMouseExited(e -> card.setStyle(defaultStyle));
 
-        BookmarkService bookmarkService = new BookmarkService();
+        // ===== BOUTON BOOKMARK =====
         boolean isBookmarked = bookmarkService.isBookmarked(offer.getId());
-        // Bouton bookmark
         Button bookmarkBtn = new Button(isBookmarked ? "🔖" : "☆");
         bookmarkBtn.setStyle(
                 "-fx-background-color: transparent;" +
@@ -228,14 +216,11 @@ public class CandidateApplicationCardController implements Initializable {
                                 "-fx-font-size: 20px;" +
                                 "-fx-cursor: hand;"
                 );
-
-                // Notification toast (optionnel)
                 showAlert("Bookmark", newState ? "Offre sauvegardée" : "Offre retirée des favoris", Alert.AlertType.INFORMATION);
-
             }
         });
 
-        // En-tête avec titre et badge
+        // ===== EN-TÊTE =====
         HBox headerBox = new HBox(10);
         headerBox.setAlignment(Pos.CENTER_LEFT);
 
@@ -245,7 +230,6 @@ public class CandidateApplicationCardController implements Initializable {
         titleLabel.setMaxWidth(200);
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
 
-        // Badge jours restants
         long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), offer.getClosingDate());
         Label daysBadge = new Label(daysLeft + "j");
         if (daysLeft <= 7) {
@@ -268,81 +252,33 @@ public class CandidateApplicationCardController implements Initializable {
             );
         }
 
-        headerBox.getChildren().addAll(titleLabel,bookmarkBtn,daysBadge);
+        headerBox.getChildren().addAll(titleLabel, bookmarkBtn, daysBadge);
 
+        // ===== DÉTAILS =====
+        HBox deptBox = createDetailBox("🏢", offer.getDepartment() + " • " + offer.getContractType());
+        HBox locationBox = createDetailBox("📍", offer.getLocation());
+        HBox salaryBox = createDetailBox("💰", String.format("%.0f - %.0f DT", offer.getSalaryMin(), offer.getSalaryMax()), "#34D399");
+        HBox expBox = createDetailBox("📊", offer.getExperienceLevel());
 
-
-        // Département et type de contrat
-        HBox deptBox = new HBox(8);
-        deptBox.setAlignment(Pos.CENTER_LEFT);
-
-        Label deptIcon = new Label("🏢");
-        deptIcon.setStyle("-fx-font-size: 14px;");
-
-        Label deptLabel = new Label(offer.getDepartment() + " • " + offer.getContractType());
-        deptLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8;");
-
-        deptBox.getChildren().addAll(deptIcon, deptLabel);
-
-        // Localisation
-        HBox locationBox = new HBox(8);
-        locationBox.setAlignment(Pos.CENTER_LEFT);
-
-        Label locIcon = new Label("📍");
-        locIcon.setStyle("-fx-font-size: 14px;");
-
-        Label locationLabel = new Label(offer.getLocation());
-        locationLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8;");
-
-        locationBox.getChildren().addAll(locIcon, locationLabel);
-
-        // Salaire
-        HBox salaryBox = new HBox(8);
-        salaryBox.setAlignment(Pos.CENTER_LEFT);
-
-        Label salaryIcon = new Label("💰");
-        salaryIcon.setStyle("-fx-font-size: 14px;");
-
-        Label salaryLabel = new Label(String.format("%.0f - %.0f DT", offer.getSalaryMin(), offer.getSalaryMax()));
-        salaryLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #34D399; -fx-font-weight: 600;");
-
-        salaryBox.getChildren().addAll(salaryIcon, salaryLabel);
-
-        // Expérience
-        HBox expBox = new HBox(8);
-        expBox.setAlignment(Pos.CENTER_LEFT);
-
-        Label expIcon = new Label("📊");
-        expIcon.setStyle("-fx-font-size: 14px;");
-
-        Label expLabel = new Label(offer.getExperienceLevel());
-        expLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #94A3B8;");
-
-        expBox.getChildren().addAll(expIcon, expLabel);
-
-        // Date limite
+        // ===== DATE LIMITE =====
         HBox dateBox = new HBox(8);
         dateBox.setAlignment(Pos.CENTER_LEFT);
-
         Label dateIcon = new Label("⏰");
         dateIcon.setStyle("-fx-font-size: 14px;");
-
         String daysText = daysLeft < 0 ? "Expirée" :
                 daysLeft == 0 ? "Dernier jour !" :
                         "Limite: " + offer.getClosingDate().format(displayFormatter);
-
         Label dateLabel = new Label(daysText);
         dateLabel.setStyle(daysLeft < 0 ? "-fx-font-size: 13px; -fx-text-fill: #F87171;" :
                 daysLeft <= 7 ? "-fx-font-size: 13px; -fx-text-fill: #FBBF24;" :
                         "-fx-font-size: 13px; -fx-text-fill: #94A3B8;");
-
         dateBox.getChildren().addAll(dateIcon, dateLabel);
 
-        // Séparateur
+        // ===== SÉPARATEUR =====
         Separator sep = new Separator();
         sep.setStyle("-fx-background-color: rgba(255,255,255,0.06);");
 
-        // Bouton Postuler
+        // ===== BOUTON POSTULER =====
         Button applyButton = createDarkButton("📝 Postuler", "rgba(99,102,241,0.2)", "#A5B4FC");
         applyButton.setMaxWidth(Double.MAX_VALUE);
         applyButton.setOnAction(e -> showApplicationForm(offer));
@@ -361,6 +297,21 @@ public class CandidateApplicationCardController implements Initializable {
         return card;
     }
 
+    private HBox createDetailBox(String icon, String text) {
+        return createDetailBox(icon, text, "#94A3B8");
+    }
+
+    private HBox createDetailBox(String icon, String text, String color) {
+        HBox box = new HBox(8);
+        box.setAlignment(Pos.CENTER_LEFT);
+        Label iconLabel = new Label(icon);
+        iconLabel.setStyle("-fx-font-size: 14px;");
+        Label textLabel = new Label(text);
+        textLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: " + color + ";");
+        box.getChildren().addAll(iconLabel, textLabel);
+        return box;
+    }
+
     private Button createDarkButton(String text, String bgColor, String textColor) {
         Button btn = new Button(text);
         String normal = "-fx-background-color: " + bgColor + "; -fx-text-fill: " + textColor +
@@ -373,6 +324,353 @@ public class CandidateApplicationCardController implements Initializable {
         return btn;
     }
 
+    // ========== GESTION DES SAUVEGARDES ==========
+    private void showSavedOffersWithSelection(List<Offer> saved) {
+        VBox mainContainer = new VBox(20);
+        mainContainer.setAlignment(Pos.TOP_CENTER);
+
+        mainContainer.getChildren().add(createSelectionHeader());
+
+        FlowPane cardsFlow = new FlowPane();
+        cardsFlow.setHgap(20);
+        cardsFlow.setVgap(20);
+        cardsFlow.setAlignment(Pos.TOP_CENTER);
+        cardsFlow.setPadding(new Insets(10, 0, 10, 0));
+
+        Map<Offer, CheckBox> selectionMap = new HashMap<>();
+
+        for (Offer offer : saved) {
+            VBox card = createOfferCard(offer);
+
+            // Créer le nouvel en-tête avec checkbox
+            HBox cardHeader = new HBox(10);
+            cardHeader.setAlignment(Pos.CENTER_LEFT);
+
+            CheckBox selectCB = new CheckBox();
+            selectCB.setStyle("-fx-background-color: transparent;");
+            selectCB.setUserData(offer);
+            selectionMap.put(offer, selectCB);
+
+            // ✅ Récupérer le TITRE qui est dans l'ancien header
+            // L'ancien header est le premier enfant de la carte
+            HBox oldHeader = (HBox) card.getChildren().get(0);
+
+            // Le titre est le premier élément de l'ancien header
+            Label titleLabel = (Label) oldHeader.getChildren().get(0);
+
+            // Recréer le header avec checkbox + titre
+            cardHeader.getChildren().addAll(selectCB, titleLabel);
+
+            // Remplacer l'ancien header par le nouveau
+            card.getChildren().set(0, cardHeader);
+
+            cardsFlow.getChildren().add(card);
+        }
+
+        mainContainer.getChildren().add(cardsFlow);
+
+        Button compareBtn = new Button("🔍 Comparer les offres sélectionnées");
+        compareBtn.setStyle(
+                "-fx-background-color: #6366F1;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 12 24;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-font-size: 16px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-cursor: hand;"
+        );
+        compareBtn.setMaxWidth(400);
+        compareBtn.setOnAction(e -> showComparisonView(selectionMap));
+
+        mainContainer.getChildren().add(compareBtn);
+
+        offersCardsContainer.getChildren().clear();
+        offersCardsContainer.getChildren().add(mainContainer);
+    }
+    private HBox createSelectionHeader() {
+        HBox header = new HBox(15);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setPadding(new Insets(10, 0, 20, 0));
+        header.setStyle("-fx-background-color: #1E293B; -fx-background-radius: 12; -fx-padding: 15;");
+
+        Label title = new Label("📋 Vos offres sauvegardées");
+        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Button selectAllBtn = new Button("✓ Tout sélectionner");
+        selectAllBtn.setStyle(
+                "-fx-background-color: #334155;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 8 16;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-cursor: hand;"
+        );
+        selectAllBtn.setOnAction(e -> selectAllOffers(true, null));
+
+        Button deselectAllBtn = new Button("✗ Tout désélectionner");
+        deselectAllBtn.setStyle(
+                "-fx-background-color: #475569;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 8 16;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-cursor: hand;"
+        );
+        deselectAllBtn.setOnAction(e -> selectAllOffers(false, null));
+
+        header.getChildren().addAll(title, spacer, selectAllBtn, deselectAllBtn);
+
+        return header;
+    }
+
+    private void selectAllOffers(boolean select, Map<Offer, CheckBox> selectionMap) {
+        if (selectionMap == null) {
+            // Si on n'a pas la map, on parcourt le conteneur
+            for (javafx.scene.Node node : offersCardsContainer.getChildren()) {
+                if (node instanceof VBox) {
+                    VBox container = (VBox) node;
+                    for (javafx.scene.Node child : container.getChildren()) {
+                        if (child instanceof FlowPane) {
+                            FlowPane flow = (FlowPane) child;
+                            for (javafx.scene.Node cardNode : flow.getChildren()) {
+                                if (cardNode instanceof VBox) {
+                                    VBox card = (VBox) cardNode;
+                                    if (card.getChildren().get(0) instanceof HBox) {
+                                        HBox header = (HBox) card.getChildren().get(0);
+                                        if (header.getChildren().get(0) instanceof CheckBox) {
+                                            ((CheckBox) header.getChildren().get(0)).setSelected(select);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            for (Map.Entry<Offer, CheckBox> entry : selectionMap.entrySet()) {
+                entry.getValue().setSelected(select);
+            }
+        }
+    }
+
+    // ========== COMPARAISON ==========
+    private void showComparisonView(Map<Offer, CheckBox> selectionMap) {
+        List<Offer> selectedOffers = new ArrayList<>();
+        for (Map.Entry<Offer, CheckBox> entry : selectionMap.entrySet()) {
+            if (entry.getValue().isSelected()) {
+                selectedOffers.add(entry.getKey());
+            }
+        }
+
+        if (selectedOffers.size() < 2) {
+            showAlert("Comparaison", "Veuillez sélectionner au moins 2 offres", Alert.AlertType.WARNING);
+            return;
+        }
+
+        if (selectedOffers.size() > 3) {
+            showAlert("Comparaison", "Vous ne pouvez comparer que 3 offres maximum", Alert.AlertType.WARNING);
+            return;
+        }
+
+        VBox comparisonView = createComparisonView(selectedOffers);
+        offersCardsContainer.getChildren().clear();
+        offersCardsContainer.getChildren().add(comparisonView);
+    }
+
+    private VBox createComparisonView(List<Offer> offers) {
+        VBox container = new VBox(25);
+        container.setStyle("-fx-background-color: #0F172A; -fx-padding: 20;");
+        container.setAlignment(Pos.TOP_CENTER);
+
+        HBox headerBox = new HBox(15);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+        headerBox.setPadding(new Insets(0, 0, 10, 0));
+
+        Button backBtn = new Button("← Retour aux sauvegardes");
+        backBtn.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-text-fill: #94A3B8;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-cursor: hand;"
+        );
+        backBtn.setOnAction(e -> {
+            List<Offer> saved = bookmarkService.getBookmarkedOffers();
+            if (saved.isEmpty()) {
+                showNoSavedMessage();
+            } else {
+                showSavedOffersWithSelection(saved);
+            }
+        });
+
+        Label titleLabel = new Label("📊 Comparaison d'offres");
+        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        headerBox.getChildren().addAll(backBtn, spacer, titleLabel);
+
+        GridPane comparisonGrid = new GridPane();
+        comparisonGrid.setHgap(15);
+        comparisonGrid.setVgap(15);
+        comparisonGrid.setPadding(new Insets(20));
+        comparisonGrid.setStyle("-fx-background-color: #1E293B; -fx-background-radius: 16;");
+
+        int colCount = offers.size() + 1;
+        for (int i = 0; i < colCount; i++) {
+            ColumnConstraints col = new ColumnConstraints();
+            col.setPercentWidth(100.0 / colCount);
+            comparisonGrid.getColumnConstraints().add(col);
+        }
+
+        comparisonGrid.add(createHeaderCell("Critère"), 0, 0);
+        for (int i = 0; i < offers.size(); i++) {
+            comparisonGrid.add(createOfferHeaderCell(offers.get(i)), i + 1, 0);
+        }
+
+        addComparisonRow(comparisonGrid, "Département",
+                offers.stream().map(Offer::getDepartment).toList(), 1);
+        addComparisonRow(comparisonGrid, "Type de contrat",
+                offers.stream().map(Offer::getContractType).toList(), 2);
+        addComparisonRow(comparisonGrid, "Niveau",
+                offers.stream().map(Offer::getExperienceLevel).toList(), 3);
+        addComparisonRow(comparisonGrid, "Salaire min",
+                offers.stream().map(o -> String.format("%.0f DT", o.getSalaryMin())).toList(), 4);
+        addComparisonRow(comparisonGrid, "Salaire max",
+                offers.stream().map(o -> String.format("%.0f DT", o.getSalaryMax())).toList(), 5);
+        addComparisonRow(comparisonGrid, "Localisation",
+                offers.stream().map(Offer::getLocation).toList(), 6);
+        addComparisonRow(comparisonGrid, "Date limite",
+                offers.stream().map(o -> o.getClosingDate().format(dateFormatter)).toList(), 7);
+        addComparisonRow(comparisonGrid, "Candidatures",
+                offers.stream().map(o -> String.valueOf(o.getApplicationsReceived())).toList(), 8);
+
+        addScoreRow(comparisonGrid, offers, 9);
+
+        container.getChildren().addAll(headerBox, comparisonGrid);
+
+        return container;
+    }
+
+    private StackPane createHeaderCell(String text) {
+        Label label = new Label(text);
+        label.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #94A3B8;");
+        label.setAlignment(Pos.CENTER);
+
+        StackPane cell = new StackPane(label);
+        cell.setPadding(new Insets(15));
+        cell.setStyle("-fx-background-color: #334155; -fx-border-color: #475569; -fx-border-width: 1;");
+        cell.setPrefHeight(60);
+
+        return cell;
+    }
+
+    private StackPane createOfferHeaderCell(Offer offer) {
+        VBox content = new VBox(5);
+        content.setAlignment(Pos.CENTER);
+
+        Label titleLabel = new Label(offer.getTitle());
+        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+        titleLabel.setWrapText(true);
+
+        Label bookmarkLabel = new Label("🔖");
+        bookmarkLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #FBBF24;");
+
+        content.getChildren().addAll(titleLabel, bookmarkLabel);
+
+        StackPane cell = new StackPane(content);
+        cell.setPadding(new Insets(15));
+        cell.setStyle("-fx-background-color: #1E293B; -fx-border-color: #6366F1; -fx-border-width: 2;");
+        cell.setPrefHeight(100);
+
+        return cell;
+    }
+
+    private StackPane createCell(String text) {
+        Label label = new Label(text != null ? text : "N/A");
+        label.setStyle("-fx-font-size: 13px; -fx-text-fill: #E2E8F0;");
+        label.setWrapText(true);
+        label.setAlignment(Pos.CENTER);
+
+        StackPane cell = new StackPane(label);
+        cell.setPadding(new Insets(15));
+        cell.setStyle("-fx-background-color: #0F172A; -fx-border-color: #334155; -fx-border-width: 1;");
+        cell.setPrefHeight(80);
+
+        return cell;
+    }
+
+    private void addComparisonRow(GridPane grid, String label, List<String> values, int row) {
+        grid.add(createHeaderCell(label), 0, row);
+        for (int i = 0; i < values.size(); i++) {
+            grid.add(createCell(values.get(i)), i + 1, row);
+        }
+    }
+
+    private void addScoreRow(GridPane grid, List<Offer> offers, int row) {
+        grid.add(createHeaderCell("🌟 Score"), 0, row);
+
+        for (int i = 0; i < offers.size(); i++) {
+            Offer offer = offers.get(i);
+            double score = calculateMatchScore(offer);
+
+            VBox scoreBox = new VBox(8);
+            scoreBox.setAlignment(Pos.CENTER);
+
+            Label scoreLabel = new Label(String.format("%.0f", score));
+            scoreLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: " +
+                    getScoreColor(score) + ";");
+
+            ProgressBar progressBar = new ProgressBar(score / 100);
+            progressBar.setPrefWidth(100);
+            progressBar.setStyle("-fx-accent: " + getScoreColor(score) + ";");
+
+            Label levelLabel = new Label(getScoreLevel(score));
+            levelLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #94A3B8;");
+
+            scoreBox.getChildren().addAll(scoreLabel, progressBar, levelLabel);
+
+            StackPane cell = new StackPane(scoreBox);
+            cell.setPadding(new Insets(15));
+            cell.setStyle("-fx-background-color: #0F172A; -fx-border-color: #334155; -fx-border-width: 1;");
+            cell.setPrefHeight(120);
+
+            grid.add(cell, i + 1, row);
+        }
+    }
+
+    private double calculateMatchScore(Offer offer) {
+        double score = 60;
+        score += Math.min(offer.getApplicationsReceived() * 2, 20);
+
+        double avgSalary = (offer.getSalaryMin() + offer.getSalaryMax()) / 2;
+        score += Math.min((avgSalary / 500) * 5, 10);
+
+        long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), offer.getClosingDate());
+        if (daysLeft < 7 && daysLeft >= 0) {
+            score += 10;
+        }
+
+        return Math.min(score, 100);
+    }
+
+    private String getScoreColor(double score) {
+        if (score >= 80) return "#10B981";
+        if (score >= 60) return "#F59E0B";
+        return "#EF4444";
+    }
+
+    private String getScoreLevel(double score) {
+        if (score >= 80) return "Excellent";
+        if (score >= 60) return "Bon";
+        return "Moyen";
+    }
+
+    // ========== MESSAGES ==========
     private void showNoOffersMessage() {
         VBox messageBox = new VBox(20);
         messageBox.setAlignment(Pos.CENTER);
@@ -392,16 +690,46 @@ public class CandidateApplicationCardController implements Initializable {
         offersCardsContainer.getChildren().add(messageBox);
     }
 
-    private void showApplicationForm(Offer offer) {
-        // Vider le conteneur
-        offersCardsContainer.getChildren().clear();
+    private void showNoSavedMessage() {
+        VBox messageBox = new VBox(20);
+        messageBox.setAlignment(Pos.CENTER);
+        messageBox.setPrefHeight(400);
 
-        // Créer et afficher le formulaire
+        Label icon = new Label("🔖");
+        icon.setStyle("-fx-font-size: 56px; -fx-text-fill: #475569;");
+
+        Label title = new Label("Aucune offre sauvegardée");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #94A3B8;");
+
+        Label subtitle = new Label("Utilisez ☆ sur les offres pour les sauvegarder");
+        subtitle.setStyle("-fx-font-size: 14px; -fx-text-fill: #64748B;");
+
+        Button backBtn = new Button("← Voir toutes les offres");
+        backBtn.setStyle(
+                "-fx-background-color: #6366F1;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 10 20;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-cursor: hand;"
+        );
+        backBtn.setOnAction(e -> {
+            savedFilterToggle.setSelected(false);
+            filterOffers();
+        });
+
+        messageBox.getChildren().addAll(icon, title, subtitle, backBtn);
+
+        offersCardsContainer.getChildren().clear();
+        offersCardsContainer.getChildren().add(messageBox);
+    }
+
+    // ========== FORMULAIRE DE CANDIDATURE ==========
+    private void showApplicationForm(Offer offer) {
+        offersCardsContainer.getChildren().clear();
         VBox formContainer = createApplicationForm(offer);
         offersCardsContainer.getChildren().add(formContainer);
     }
 
-    // ========== FORMULAIRE EN MODE SOMBRE ==========
     private VBox createApplicationForm(Offer offer) {
         VBox formContainer = new VBox(25);
         formContainer.setStyle(
@@ -416,7 +744,6 @@ public class CandidateApplicationCardController implements Initializable {
         formContainer.setMaxWidth(800);
         formContainer.setAlignment(Pos.TOP_CENTER);
 
-        // ========== EN-TÊTE ==========
         HBox headerBox = new HBox(15);
         headerBox.setAlignment(Pos.CENTER_LEFT);
         headerBox.setPadding(new Insets(0, 0, 10, 0));
@@ -439,7 +766,6 @@ public class CandidateApplicationCardController implements Initializable {
 
         headerBox.getChildren().addAll(backBtn, spacer, formTitle);
 
-        // ========== CARTE DE L'OFFRE ==========
         VBox offerCard = new VBox(15);
         offerCard.setStyle(
                 "-fx-background-color: #1E293B;" +
@@ -465,7 +791,6 @@ public class CandidateApplicationCardController implements Initializable {
 
         int row = 0;
 
-        // Département
         Label deptIcon = new Label("🏢");
         deptIcon.setStyle("-fx-font-size: 16px;");
         Label deptText = new Label(offer.getDepartment() + " • " + offer.getContractType());
@@ -473,7 +798,6 @@ public class CandidateApplicationCardController implements Initializable {
         offerDetails.add(deptIcon, 0, row);
         offerDetails.add(deptText, 1, row++);
 
-        // Localisation
         Label locIcon = new Label("📍");
         locIcon.setStyle("-fx-font-size: 16px;");
         Label locText = new Label(offer.getLocation());
@@ -481,7 +805,6 @@ public class CandidateApplicationCardController implements Initializable {
         offerDetails.add(locIcon, 0, row);
         offerDetails.add(locText, 1, row++);
 
-        // Salaire
         Label salaryIcon = new Label("💰");
         salaryIcon.setStyle("-fx-font-size: 16px;");
         Label salaryText = new Label(String.format("%.0f - %.0f DT", offer.getSalaryMin(), offer.getSalaryMax()));
@@ -489,7 +812,6 @@ public class CandidateApplicationCardController implements Initializable {
         offerDetails.add(salaryIcon, 0, row);
         offerDetails.add(salaryText, 1, row++);
 
-        // Expérience
         Label expIcon = new Label("📊");
         expIcon.setStyle("-fx-font-size: 16px;");
         Label expText = new Label(offer.getExperienceLevel());
@@ -497,7 +819,6 @@ public class CandidateApplicationCardController implements Initializable {
         offerDetails.add(expIcon, 0, row);
         offerDetails.add(expText, 1, row++);
 
-        // Date limite
         long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), offer.getClosingDate());
         String daysText = daysLeft < 0 ? "Expirée" :
                 daysLeft == 0 ? "Dernier jour !" :
@@ -522,7 +843,6 @@ public class CandidateApplicationCardController implements Initializable {
 
         offerCard.getChildren().addAll(offerTitle, offerDetails);
 
-        // ========== FORMULAIRE ==========
         GridPane formGrid = new GridPane();
         formGrid.setHgap(15);
         formGrid.setVgap(15);
@@ -536,7 +856,6 @@ public class CandidateApplicationCardController implements Initializable {
 
         row = 0;
 
-        // Nom complet
         Label nameLabel = new Label("Nom complet *");
         nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
@@ -546,7 +865,6 @@ public class CandidateApplicationCardController implements Initializable {
         formGrid.add(nameLabel, 0, row);
         formGrid.add(nameField, 1, row++);
 
-        // Email
         Label emailLabel = new Label("Email *");
         emailLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
@@ -556,7 +874,6 @@ public class CandidateApplicationCardController implements Initializable {
         formGrid.add(emailLabel, 0, row);
         formGrid.add(emailField, 1, row++);
 
-        // Téléphone
         Label phoneLabel = new Label("Téléphone");
         phoneLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
@@ -566,7 +883,6 @@ public class CandidateApplicationCardController implements Initializable {
         formGrid.add(phoneLabel, 0, row);
         formGrid.add(phoneField, 1, row++);
 
-        // CV
         Label cvLabel = new Label("CV *");
         cvLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
@@ -616,7 +932,6 @@ public class CandidateApplicationCardController implements Initializable {
         formGrid.add(cvLabel, 0, row);
         formGrid.add(cvBox, 1, row++);
 
-        // Lettre de motivation
         Label motivationLabel = new Label("Lettre de motivation");
         motivationLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
 
@@ -628,11 +943,9 @@ public class CandidateApplicationCardController implements Initializable {
         formGrid.add(motivationLabel, 0, row);
         formGrid.add(motivationArea, 1, row++);
 
-        // Message champs obligatoires
         Label requiredLabel = new Label("* Champs obligatoires");
         requiredLabel.setStyle("-fx-text-fill: #64748B; -fx-font-size: 12px;");
 
-        // ========== BOUTONS ==========
         HBox buttonBox = new HBox(15);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         buttonBox.setPadding(new Insets(20, 0, 0, 0));
@@ -660,11 +973,9 @@ public class CandidateApplicationCardController implements Initializable {
                         "-fx-cursor: hand;"
         );
 
-        // ========== VALIDATION ==========
         Runnable validateForm = () -> {
             boolean isValid = true;
 
-            // ✅ Validation nom
             if (nameField.getText().trim().isEmpty() || nameField.getText().length() < 3) {
                 nameField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: #1E293B; -fx-text-fill: #E2E8F0;");
                 isValid = false;
@@ -672,7 +983,6 @@ public class CandidateApplicationCardController implements Initializable {
                 nameField.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: #1E293B; -fx-text-fill: #E2E8F0;");
             }
 
-            // ✅ Validation email
             String email = emailField.getText().trim();
             if (email.isEmpty() || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
                 emailField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: #1E293B; -fx-text-fill: #E2E8F0;");
@@ -681,7 +991,6 @@ public class CandidateApplicationCardController implements Initializable {
                 emailField.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: #1E293B; -fx-text-fill: #E2E8F0;");
             }
 
-            // ✅ Validation CV
             if (cvPath[0] == null) {
                 chooseCVBtn.setStyle(
                         "-fx-background-color: #EF4444;" +
@@ -703,45 +1012,14 @@ public class CandidateApplicationCardController implements Initializable {
                 );
             }
 
-            // ✅ Activer/Désactiver le bouton
             submitBtn.setDisable(!isValid);
-
-            if (isValid) {
-                submitBtn.setStyle(
-                        "-fx-background-color: linear-gradient(to right, #6366F1, #06B6D4);" +
-                                "-fx-text-fill: white;" +
-                                "-fx-padding: 12 24;" +
-                                "-fx-background-radius: 8;" +
-                                "-fx-font-size: 14px;" +
-                                "-fx-font-weight: bold;" +
-                                "-fx-cursor: hand;"
-                );
-                submitBtn.setOpacity(1.0);
-            } else {
-                submitBtn.setStyle(
-                        "-fx-background-color: #475569;" +
-                                "-fx-text-fill: #94A3B8;" +
-                                "-fx-padding: 12 24;" +
-                                "-fx-background-radius: 8;" +
-                                "-fx-font-size: 14px;" +
-                                "-fx-font-weight: bold;" +
-                                "-fx-cursor: hand;"
-                );
-                submitBtn.setOpacity(0.5);
-            }
-
+            submitBtn.setOpacity(isValid ? 1.0 : 0.5);
         };
 
-// ✅ Écouteurs en temps réel
         nameField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
         emailField.textProperty().addListener((obs, old, newVal) -> validateForm.run());
-
-// ✅ Validation initiale
         validateForm.run();
 
-        // Ajouter les écouteurs
-
-        // Action du bouton submit
         submitBtn.setOnAction(e -> {
             Application application = new Application();
             application.setOfferId(offer.getId());
@@ -769,7 +1047,6 @@ public class CandidateApplicationCardController implements Initializable {
 
         buttonBox.getChildren().addAll(cancelBtn, submitBtn);
 
-        // Assemblage final
         formContainer.getChildren().addAll(
                 headerBox,
                 offerCard,
@@ -782,8 +1059,8 @@ public class CandidateApplicationCardController implements Initializable {
     }
 
     private void backToOffers() {
-        offersCardsContainer.getChildren().clear();
-        displayOffersCards(offersList);
+        savedFilterToggle.setSelected(false);
+        filterOffers();
     }
 
     private void updateTotalLabel(int count) {
