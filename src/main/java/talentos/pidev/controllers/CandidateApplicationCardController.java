@@ -15,6 +15,11 @@ import talentos.pidev.services.ApplicationService;
 import talentos.pidev.services.BookmarkService;
 import talentos.pidev.services.OfferService;
 
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Arc;
+import javafx.scene.shape.ArcType;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.paint.Color;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
@@ -328,21 +333,71 @@ public class CandidateApplicationCardController implements Initializable {
     private void showSavedOffersWithSelection(List<Offer> saved) {
         VBox mainContainer = new VBox(20);
         mainContainer.setAlignment(Pos.TOP_CENTER);
+        mainContainer.setPadding(new Insets(0, 0, 20, 0));
 
-        mainContainer.getChildren().add(createSelectionHeader());
+        // ===== 1. PREMIÈRE LIGNE : Titre + boutons de sélection + bouton comparer =====
+        HBox topControls = new HBox(15);
+        topControls.setAlignment(Pos.CENTER_LEFT);
+        topControls.setPadding(new Insets(10, 0, 10, 0));
+        topControls.setStyle("-fx-background-color: #1E293B; -fx-background-radius: 12; -fx-padding: 15;");
 
+        Label title = new Label("📋 Vos offres sauvegardées");
+        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Region spacer1 = new Region();
+        HBox.setHgrow(spacer1, Priority.ALWAYS);
+
+        Button selectAllBtn = new Button("✓ Tout sélectionner");
+        selectAllBtn.setStyle(
+                "-fx-background-color: #334155;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 8 16;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-cursor: hand;"
+        );
+        selectAllBtn.setOnAction(e -> selectAllOffers(true, null));
+
+        Button deselectAllBtn = new Button("✗ Tout désélectionner");
+        deselectAllBtn.setStyle(
+                "-fx-background-color: #475569;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 8 16;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-cursor: hand;"
+        );
+        deselectAllBtn.setOnAction(e -> selectAllOffers(false, null));
+
+        // ✅ BOUTON COMPARER DANS LA MÊME LIGNE
+        Button compareBtn = new Button("🔍 Comparer");
+        compareBtn.setStyle(
+                "-fx-background-color: #6366F1;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 8 20;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-cursor: hand;"
+        );
+
+        topControls.getChildren().addAll(title, spacer1, selectAllBtn, deselectAllBtn, compareBtn);
+
+        mainContainer.getChildren().add(topControls);
+
+        // ===== 2. FLOWPACE AVEC LES CARTES =====
         FlowPane cardsFlow = new FlowPane();
         cardsFlow.setHgap(20);
         cardsFlow.setVgap(20);
         cardsFlow.setAlignment(Pos.TOP_CENTER);
         cardsFlow.setPadding(new Insets(10, 0, 10, 0));
+        cardsFlow.setPrefWrapLength(1200);
 
         Map<Offer, CheckBox> selectionMap = new HashMap<>();
 
         for (Offer offer : saved) {
             VBox card = createOfferCard(offer);
 
-            // Créer le nouvel en-tête avec checkbox
             HBox cardHeader = new HBox(10);
             cardHeader.setAlignment(Pos.CENTER_LEFT);
 
@@ -351,17 +406,10 @@ public class CandidateApplicationCardController implements Initializable {
             selectCB.setUserData(offer);
             selectionMap.put(offer, selectCB);
 
-            // ✅ Récupérer le TITRE qui est dans l'ancien header
-            // L'ancien header est le premier enfant de la carte
             HBox oldHeader = (HBox) card.getChildren().get(0);
-
-            // Le titre est le premier élément de l'ancien header
             Label titleLabel = (Label) oldHeader.getChildren().get(0);
 
-            // Recréer le header avec checkbox + titre
             cardHeader.getChildren().addAll(selectCB, titleLabel);
-
-            // Remplacer l'ancien header par le nouveau
             card.getChildren().set(0, cardHeader);
 
             cardsFlow.getChildren().add(card);
@@ -369,20 +417,8 @@ public class CandidateApplicationCardController implements Initializable {
 
         mainContainer.getChildren().add(cardsFlow);
 
-        Button compareBtn = new Button("🔍 Comparer les offres sélectionnées");
-        compareBtn.setStyle(
-                "-fx-background-color: #6366F1;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-padding: 12 24;" +
-                        "-fx-background-radius: 8;" +
-                        "-fx-font-size: 16px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-cursor: hand;"
-        );
-        compareBtn.setMaxWidth(400);
+        // ===== 3. Configurer l'action du bouton comparer =====
         compareBtn.setOnAction(e -> showComparisonView(selectionMap));
-
-        mainContainer.getChildren().add(compareBtn);
 
         offersCardsContainer.getChildren().clear();
         offersCardsContainer.getChildren().add(mainContainer);
@@ -486,14 +522,18 @@ public class CandidateApplicationCardController implements Initializable {
         container.setStyle("-fx-background-color: #0F172A; -fx-padding: 20;");
         container.setAlignment(Pos.TOP_CENTER);
 
+        // ===== EN-TÊTE AVEC BOUTON RETOUR =====
         HBox headerBox = new HBox(15);
         headerBox.setAlignment(Pos.CENTER_LEFT);
-        headerBox.setPadding(new Insets(0, 0, 10, 0));
+        headerBox.setPadding(new Insets(10, 0, 20, 0));
+        headerBox.setStyle("-fx-background-color: #1E293B; -fx-background-radius: 16; -fx-padding: 15;");
 
-        Button backBtn = new Button("← Retour aux sauvegardes");
+        Button backBtn = new Button("← Retour à la liste");
         backBtn.setStyle(
-                "-fx-background-color: transparent;" +
-                        "-fx-text-fill: #94A3B8;" +
+                "-fx-background-color: #334155;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 8 16;" +
+                        "-fx-background-radius: 8;" +
                         "-fx-font-size: 14px;" +
                         "-fx-cursor: hand;"
         );
@@ -507,18 +547,25 @@ public class CandidateApplicationCardController implements Initializable {
         });
 
         Label titleLabel = new Label("📊 Comparaison d'offres");
-        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+        titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        headerBox.getChildren().addAll(backBtn, spacer, titleLabel);
+        // Icône d'information
+        Label infoIcon = new Label("ⓘ");
+        infoIcon.setStyle("-fx-font-size: 18px; -fx-text-fill: #94A3B8; -fx-cursor: hand;");
+        Tooltip infoTooltip = new Tooltip("Comparez les offres côte à côte\nLes scores sont calculés automatiquement");
+        infoIcon.setTooltip(infoTooltip);
 
+        headerBox.getChildren().addAll(backBtn, spacer, titleLabel, infoIcon);
+
+        // ===== TABLEAU DE COMPARAISON =====
         GridPane comparisonGrid = new GridPane();
         comparisonGrid.setHgap(15);
         comparisonGrid.setVgap(15);
         comparisonGrid.setPadding(new Insets(20));
-        comparisonGrid.setStyle("-fx-background-color: #1E293B; -fx-background-radius: 16;");
+        comparisonGrid.setStyle("-fx-background-color: #1E293B; -fx-background-radius: 16; -fx-border-color: #334155; -fx-border-width: 1;");
 
         int colCount = offers.size() + 1;
         for (int i = 0; i < colCount; i++) {
@@ -527,122 +574,258 @@ public class CandidateApplicationCardController implements Initializable {
             comparisonGrid.getColumnConstraints().add(col);
         }
 
-        comparisonGrid.add(createHeaderCell("Critère"), 0, 0);
+        // En-têtes des offres avec style amélioré
+        comparisonGrid.add(createStyledHeaderCell("Critère", true), 0, 0);
         for (int i = 0; i < offers.size(); i++) {
             comparisonGrid.add(createOfferHeaderCell(offers.get(i)), i + 1, 0);
         }
 
-        addComparisonRow(comparisonGrid, "Département",
+        // Lignes de comparaison avec icônes
+        addStyledComparisonRow(comparisonGrid, "🏢 Département",
                 offers.stream().map(Offer::getDepartment).toList(), 1);
-        addComparisonRow(comparisonGrid, "Type de contrat",
+        addStyledComparisonRow(comparisonGrid, "📄 Type de contrat",
                 offers.stream().map(Offer::getContractType).toList(), 2);
-        addComparisonRow(comparisonGrid, "Niveau",
+        addStyledComparisonRow(comparisonGrid, "📊 Niveau",
                 offers.stream().map(Offer::getExperienceLevel).toList(), 3);
-        addComparisonRow(comparisonGrid, "Salaire min",
+        addStyledComparisonRow(comparisonGrid, "💰 Salaire min",
                 offers.stream().map(o -> String.format("%.0f DT", o.getSalaryMin())).toList(), 4);
-        addComparisonRow(comparisonGrid, "Salaire max",
+        addStyledComparisonRow(comparisonGrid, "💰 Salaire max",
                 offers.stream().map(o -> String.format("%.0f DT", o.getSalaryMax())).toList(), 5);
-        addComparisonRow(comparisonGrid, "Localisation",
+        addStyledComparisonRow(comparisonGrid, "📍 Localisation",
                 offers.stream().map(Offer::getLocation).toList(), 6);
-        addComparisonRow(comparisonGrid, "Date limite",
+        addStyledComparisonRow(comparisonGrid, "⏰ Date limite",
                 offers.stream().map(o -> o.getClosingDate().format(dateFormatter)).toList(), 7);
-        addComparisonRow(comparisonGrid, "Candidatures",
+        addStyledComparisonRow(comparisonGrid, "👥 Candidatures",
                 offers.stream().map(o -> String.valueOf(o.getApplicationsReceived())).toList(), 8);
 
-        addScoreRow(comparisonGrid, offers, 9);
+        // Ligne des scores avec design amélioré
+        addStyledScoreRow(comparisonGrid, offers, 9);
 
-        container.getChildren().addAll(headerBox, comparisonGrid);
+        // ===== BOUTONS D'ACTION =====
+        HBox actionsBox = new HBox(15);
+        actionsBox.setAlignment(Pos.CENTER_RIGHT);
+        actionsBox.setPadding(new Insets(20, 0, 0, 0));
+
+        Button postulerBtn = new Button("📝 Postuler aux offres sélectionnées");
+        postulerBtn.setStyle(
+                "-fx-background-color: #10B981;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 12 24;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-cursor: hand;"
+        );
+        postulerBtn.setOnAction(e -> showMassApplication(offers));
+
+
+        actionsBox.getChildren().addAll( postulerBtn);
+
+        container.getChildren().addAll(headerBox, comparisonGrid, actionsBox);
 
         return container;
     }
 
-    private StackPane createHeaderCell(String text) {
+    private StackPane createStyledHeaderCell(String text, boolean isMainHeader) {
         Label label = new Label(text);
-        label.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #94A3B8;");
+        if (isMainHeader) {
+            label.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+        } else {
+            label.setStyle("-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #94A3B8;");
+        }
         label.setAlignment(Pos.CENTER);
+        label.setWrapText(true);
 
         StackPane cell = new StackPane(label);
         cell.setPadding(new Insets(15));
-        cell.setStyle("-fx-background-color: #334155; -fx-border-color: #475569; -fx-border-width: 1;");
-        cell.setPrefHeight(60);
+        cell.setStyle(
+                "-fx-background-color: " + (isMainHeader ? "#2D3A4F" : "#334155") + ";" +
+                        "-fx-border-color: #475569;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-background-radius: 8 8 0 0;"
+        );
+        cell.setPrefHeight(isMainHeader ? 70 : 60);
+
+        return cell;
+    }
+
+    private StackPane createStyledCell(String text, String icon) {
+        HBox content = new HBox(8);
+        content.setAlignment(Pos.CENTER_LEFT);
+        content.setPadding(new Insets(0, 5, 0, 5));
+
+        Label iconLabel = new Label(icon);
+        iconLabel.setStyle("-fx-font-size: 16px; -fx-min-width: 30;");
+
+        Label textLabel = new Label(text != null ? text : "N/A");
+        textLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #E2E8F0;");
+        textLabel.setWrapText(true);
+
+        content.getChildren().addAll(iconLabel, textLabel);
+
+        StackPane cell = new StackPane(content);
+        cell.setPadding(new Insets(15));
+        cell.setStyle(
+                "-fx-background-color: #0F172A;" +
+                        "-fx-border-color: #334155;" +
+                        "-fx-border-width: 1;"
+        );
+        cell.setPrefHeight(80);
+
+        // Effet de survol
+        cell.setOnMouseEntered(e ->
+                cell.setStyle("-fx-background-color: #1E293B; -fx-border-color: #6366F1; -fx-border-width: 1;")
+        );
+        cell.setOnMouseExited(e ->
+                cell.setStyle("-fx-background-color: #0F172A; -fx-border-color: #334155; -fx-border-width: 1;")
+        );
 
         return cell;
     }
 
     private StackPane createOfferHeaderCell(Offer offer) {
-        VBox content = new VBox(5);
+        VBox content = new VBox(8);
         content.setAlignment(Pos.CENTER);
+        content.setPadding(new Insets(5));
 
         Label titleLabel = new Label(offer.getTitle());
-        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+        titleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
         titleLabel.setWrapText(true);
+        titleLabel.setAlignment(Pos.CENTER);
+
+        HBox badgesBox = new HBox(8);
+        badgesBox.setAlignment(Pos.CENTER);
 
         Label bookmarkLabel = new Label("🔖");
         bookmarkLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #FBBF24;");
+        bookmarkLabel.setTooltip(new Tooltip("Offre sauvegardée"));
 
-        content.getChildren().addAll(titleLabel, bookmarkLabel);
+        Label scorePreview = new Label(calculateMatchScore(offer) + "");
+        scorePreview.setStyle(
+                "-fx-background-color: " + getScoreColor(calculateMatchScore(offer)) + "20;" +
+                        "-fx-text-fill: " + getScoreColor(calculateMatchScore(offer)) + ";" +
+                        "-fx-padding: 2 6;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: bold;"
+        );
+
+        badgesBox.getChildren().addAll(bookmarkLabel, scorePreview);
+
+        content.getChildren().addAll(titleLabel, badgesBox);
 
         StackPane cell = new StackPane(content);
         cell.setPadding(new Insets(15));
-        cell.setStyle("-fx-background-color: #1E293B; -fx-border-color: #6366F1; -fx-border-width: 2;");
-        cell.setPrefHeight(100);
+        cell.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #1E293B, #0F172A);" +
+                        "-fx-border-color: #6366F1;" +
+                        "-fx-border-width: 2;" +
+                        "-fx-background-radius: 12 12 0 0;"
+        );
+        cell.setPrefHeight(120);
 
         return cell;
     }
 
-    private StackPane createCell(String text) {
-        Label label = new Label(text != null ? text : "N/A");
-        label.setStyle("-fx-font-size: 13px; -fx-text-fill: #E2E8F0;");
-        label.setWrapText(true);
-        label.setAlignment(Pos.CENTER);
-
-        StackPane cell = new StackPane(label);
-        cell.setPadding(new Insets(15));
-        cell.setStyle("-fx-background-color: #0F172A; -fx-border-color: #334155; -fx-border-width: 1;");
-        cell.setPrefHeight(80);
-
-        return cell;
-    }
-
-    private void addComparisonRow(GridPane grid, String label, List<String> values, int row) {
-        grid.add(createHeaderCell(label), 0, row);
+    private void addStyledComparisonRow(GridPane grid, String header, List<String> values, int row) {
+        grid.add(createStyledHeaderCell(header, false), 0, row);
         for (int i = 0; i < values.size(); i++) {
-            grid.add(createCell(values.get(i)), i + 1, row);
+            String icon = getIconForHeader(header);
+            grid.add(createStyledCell(values.get(i), icon), i + 1, row);
         }
     }
 
-    private void addScoreRow(GridPane grid, List<Offer> offers, int row) {
-        grid.add(createHeaderCell("🌟 Score"), 0, row);
+    private String getIconForHeader(String header) {
+        if (header.contains("Département")) return "🏢";
+        if (header.contains("contrat")) return "📄";
+        if (header.contains("Niveau")) return "📊";
+        if (header.contains("Salaire min")) return "⬇️";
+        if (header.contains("Salaire max")) return "⬆️";
+        if (header.contains("Localisation")) return "📍";
+        if (header.contains("Date")) return "⏰";
+        if (header.contains("Candidatures")) return "👥";
+        return "•";
+    }
+
+    private void addStyledScoreRow(GridPane grid, List<Offer> offers, int row) {
+        grid.add(createStyledHeaderCell("🌟 Score", false), 0, row);
 
         for (int i = 0; i < offers.size(); i++) {
             Offer offer = offers.get(i);
             double score = calculateMatchScore(offer);
 
-            VBox scoreBox = new VBox(8);
+            VBox scoreBox = new VBox(10);
             scoreBox.setAlignment(Pos.CENTER);
+            scoreBox.setPadding(new Insets(10));
+
+            // Cercle de progression
+            StackPane scoreCircle = new StackPane();
+            scoreCircle.setPrefSize(70, 70);
+
+            Circle background = new Circle(32);
+            background.setFill(null);
+            background.setStroke(Color.rgb(51, 65, 85));  // Maintenant Color est reconnu
+            background.setStrokeWidth(4);
+
+            double angle = 360 * (score / 100.0);
+            Arc progressArc = new Arc(32, 32, 28, 28, 90, -angle);
+            progressArc.setFill(null);
+            progressArc.setStroke(Color.web(getScoreColor(score)));
+            progressArc.setStrokeWidth(4);
+            progressArc.setStrokeLineCap(StrokeLineCap.ROUND);
+            progressArc.setType(ArcType.OPEN);
 
             Label scoreLabel = new Label(String.format("%.0f", score));
-            scoreLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: " +
-                    getScoreColor(score) + ";");
+            scoreLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: " + getScoreColor(score) + ";");
 
+            // ✅ Correction : ajouter background ET progressArc
+            scoreCircle.getChildren().addAll(background, progressArc, scoreLabel);
+
+            // Barre de progression alternative
             ProgressBar progressBar = new ProgressBar(score / 100);
             progressBar.setPrefWidth(100);
             progressBar.setStyle("-fx-accent: " + getScoreColor(score) + ";");
 
             Label levelLabel = new Label(getScoreLevel(score));
-            levelLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #94A3B8;");
+            levelLabel.setStyle(
+                    "-fx-background-color: " + getScoreColor(score) + "20;" +
+                            "-fx-text-fill: " + getScoreColor(score) + ";" +
+                            "-fx-padding: 4 8;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-font-size: 11px;" +
+                            "-fx-font-weight: bold;"
+            );
 
-            scoreBox.getChildren().addAll(scoreLabel, progressBar, levelLabel);
+            scoreBox.getChildren().addAll(scoreCircle, progressBar, levelLabel);
 
             StackPane cell = new StackPane(scoreBox);
             cell.setPadding(new Insets(15));
-            cell.setStyle("-fx-background-color: #0F172A; -fx-border-color: #334155; -fx-border-width: 1;");
-            cell.setPrefHeight(120);
+            cell.setStyle(
+                    "-fx-background-color: #0F172A;" +
+                            "-fx-border-color: #334155;" +
+                            "-fx-border-width: 1;" +
+                            "-fx-background-radius: 0 0 8 8;"
+            );
+            cell.setPrefHeight(200);
 
             grid.add(cell, i + 1, row);
         }
     }
+    private void showMassApplication(List<Offer> offers) {
+        // Ouvrir un formulaire pour postuler à plusieurs offres
+        showAlert("Postulation multiple",
+                "Vous allez postuler à " + offers.size() + " offres.\n" +
+                        "Cette fonctionnalité sera bientôt disponible !",
+                Alert.AlertType.INFORMATION);
+    }
 
+    private void exportComparison(List<Offer> offers) {
+        // Exporter la comparaison en PDF/Excel
+        showAlert("Export",
+                "Export de la comparaison en cours...\n" +
+                        "Cette fonctionnalité sera bientôt disponible !",
+                Alert.AlertType.INFORMATION);
+    }
     private double calculateMatchScore(Offer offer) {
         double score = 60;
         score += Math.min(offer.getApplicationsReceived() * 2, 20);
