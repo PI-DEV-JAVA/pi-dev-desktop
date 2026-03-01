@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="talentos.pidev.controllers.MarketTrendsController"
+            styleClass="content">
+
+    <top>
+        <VBox spacing="16" styleClass="card">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="📈 Tendances du marché" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Secteur :" style="-fx-text-fill: #94A3B8;"/>
+                <ComboBox fx:id="industrySelector" prefWidth="150"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent;">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <VBox spacing="25">
+                <!-- Titre et taux de croissance -->
+                <HBox spacing="20" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #1E293B; -fx-background-radius: 16; -fx-padding: 20;">
+                    <Label fx:id="trendTitle" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="Croissance :" style="-fx-text-fill: #94A3B8;"/>
+                    <Label fx:id="growthRateLabel" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+                </HBox>
+
+                <!-- Compétences tendance -->
+                <VBox spacing="15">
+                    <Label text="🔥 Compétences les plus demandées"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;"/>
+                    <VBox fx:id="skillsContainer" spacing="10"/>
+                </VBox>
+
+                <!-- Mots-clés tendance -->
+                <VBox spacing="15">
+                    <Label text="🔍 Mots-clés tendance"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;"/>
+                    <VBox fx:id="keywordsContainer" spacing="10"/>
+                </VBox>
+
+                <!-- Actualités récentes -->
+                <VBox spacing="15">
+                    <Label text="📰 Actualités du secteur"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;"/>
+                    <VBox fx:id="newsContainer" spacing="10"/>
+                </VBox>
+
+                <!-- Indicateur de chargement -->
+                <ProgressIndicator fx:id="loadingIndicator"
+                                   prefWidth="50"
+                                   prefHeight="50"
+                                   visible="false"
+                                   style="-fx-progress-color: #6366F1;"/>
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

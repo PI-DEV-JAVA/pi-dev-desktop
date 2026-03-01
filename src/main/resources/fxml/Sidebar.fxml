@@ -52,6 +52,8 @@
         <Button text="📁  Projets" onAction="#handleProjects" styleClass="sidebar-button" maxWidth="Infinity"/>
         <Button text="👤  Espace candidat" onAction="#handleCandidateView" styleClass="sidebar-button" maxWidth="Infinity"/>
 
+        <Button text="📈  Tendances marché" onAction="#handleMarketTrends"
+                styleClass="sidebar-button" maxWidth="Infinity"/>
         <Separator>
             <padding>
                 <Insets top="10" bottom="10"/>

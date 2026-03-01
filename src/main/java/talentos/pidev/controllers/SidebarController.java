@@ -53,6 +53,12 @@ public class SidebarController {
         MainLayoutController.getInstance()
                 .navigate("placeholder.fxml", "Rapports");
     }
+    // Dans SidebarController.java
+    @FXML
+    private void handleMarketTrends() {
+        MainLayoutController.getInstance()
+                .navigate("MarketTrendsView.fxml", "Tendances du marché");
+    }
 
     @FXML
     private void handleSettings() {
