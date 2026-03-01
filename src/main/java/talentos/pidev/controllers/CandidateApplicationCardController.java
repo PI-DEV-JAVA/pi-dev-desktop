@@ -812,20 +812,568 @@ public class CandidateApplicationCardController implements Initializable {
         }
     }
     private void showMassApplication(List<Offer> offers) {
-        // Ouvrir un formulaire pour postuler à plusieurs offres
-        showAlert("Postulation multiple",
-                "Vous allez postuler à " + offers.size() + " offres.\n" +
-                        "Cette fonctionnalité sera bientôt disponible !",
-                Alert.AlertType.INFORMATION);
+        if (offers == null || offers.isEmpty()) {
+            showAlert("Information", "Aucune offre à traiter", Alert.AlertType.INFORMATION);
+            return;
+        }
+
+        // Vider le conteneur et afficher le formulaire
+        offersCardsContainer.getChildren().clear();
+        VBox massApplicationForm = createMassApplicationForm(offers);
+        offersCardsContainer.getChildren().add(massApplicationForm);
+    }
+    private VBox createMassApplicationForm(List<Offer> offers) {
+        VBox container = new VBox(25);
+        container.setStyle("-fx-background-color: #0F172A; -fx-padding: 30; -fx-background-radius: 16;");
+        container.setMaxWidth(900);
+        container.setAlignment(Pos.TOP_CENTER);
+
+        // ===== EN-TÊTE AVEC BOUTON RETOUR =====
+        HBox headerBox = new HBox(15);
+        headerBox.setAlignment(Pos.CENTER_LEFT);
+
+        Button backBtn = new Button("← Retour aux offres");
+        backBtn.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-text-fill: #94A3B8;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-cursor: hand;"
+        );
+        backBtn.setOnAction(e -> backToOffers());
+
+        Label titleLabel = new Label("📝 Postulation multiple");
+        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Label countLabel = new Label("(" + offers.size() + " offres)");
+        countLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #A5B4FC;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        headerBox.getChildren().addAll(backBtn, spacer, titleLabel, countLabel);
+
+        // ===== LISTE DES OFFRES SÉLECTIONNÉES AVEC DESIGN AMÉLIORÉ =====
+        // ===== LISTE DES OFFRES SÉLECTIONNÉES AVEC DESIGN AMÉLIORÉ =====
+        VBox offersBox = new VBox(15);
+        offersBox.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-padding: 20;" +
+                        "-fx-border-color: #334155;" +
+                        "-fx-border-width: 1;"
+        );
+
+// En-tête avec icône et compteur
+        HBox offersHeader = new HBox(10);
+        offersHeader.setAlignment(Pos.CENTER_LEFT);
+
+        Label offersIcon = new Label("📋");
+        offersIcon.setStyle("-fx-font-size: 20px;");
+
+        Label offersTitle = new Label("Offres sélectionnées");
+        offersTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        Region offersSpacer = new Region();
+        HBox.setHgrow(offersSpacer, Priority.ALWAYS);
+
+// Badge avec le nombre d'offres
+        Label countBadge = new Label(offers.size() + " offre" + (offers.size() > 1 ? "s" : ""));
+        countBadge.setStyle(
+                "-fx-background-color: #6366F1;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 5 12;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-font-weight: bold;"
+        );
+
+        offersHeader.getChildren().addAll(offersIcon, offersTitle, offersSpacer, countBadge);
+
+// ✅ Liste des offres SANS ScrollPane
+        VBox offersList = new VBox(10);
+        offersList.setPadding(new Insets(5, 0, 0, 0));
+        offersList.setMaxHeight(400); // Hauteur max (ajuste selon besoin)
+        offersList.setStyle("-fx-background-color: transparent;");
+
+        for (int i = 0; i < offers.size(); i++) {
+            Offer offer = offers.get(i);
+
+            // Carte pour chaque offre
+            HBox offerCard = new HBox(15);
+            offerCard.setStyle(
+                    "-fx-background-color: #0F172A;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-padding: 12 15;" +
+                            "-fx-border-color: #334155;" +
+                            "-fx-border-radius: 12;" +
+                            "-fx-border-width: 1;"
+            );
+            offerCard.setAlignment(Pos.CENTER_LEFT);
+            offerCard.setMaxWidth(Double.MAX_VALUE);
+
+            // Numéro
+            Label numberLabel = new Label(String.valueOf(i + 1));
+            numberLabel.setStyle(
+                    "-fx-background-color: #334155;" +
+                            "-fx-text-fill: #94A3B8;" +
+                            "-fx-min-width: 24;" +
+                            "-fx-min-height: 24;" +
+                            "-fx-max-width: 24;" +
+                            "-fx-max-height: 24;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-font-size: 12px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-alignment: center;"
+            );
+
+            // Icône selon le département
+            String deptIcon = getDepartmentIcon(offer.getDepartment());
+            Label deptIconLabel = new Label(deptIcon);
+            deptIconLabel.setStyle("-fx-font-size: 18px; -fx-min-width: 30;");
+
+            // Informations de l'offre
+            VBox offerInfo = new VBox(3);
+            HBox.setHgrow(offerInfo, Priority.ALWAYS);
+
+            Label offerTitleLabel = new Label(offer.getTitle());
+            offerTitleLabel.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+            HBox detailsRow = new HBox(10);
+            detailsRow.setAlignment(Pos.CENTER_LEFT);
+
+            Label deptLabel = new Label(offer.getDepartment());
+            deptLabel.setStyle(
+                    "-fx-background-color: " + getDepartmentColor(offer.getDepartment()) + "20;" +
+                            "-fx-text-fill: " + getDepartmentColor(offer.getDepartment()) + ";" +
+                            "-fx-padding: 2 8;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-font-size: 11px;" +
+                            "-fx-font-weight: bold;"
+            );
+
+            Label contractLabel = new Label(offer.getContractType());
+            contractLabel.setStyle(
+                    "-fx-background-color: #334155;" +
+                            "-fx-text-fill: #94A3B8;" +
+                            "-fx-padding: 2 8;" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-font-size: 11px;"
+            );
+
+            Label locationLabel = new Label("📍 " + offer.getLocation());
+            locationLabel.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 11px;");
+
+            detailsRow.getChildren().addAll(deptLabel, contractLabel, locationLabel);
+
+            offerInfo.getChildren().addAll(offerTitleLabel, detailsRow);
+
+            Region offerSpacer = new Region();
+            HBox.setHgrow(offerSpacer, Priority.ALWAYS);
+
+            // Badge de salaire
+            Label salaryLabel = new Label(String.format("%.0fk-%.0fk",
+                    offer.getSalaryMin()/1000, offer.getSalaryMax()/1000));
+            salaryLabel.setStyle(
+                    "-fx-text-fill: #34D399;" +
+                            "-fx-font-size: 13px;" +
+                            "-fx-font-weight: bold;"
+            );
+            salaryLabel.setMinWidth(70);
+            salaryLabel.setAlignment(Pos.CENTER_RIGHT);
+
+            offerCard.getChildren().addAll(numberLabel, deptIconLabel, offerInfo, offerSpacer, salaryLabel);
+
+            // Effet de survol
+            offerCard.setOnMouseEntered(e ->
+                    offerCard.setStyle(
+                            "-fx-background-color: #1E293B;" +
+                                    "-fx-background-radius: 12;" +
+                                    "-fx-padding: 12 15;" +
+                                    "-fx-border-color: #6366F1;" +
+                                    "-fx-border-radius: 12;" +
+                                    "-fx-border-width: 1;"
+                    )
+            );
+
+            offerCard.setOnMouseExited(e ->
+                    offerCard.setStyle(
+                            "-fx-background-color: #0F172A;" +
+                                    "-fx-background-radius: 12;" +
+                                    "-fx-padding: 12 15;" +
+                                    "-fx-border-color: #334155;" +
+                                    "-fx-border-radius: 12;" +
+                                    "-fx-border-width: 1;"
+                    )
+            );
+
+            offersList.getChildren().add(offerCard);
+        }
+
+        offersBox.getChildren().addAll(offersHeader, offersList);
+        // ===== FORMULAIRE CANDIDAT =====
+        VBox formBox = new VBox(15);
+        formBox.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-padding: 20;"
+        );
+
+        Label formTitle = new Label("👤 Vos informations");
+        formTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        GridPane formGrid = new GridPane();
+        formGrid.setHgap(15);
+        formGrid.setVgap(15);
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(30);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(70);
+        formGrid.getColumnConstraints().addAll(col1, col2);
+
+        int row = 0;
+
+        // Nom
+        Label nameLabel = new Label("Nom complet *");
+        nameLabel.setStyle("-fx-text-fill: #94A3B8; -fx-font-weight: 600;");
+
+        TextField nameField = new TextField();
+        nameField.setPromptText("Votre nom et prénom");
+        nameField.setStyle("-fx-background-color: #0F172A; -fx-text-fill: #E2E8F0; -fx-border-color: #334155; -fx-border-radius: 8; -fx-padding: 10;");
+
+        Label nameError = new Label();
+        nameError.setStyle("-fx-text-fill: #EF4444; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox nameBox = new VBox(3);
+        nameBox.getChildren().addAll(nameField, nameError);
+        formGrid.add(nameLabel, 0, row);
+        formGrid.add(nameBox, 1, row++);
+
+        // Email
+        Label emailLabel = new Label("Email *");
+        emailLabel.setStyle("-fx-text-fill: #94A3B8; -fx-font-weight: 600;");
+
+        TextField emailField = new TextField();
+        emailField.setPromptText("exemple@email.com");
+        emailField.setStyle("-fx-background-color: #0F172A; -fx-text-fill: #E2E8F0; -fx-border-color: #334155; -fx-border-radius: 8; -fx-padding: 10;");
+
+        Label emailError = new Label();
+        emailError.setStyle("-fx-text-fill: #EF4444; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        VBox emailBox = new VBox(3);
+        emailBox.getChildren().addAll(emailField, emailError);
+        formGrid.add(emailLabel, 0, row);
+        formGrid.add(emailBox, 1, row++);
+
+        // Téléphone (optionnel)
+        Label phoneLabel = new Label("Téléphone");
+        phoneLabel.setStyle("-fx-text-fill: #94A3B8; -fx-font-weight: 600;");
+
+        TextField phoneField = new TextField();
+        phoneField.setPromptText("+216 XX XXX XXX");
+        phoneField.setStyle("-fx-background-color: #0F172A; -fx-text-fill: #E2E8F0; -fx-border-color: #334155; -fx-border-radius: 8; -fx-padding: 10;");
+
+        formGrid.add(phoneLabel, 0, row);
+        formGrid.add(phoneField, 1, row++);
+
+        formBox.getChildren().addAll(formTitle, formGrid);
+
+        // ===== CV =====
+        VBox cvBox = new VBox(15);
+        cvBox.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-padding: 20;"
+        );
+
+        Label cvTitle = new Label("📎 Curriculum Vitae *");
+        cvTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        HBox cvUploadBox = new HBox(15);
+        cvUploadBox.setAlignment(Pos.CENTER_LEFT);
+
+        Button chooseCVBtn = new Button("Choisir un fichier");
+        chooseCVBtn.setStyle(
+                "-fx-background-color: #334155;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 10 20;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-cursor: hand;"
+        );
+
+        Label cvFileName = new Label("Aucun fichier sélectionné");
+        cvFileName.setStyle("-fx-text-fill: #64748B;");
+
+        Label cvError = new Label();
+        cvError.setStyle("-fx-text-fill: #EF4444; -fx-font-size: 11px; -fx-padding: 2 0 0 5;");
+
+        final String[] cvPath = {null};
+
+        cvUploadBox.getChildren().addAll(chooseCVBtn, cvFileName);
+        cvBox.getChildren().addAll(cvTitle, cvUploadBox, cvError);
+
+        // ===== LETTRE DE MOTIVATION =====
+        VBox motivationBox = new VBox(15);
+        motivationBox.setStyle(
+                "-fx-background-color: #1E293B;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-padding: 20;"
+        );
+
+        Label motivationTitle = new Label("💌 Lettre de motivation");
+        motivationTitle.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F1F5F9;");
+
+        TextArea motivationArea = new TextArea();
+        motivationArea.setPromptText("Lettre commune pour toutes les candidatures...");
+        motivationArea.setPrefRowCount(5);
+        motivationArea.setWrapText(true);
+        motivationArea.setStyle("-fx-background-color: #0F172A; -fx-text-fill: #E2E8F0; -fx-border-color: #334155; -fx-border-radius: 8; -fx-padding: 10;");
+
+        motivationBox.getChildren().addAll(motivationTitle, motivationArea);
+
+        // ===== BOUTONS =====
+        HBox buttonBox = new HBox(15);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+        buttonBox.setPadding(new Insets(20, 0, 0, 0));
+
+        Button cancelBtn = new Button("Annuler");
+        cancelBtn.setStyle(
+                "-fx-background-color: #475569;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 12 24;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-cursor: hand;"
+        );
+        cancelBtn.setOnAction(e -> backToOffers());
+
+        // ✅ Créer submitBtn ICI avant de l'utiliser dans les listeners
+        Button submitBtn = new Button("📤 Envoyer les candidatures");
+        submitBtn.setStyle(
+                "-fx-background-color: linear-gradient(to right, #6366F1, #06B6D4);" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 12 24;" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-cursor: hand;"
+        );
+        submitBtn.setDisable(true);
+
+        buttonBox.getChildren().addAll(cancelBtn, submitBtn);
+
+        // ===== CONFIGURATION DU CHOIX DE FICHIER =====
+        chooseCVBtn.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Choisir votre CV");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Documents PDF", "*.pdf"),
+                    new FileChooser.ExtensionFilter("Documents Word", "*.doc", "*.docx"),
+                    new FileChooser.ExtensionFilter("Fichiers texte", "*.txt")
+            );
+
+            File file = fileChooser.showOpenDialog(null);
+            if (file != null) {
+                cvPath[0] = file.getAbsolutePath();
+                cvFileName.setText("📄 " + file.getName());
+                cvFileName.setStyle("-fx-text-fill: #34D399; -fx-font-weight: bold;");
+                chooseCVBtn.setStyle(
+                        "-fx-background-color: #10B981;" +
+                                "-fx-text-fill: white;" +
+                                "-fx-padding: 10 20;" +
+                                "-fx-background-radius: 8;" +
+                                "-fx-cursor: hand;"
+                );
+            }
+            // ✅ Maintenant submitBtn est accessible
+            validateMassForm(nameField, emailField, cvPath[0], submitBtn, nameError, emailError, cvError);
+        });
+
+        // ===== VALIDATION EN TEMPS RÉEL =====
+        // ✅ Créer un Runnable pour la validation
+        Runnable validate = () -> validateMassForm(nameField, emailField, cvPath[0], submitBtn, nameError, emailError, cvError);
+
+        nameField.textProperty().addListener((obs, old, newVal) -> validate.run());
+        emailField.textProperty().addListener((obs, old, newVal) -> validate.run());
+
+        // Validation initiale
+        validate.run();
+
+        // ===== ACTION DU BOUTON SOUMETTRE =====
+        submitBtn.setOnAction(e -> {
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("name", nameField.getText().trim());
+            userData.put("email", emailField.getText().trim());
+            userData.put("phone", phoneField.getText().trim());
+            userData.put("cvPath", cvPath[0]);
+            userData.put("motivation", motivationArea.getText().trim());
+
+            submitMassApplications(offers, cvPath[0], userData);
+        });
+
+        // Assemblage final
+        container.getChildren().addAll(
+                headerBox,
+                offersBox,
+                formBox,
+                cvBox,
+                motivationBox,
+                buttonBox
+        );
+
+        return container;
+    }
+    private String getDepartmentIcon(String department) {
+        switch (department) {
+            case "IT": return "💻";
+            case "RH": return "👥";
+            case "Finance": return "💰";
+            case "Marketing": return "📊";
+            case "Production": return "🏭";
+            case "Logistique": return "📦";
+            case "Commerce": return "🛒";
+            default: return "📋";
+        }
     }
 
-    private void exportComparison(List<Offer> offers) {
-        // Exporter la comparaison en PDF/Excel
-        showAlert("Export",
-                "Export de la comparaison en cours...\n" +
-                        "Cette fonctionnalité sera bientôt disponible !",
-                Alert.AlertType.INFORMATION);
+    private String getDepartmentColor(String department) {
+        switch (department) {
+            case "IT": return "#3B82F6";
+            case "RH": return "#10B981";
+            case "Finance": return "#F59E0B";
+            case "Marketing": return "#EC4899";
+            case "Production": return "#8B5CF6";
+            case "Logistique": return "#6366F1";
+            case "Commerce": return "#EF4444";
+            default: return "#94A3B8";
+        }
     }
+    private void validateMassForm(TextField nameField, TextField emailField, String cvPath,
+                                  Button submitBtn, Label nameError, Label emailError, Label cvError) {
+        boolean isValid = true;
+
+        // Validation nom
+        String name = nameField.getText().trim();
+        if (name.isEmpty()) {
+            nameError.setText("❌ Le nom est obligatoire");
+            nameField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: #0F172A;");
+            isValid = false;
+        } else if (name.length() < 3) {
+            nameError.setText("❌ Minimum 3 caractères");
+            nameField.setStyle("-fx-border-color: #F59E0B; -fx-border-width: 2; -fx-background-color: #0F172A;");
+            isValid = false;
+        } else {
+            nameError.setText("✅ Valide");
+            nameError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px;");
+            nameField.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: #0F172A;");
+        }
+
+        // Validation email
+        String email = emailField.getText().trim();
+        if (email.isEmpty()) {
+            emailError.setText("❌ L'email est obligatoire");
+            emailField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: #0F172A;");
+            isValid = false;
+        } else if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            emailError.setText("❌ Format invalide");
+            emailField.setStyle("-fx-border-color: #EF4444; -fx-border-width: 2; -fx-background-color: #0F172A;");
+            isValid = false;
+        } else {
+            emailError.setText("✅ Valide");
+            emailError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px;");
+            emailField.setStyle("-fx-border-color: #10B981; -fx-border-width: 2; -fx-background-color: #0F172A;");
+        }
+
+        // Validation CV
+        if (cvPath == null) {
+            cvError.setText("❌ CV obligatoire");
+            isValid = false;
+        } else {
+            cvError.setText("✅ CV sélectionné");
+            cvError.setStyle("-fx-text-fill: #10B981; -fx-font-size: 11px;");
+        }
+
+        submitBtn.setDisable(!isValid);
+        submitBtn.setOpacity(isValid ? 1.0 : 0.5);
+    }
+    private void submitMassApplications(List<Offer> offers, String cvPath, Map<String, Object> userData) {
+        // Désactiver le bouton pendant l'envoi
+        // (tu devras passer le bouton en paramètre ou le récupérer)
+
+        new Thread(() -> {
+            int success = 0;
+            List<String> errorList = new ArrayList<>();
+
+            for (Offer offer : offers) {
+                try {
+                    Application app = new Application();
+                    app.setOfferId(offer.getId());
+                    app.setCandidateName((String) userData.get("name"));
+                    app.setCandidateEmail((String) userData.get("email"));
+                    app.setCandidatePhone((String) userData.get("phone"));
+                    app.setCvFilePath(cvPath);
+                    app.setMotivationLetter((String) userData.get("motivation"));
+                    app.setStatus("Nouvelle");
+                    app.setApplicationDate(LocalDate.now());
+                    app.setScore(0.0);
+
+                    if (applicationService.createApplication(app)) {
+                        success++;
+                    } else {
+                        errorList.add(offer.getTitle());
+                    }
+
+                    Thread.sleep(100);
+
+                } catch (Exception e) {
+                    errorList.add(offer.getTitle() + " (" + e.getMessage() + ")");
+                }
+            }
+
+            final int finalSuccess = success;
+            final List<String> finalErrors = new ArrayList<>(errorList);
+
+            javafx.application.Platform.runLater(() -> {
+                showMassApplicationResult(finalSuccess, offers.size(), finalErrors);
+                backToOffers(); // Retour à la liste des offres après soumission
+            });
+
+        }).start();
+    }
+    private void showMassApplicationResult(int successCount, int total, List<String> errors) {
+        String title = successCount == total ? "✅ Succès" : "⚠️ Résultat partiel";
+
+        StringBuilder message = new StringBuilder();
+        message.append(String.format("✅ %d candidature(s) envoyée(s) avec succès sur %d\n\n",
+                successCount, total));
+
+        if (!errors.isEmpty()) {
+            message.append("❌ Échecs pour les offres suivantes :\n");
+            for (String error : errors) {
+                message.append("• ").append(error).append("\n");
+            }
+        }
+
+        Alert alert = new Alert(successCount == total ? Alert.AlertType.INFORMATION : Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message.toString());
+
+        // Agrandir la boîte si nécessaire
+        if (errors.size() > 3) {
+            alert.getDialogPane().setPrefHeight(400);
+        }
+
+        alert.showAndWait();
+
+        // Recharger les offres après postulation
+        if (successCount > 0) {
+            savedFilterToggle.setSelected(false);
+            filterOffers();
+        }
+    }
+
     private double calculateMatchScore(Offer offer) {
         double score = 60;
         score += Math.min(offer.getApplicationsReceived() * 2, 20);
