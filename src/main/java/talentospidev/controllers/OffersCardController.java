@@ -12,6 +12,7 @@ import talentospidev.models.Offer;
 import talentospidev.models.User;
 import talentospidev.services.ApplicationService;
 import talentospidev.services.AuthService;
+import talentospidev.services.BookmarkService;
 import talentospidev.services.OfferService;
 import talentospidev.utils.SceneUtil;
 import talentospidev.utils.ViewContext;
@@ -19,11 +20,11 @@ import talentospidev.utils.ViewContext;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
- * View-only controller for browsing available job offers.
- * CRUD operations are only available from RecruiterDashboardController.
+ * Controller for browsing job offers — includes bookmarks, multi-select
+ * compare.
  */
 public class OffersCardController implements Initializable {
 
@@ -39,7 +40,10 @@ public class OffersCardController implements Initializable {
     private Label totalOffersLabel;
     @FXML
     private ComboBox<String> sortComboBox;
-
+    @FXML
+    private Button bookmarksToggle;
+    @FXML
+    private Button compareBtn;
     @FXML
     private Button toDoTab;
     @FXML
@@ -49,12 +53,26 @@ public class OffersCardController implements Initializable {
 
     private final OfferService offerService = new OfferService();
     private final ApplicationService applicationService = new ApplicationService();
+    private final BookmarkService bookmarkService = new BookmarkService();
     private ObservableList<Offer> offersList = FXCollections.observableArrayList();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
+
+    // Multi-select state
+    private final Set<Integer> selectedOfferIds = new HashSet<>();
+    private boolean showingBookmarks = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         talentospidev.utils.SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
+
+        // Hide candidate-only buttons for non-candidates
+        User currentUser = AuthService.getCurrentUser();
+        boolean isCandidate = currentUser != null && currentUser.getRole() == User.Role.CANDIDATE;
+        if (bookmarksToggle != null) {
+            bookmarksToggle.setVisible(isCandidate);
+            bookmarksToggle.setManaged(isCandidate);
+        }
+
         loadFilters();
         loadSortOptions();
         loadOffers();
@@ -85,7 +103,14 @@ public class OffersCardController implements Initializable {
     }
 
     private void loadOffers() {
-        offersList.setAll(offerService.getOpenOffers());
+        if (showingBookmarks) {
+            User u = AuthService.getCurrentUser();
+            if (u != null) {
+                offersList.setAll(bookmarkService.getBookmarkedOffers(u.getId()));
+            }
+        } else {
+            offersList.setAll(offerService.getOpenOffers());
+        }
         displayCards(offersList);
         updateTotalLabel(offersList.size());
     }
@@ -118,8 +143,7 @@ public class OffersCardController implements Initializable {
         String sort = sortComboBox.getValue();
         if (sort == null)
             sort = "Plus récentes";
-
-        java.util.List<Offer> sorted = new java.util.ArrayList<>(offers);
+        List<Offer> sorted = new ArrayList<>(offers);
         switch (sort) {
             case "Plus récentes":
                 sorted.sort((a, b) -> b.getPublishDate().compareTo(a.getPublishDate()));
@@ -134,7 +158,6 @@ public class OffersCardController implements Initializable {
                 sorted.sort((a, b) -> Double.compare(b.getSalaryMax(), a.getSalaryMax()));
                 break;
         }
-
         displayCards(FXCollections.observableArrayList(sorted));
     }
 
@@ -152,9 +175,9 @@ public class OffersCardController implements Initializable {
             VBox empty = new VBox(8);
             empty.setAlignment(Pos.CENTER);
             empty.setPadding(new Insets(60));
-            Label icon = new Label("📭");
+            Label icon = new Label(showingBookmarks ? "🔖" : "📭");
             icon.setStyle("-fx-font-size: 48px;");
-            Label text = new Label("Aucune offre trouvée");
+            Label text = new Label(showingBookmarks ? "No bookmarked offers yet" : "Aucune offre trouvée");
             text.setStyle("-fx-font-size: 16px; -fx-text-fill: #9ca3af; -fx-font-weight: 600;");
             empty.getChildren().addAll(icon, text);
             cardsContainer.getChildren().add(empty);
@@ -169,22 +192,38 @@ public class OffersCardController implements Initializable {
         String hover = "-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 20; " +
                 "-fx-border-color: #6366f1; -fx-border-radius: 14; " +
                 "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.18), 12, 0, 0, 4); -fx-translate-y: -2;";
-        card.setStyle(base);
+        String selected = "-fx-background-color: #eef2ff; -fx-background-radius: 14; -fx-padding: 20; " +
+                "-fx-border-color: #6366f1; -fx-border-radius: 14; -fx-border-width: 2; " +
+                "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.25), 10, 0, 0, 3);";
+
+        boolean isSelected = selectedOfferIds.contains(offer.getId());
+        card.setStyle(isSelected ? selected : base);
         card.setPrefWidth(320);
         card.setMinHeight(240);
-        card.setMaxHeight(280);
+        card.setMaxHeight(300);
 
-        card.setOnMouseEntered(e -> card.setStyle(hover));
-        card.setOnMouseExited(e -> card.setStyle(base));
+        if (!isSelected) {
+            card.setOnMouseEntered(e -> {
+                if (!selectedOfferIds.contains(offer.getId()))
+                    card.setStyle(hover);
+            });
+            card.setOnMouseExited(e -> {
+                if (!selectedOfferIds.contains(offer.getId()))
+                    card.setStyle(base);
+            });
+        }
 
-        // Header
-        HBox header = new HBox(10);
+        User currentUser = AuthService.getCurrentUser();
+        boolean isCandidate = currentUser != null && currentUser.getRole() == User.Role.CANDIDATE;
+
+        // Header: Title + Status + Bookmark
+        HBox header = new HBox(8);
         header.setAlignment(Pos.CENTER_LEFT);
 
         Label titleLabel = new Label(offer.getTitle());
         titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #111827;");
         titleLabel.setWrapText(true);
-        titleLabel.setMaxWidth(200);
+        titleLabel.setMaxWidth(180);
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
 
         Label statusLabel = new Label(offer.getStatus());
@@ -192,13 +231,29 @@ public class OffersCardController implements Initializable {
 
         header.getChildren().addAll(titleLabel, statusLabel);
 
+        // Bookmark button (candidates only)
+        if (isCandidate) {
+            boolean isBookmarked = bookmarkService.isBookmarked(currentUser.getId(), offer.getId());
+            Button bmkBtn = new Button(isBookmarked ? "🔖" : "🏷");
+            String bmkNormal = "-fx-background-color: " + (isBookmarked ? "#eef2ff" : "transparent") +
+                    "; -fx-font-size: 16px; -fx-padding: 4 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-color: transparent;";
+            bmkBtn.setStyle(bmkNormal);
+            bmkBtn.setTooltip(new Tooltip(isBookmarked ? "Remove bookmark" : "Bookmark this offer"));
+            bmkBtn.setOnAction(e -> {
+                boolean nowBookmarked = bookmarkService.toggleBookmark(currentUser.getId(), offer.getId());
+                bmkBtn.setText(nowBookmarked ? "🔖" : "🏷");
+                bmkBtn.setStyle("-fx-background-color: " + (nowBookmarked ? "#eef2ff" : "transparent") +
+                        "; -fx-font-size: 16px; -fx-padding: 4 8; -fx-background-radius: 8; -fx-cursor: hand; -fx-border-color: transparent;");
+                bmkBtn.setTooltip(new Tooltip(nowBookmarked ? "Remove bookmark" : "Bookmark this offer"));
+            });
+            header.getChildren().add(bmkBtn);
+        }
+
         // Info
         Label deptLabel = new Label("🏢 " + offer.getDepartment() + " • " + offer.getContractType());
         deptLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6b7280;");
-
         Label locationLabel = new Label("📍 " + offer.getLocation());
         locationLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6b7280;");
-
         Label salaryLabel = new Label(String.format("💰 %.0f - %.0f DT", offer.getSalaryMin(), offer.getSalaryMax()));
         salaryLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #22c55e; -fx-font-weight: 700;");
 
@@ -207,21 +262,41 @@ public class OffersCardController implements Initializable {
         footer.setAlignment(Pos.CENTER_LEFT);
         Label dateLabel = new Label("📅 " + offer.getClosingDate().format(dateFormatter));
         dateLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #9ca3af;");
-
         long daysLeft = ChronoUnit.DAYS.between(java.time.LocalDate.now(), offer.getClosingDate());
         Label daysLabel = new Label(daysLeft > 0 ? "⏳ " + daysLeft + "j" : "⏳ Expiré");
         daysLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: " + (daysLeft > 7 ? "#22c55e" : "#ef4444")
                 + "; -fx-font-weight: 600;");
-
         footer.getChildren().addAll(dateLabel, daysLabel);
 
-        // Separator + Actions
         Separator sep = new Separator();
         sep.setStyle("-fx-background-color: #e5e7eb;");
 
+        // Actions row
         HBox actions = new HBox(8);
-        actions.setAlignment(Pos.CENTER_RIGHT);
+        actions.setAlignment(Pos.CENTER_LEFT);
         actions.setPadding(new Insets(4, 0, 0, 0));
+
+        // Select checkbox (candidates only)
+        if (isCandidate) {
+            CheckBox selectCb = new CheckBox();
+            selectCb.setSelected(selectedOfferIds.contains(offer.getId()));
+            selectCb.setTooltip(new Tooltip("Select to compare"));
+            selectCb.setOnAction(e -> {
+                if (selectCb.isSelected()) {
+                    selectedOfferIds.add(offer.getId());
+                    card.setStyle(selected);
+                    card.setOnMouseEntered(null);
+                    card.setOnMouseExited(null);
+                } else {
+                    selectedOfferIds.remove(offer.getId());
+                    card.setStyle(base);
+                    card.setOnMouseEntered(ev -> card.setStyle(hover));
+                    card.setOnMouseExited(ev -> card.setStyle(base));
+                }
+                updateCompareButton();
+            });
+            actions.getChildren().add(selectCb);
+        }
 
         Button viewBtn = createBtn("👁 Détails", "#eef2ff", "#6366f1");
         viewBtn.setOnAction(e -> {
@@ -230,10 +305,8 @@ public class OffersCardController implements Initializable {
         });
         actions.getChildren().add(viewBtn);
 
-        // Candidate: add Apply button (or "Already applied" indicator)
-        User currentUser = AuthService.getCurrentUser();
-        if (currentUser != null && currentUser.getRole() == User.Role.CANDIDATE
-                && "Ouverte".equals(offer.getStatus())) {
+        // Candidate: Apply button
+        if (isCandidate && "Ouverte".equals(offer.getStatus())) {
             boolean alreadyApplied = applicationService.hasUserApplied(currentUser.getId(), offer.getId());
             if (alreadyApplied) {
                 Button appliedBtn = createBtn("✅ Déjà postulé", "#f0fdf4", "#16a34a");
@@ -253,6 +326,135 @@ public class OffersCardController implements Initializable {
         card.getChildren().addAll(header, deptLabel, locationLabel, salaryLabel, footer, sep, actions);
         return card;
     }
+
+    // ===== Bookmark Toggle =====
+
+    @FXML
+    private void handleBookmarksToggle() {
+        showingBookmarks = !showingBookmarks;
+        if (showingBookmarks) {
+            bookmarksToggle.setText("📋 All Offers");
+            bookmarksToggle.setStyle(
+                    "-fx-background-color: #6366f1; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 8; -fx-font-size: 12px; -fx-font-weight: 700; -fx-cursor: hand;");
+        } else {
+            bookmarksToggle.setText("🔖 My Bookmarks");
+            bookmarksToggle.setStyle(
+                    "-fx-background-color: #eef2ff; -fx-text-fill: #6366f1; -fx-padding: 8 16; -fx-background-radius: 8; -fx-font-size: 12px; -fx-font-weight: 700; -fx-cursor: hand;");
+        }
+        loadOffers();
+    }
+
+    // ===== Compare =====
+
+    private void updateCompareButton() {
+        boolean show = selectedOfferIds.size() >= 2;
+        if (compareBtn != null) {
+            compareBtn.setVisible(show);
+            compareBtn.setManaged(show);
+            if (show) {
+                compareBtn.setText("⚖ Compare (" + selectedOfferIds.size() + ")");
+            }
+        }
+    }
+
+    @FXML
+    private void handleCompare() {
+        if (selectedOfferIds.size() < 2)
+            return;
+
+        List<Offer> toCompare = new ArrayList<>();
+        for (int id : selectedOfferIds) {
+            Offer o = offerService.getOfferById(id);
+            if (o != null)
+                toCompare.add(o);
+        }
+        if (toCompare.size() < 2)
+            return;
+
+        // Build comparison dialog
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Compare Offers");
+        dialog.setHeaderText("Side-by-side comparison of " + toCompare.size() + " offers");
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.getDialogPane().setPrefWidth(Math.min(toCompare.size() * 280 + 40, 900));
+        dialog.getDialogPane().setPrefHeight(550);
+
+        HBox columns = new HBox(16);
+        columns.setPadding(new Insets(16));
+        columns.setAlignment(Pos.TOP_CENTER);
+
+        for (Offer o : toCompare) {
+            VBox col = new VBox(12);
+            col.setPadding(new Insets(16));
+            col.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #e5e7eb; " +
+                    "-fx-border-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 4, 0, 0, 2);");
+            col.setPrefWidth(250);
+            col.setAlignment(Pos.TOP_LEFT);
+
+            Label title = new Label(o.getTitle());
+            title.setStyle("-fx-font-size: 16px; -fx-font-weight: 800; -fx-text-fill: #111827;");
+            title.setWrapText(true);
+
+            Label dept = new Label("🏢 " + o.getDepartment());
+            dept.setStyle("-fx-font-size: 12px; -fx-text-fill: #6b7280;");
+
+            Label contract = new Label("📝 " + o.getContractType());
+            contract.setStyle("-fx-font-size: 12px; -fx-text-fill: #6b7280;");
+
+            Label exp = new Label("⭐ " + o.getExperienceLevel());
+            exp.setStyle("-fx-font-size: 12px; -fx-text-fill: #6b7280;");
+
+            Label loc = new Label("📍 " + o.getLocation());
+            loc.setStyle("-fx-font-size: 12px; -fx-text-fill: #6b7280;");
+
+            Label salary = new Label(String.format("💰 %.0f – %.0f DT", o.getSalaryMin(), o.getSalaryMax()));
+            salary.setStyle("-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #22c55e;");
+
+            long daysLeft = ChronoUnit.DAYS.between(java.time.LocalDate.now(), o.getClosingDate());
+            Label deadline = new Label("📅 Closes: " + o.getClosingDate().format(dateFormatter) +
+                    (daysLeft > 0 ? " (" + daysLeft + " days left)" : " (Expired)"));
+            deadline.setStyle("-fx-font-size: 11px; -fx-text-fill: " + (daysLeft > 7 ? "#6b7280" : "#ef4444") + ";");
+            deadline.setWrapText(true);
+
+            Label positions = new Label("👥 " + o.getPositionsAvailable() + " position(s)");
+            positions.setStyle("-fx-font-size: 12px; -fx-text-fill: #6b7280;");
+
+            Label apps = new Label("📩 " + o.getApplicationsReceived() + " application(s)");
+            apps.setStyle("-fx-font-size: 12px; -fx-text-fill: #6b7280;");
+
+            Label statusLbl = new Label(o.getStatus());
+            statusLbl.setStyle(getStatusStyle(o.getStatus()));
+
+            Separator s = new Separator();
+            s.setStyle("-fx-background-color: #e5e7eb;");
+
+            // Description preview
+            String desc = o.getDescription() != null ? o.getDescription() : "";
+            if (desc.length() > 120)
+                desc = desc.substring(0, 120) + "…";
+            Label descLabel = new Label(desc);
+            descLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #9ca3af;");
+            descLabel.setWrapText(true);
+
+            col.getChildren().addAll(title, statusLbl, s, dept, contract, exp, loc, salary, positions, apps, deadline,
+                    descLabel);
+            columns.getChildren().add(col);
+        }
+
+        ScrollPane sp = new ScrollPane(columns);
+        sp.setFitToHeight(true);
+        sp.setStyle("-fx-background: #f0f2f5; -fx-background-color: #f0f2f5; -fx-border-color: transparent;");
+        dialog.getDialogPane().setContent(sp);
+
+        dialog.showAndWait();
+
+        // Clear selection after dialog closes
+        selectedOfferIds.clear();
+        updateCompareButton();
+        loadOffers();
+    }
+
+    // ===== Helpers =====
 
     private Button createBtn(String text, String bg, String fg) {
         Button btn = new Button(text);
@@ -327,12 +529,12 @@ public class OffersCardController implements Initializable {
 
     @FXML
     private void handleMyCircle() {
-        talentospidev.utils.SceneUtil.switchScene("my_circle.fxml");
+        SceneUtil.switchScene("my_circle.fxml");
     }
 
     @FXML
     private void handleNotifications() {
-        talentospidev.utils.SceneUtil.switchScene("notifications.fxml");
+        SceneUtil.switchScene("notifications.fxml");
     }
 
     @FXML

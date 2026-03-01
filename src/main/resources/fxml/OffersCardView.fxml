@@ -73,8 +73,13 @@
                     <Label text="🔍" style="-fx-text-fill: #9ca3af;"/>
                     <TextField fx:id="searchField"
                                promptText="Rechercher par titre, département, localisation..."
-                               style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8; -fx-pref-width: 400; -fx-font-size: 13px;"/>
+                               style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 8; -fx-pref-width: 350; -fx-font-size: 13px;"/>
                 </HBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="bookmarksToggle" text="🔖 My Bookmarks" onAction="#handleBookmarksToggle"
+                        style="-fx-background-color: #eef2ff; -fx-text-fill: #6366f1; -fx-padding: 8 16; -fx-background-radius: 8; -fx-font-size: 12px; -fx-font-weight: 700; -fx-cursor: hand;"/>
+                <Button fx:id="compareBtn" text="⚖ Compare Selected" onAction="#handleCompare" visible="false" managed="false"
+                        style="-fx-background-color: #f0fdf4; -fx-text-fill: #16a34a; -fx-padding: 8 16; -fx-background-radius: 8; -fx-font-size: 12px; -fx-font-weight: 700; -fx-cursor: hand;"/>
             </HBox>
 
             <!-- Filters row -->
