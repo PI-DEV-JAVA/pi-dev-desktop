@@ -1,6 +1,7 @@
 package talentos.pidev.models.dao;
 
 import talentos.pidev.models.schema.InterviewMeet;
+import talentos.pidev.services.WebRTCService;
 import talentos.pidev.utils.DB;
 
 import java.sql.*;
@@ -17,9 +18,9 @@ public class InterviewMeetDAO {
 
     public void create(InterviewMeet meet) {
         String sql = """
-            INSERT INTO interview_meet (interview_id, meet_uuid, scheduled_at, status, grade)
-            VALUES (?, ?, ?, ?, ?)
-        """;
+                    INSERT INTO interview_meet (interview_id, meet_uuid, scheduled_at, status, grade)
+                    VALUES (?, ?, ?, ?, ?)
+                """;
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, meet.getInterviewId());
             ps.setString(2, meet.getUuid());
@@ -33,7 +34,11 @@ public class InterviewMeetDAO {
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) meet.setId(rs.getLong(1));
+            if (rs.next()) {
+                long id=rs.getLong(1);
+                meet.setId(id);
+                WebRTCService.createJanusRoomFlow(id);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -41,10 +46,10 @@ public class InterviewMeetDAO {
 
     public void update(InterviewMeet meet) {
         String sql = """
-            UPDATE interview_meet
-            SET interview_id=?, meet_uuid=?, scheduled_at=?, status=?, grade=?
-            WHERE id=?
-        """;
+                    UPDATE interview_meet
+                    SET interview_id=?, meet_uuid=?, scheduled_at=?, status=?, grade=?
+                    WHERE id=?
+                """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, meet.getInterviewId());
             ps.setString(2, meet.getUuid());
@@ -110,7 +115,8 @@ public class InterviewMeetDAO {
         meet.setScheduledAt(rs.getTimestamp("scheduled_at").toLocalDateTime());
         meet.setStatus(rs.getString("status"));
         double grade = rs.getDouble("grade");
-        if (!rs.wasNull()) meet.setGrade(grade);
+        if (!rs.wasNull())
+            meet.setGrade(grade);
         return meet;
     }
 }
