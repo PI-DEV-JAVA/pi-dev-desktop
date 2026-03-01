@@ -1,0 +1,34 @@
+-- ⚡ Syncs Social Networking System
+-- Run this SQL in your 'pidev' database
+
+CREATE TABLE IF NOT EXISTS user_skills (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  skill VARCHAR(100) NOT NULL,
+  UNIQUE(user_id, skill),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS syncs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sender_id INT NOT NULL,
+  receiver_id INT NOT NULL,
+  reason ENUM('COLLABORATE','LEARN','MENTOR','HIRE','NETWORK') DEFAULT 'NETWORK',
+  status ENUM('PENDING','ACCEPTED','DECLINED') DEFAULT 'PENDING',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  accepted_at TIMESTAMP NULL,
+  UNIQUE(sender_id, receiver_id),
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS sync_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sync_id INT NOT NULL,
+  sender_id INT NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (sync_id) REFERENCES syncs(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
+);

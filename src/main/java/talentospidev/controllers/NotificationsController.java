@@ -228,6 +228,11 @@ public class NotificationsController {
     }
 
     @FXML
+    private void handleMyCircle() {
+        SceneUtil.switchScene("my_circle.fxml");
+    }
+
+    @FXML
     private void handleNotifications() {
         /* Already here */ }
 

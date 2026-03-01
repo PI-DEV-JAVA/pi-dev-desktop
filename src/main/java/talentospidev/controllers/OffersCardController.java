@@ -326,6 +326,11 @@ public class OffersCardController implements Initializable {
     }
 
     @FXML
+    private void handleMyCircle() {
+        talentospidev.utils.SceneUtil.switchScene("my_circle.fxml");
+    }
+
+    @FXML
     private void handleNotifications() {
         talentospidev.utils.SceneUtil.switchScene("notifications.fxml");
     }

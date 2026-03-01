@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="talentospidev.controllers.MyCircleController"
+      stylesheets="@/style/app.css" style="-fx-background-color: #f0f2f5;">
+
+    <!-- ======= LEFT SIDEBAR ======= -->
+    <VBox fx:id="sidebar" styleClass="sidebar">
+       <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 1 1 1 1;">
+            <ImageView fitHeight="60" fitWidth="60" preserveRatio="true">
+                <image><Image url="@/images/logo.png"/></image>
+            </ImageView>
+            <Label text="Talentos" styleClass="sidebar-logo"/>
+        </HBox>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="MAIN" styleClass="sidebar-section-label"/>
+        <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
+        <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
+        <Button text="⚡  My Circle" styleClass="sidebar-button-active" onAction="#handleMyCircle"/>
+        <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
+        <Button text="✅  To Do" styleClass="sidebar-button" onAction="#handleToDo"/>
+        <Region VBox.vgrow="ALWAYS"/>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
+        <Button text="👤  My Profile" styleClass="sidebar-button" onAction="#handleMyProfile"/>
+        <Button text="⚙  Settings" styleClass="sidebar-button" onAction="#handleSettings"/>
+        <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
+    </VBox>
+
+    <!-- ======= MAIN CONTENT ======= -->
+    <VBox HBox.hgrow="ALWAYS" spacing="0">
+
+        <!-- Page Header -->
+        <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 24 30 16 30; -fx-background-color: white;
+                -fx-border-color: transparent transparent #e5e7eb transparent;">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="⚡ My Circle" style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+                <Label fx:id="circleStatsLabel" text="Your professional syncs"
+                       style="-fx-font-size: 13px; -fx-text-fill: #6b7280;"/>
+            </VBox>
+            <Label fx:id="pendingBadge" text="" visible="false" managed="false"
+                   style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-size: 11px;
+                          -fx-font-weight: 800; -fx-padding: 4 12; -fx-background-radius: 12;"/>
+        </HBox>
+
+        <!-- Tab Pane -->
+        <TabPane fx:id="circleTabPane" VBox.vgrow="ALWAYS"
+                 style="-fx-background-color: transparent;">
+
+            <!-- ── Syncs Tab ── -->
+            <Tab text="⚡ Syncs" closable="false">
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background-color: transparent; -fx-background: transparent;">
+                    <VBox fx:id="syncsGrid" spacing="12" style="-fx-padding: 20;">
+                        <!-- Populated dynamically -->
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+
+            <!-- ── Requests Tab ── -->
+            <Tab fx:id="requestsTab" text="📬 Requests" closable="false">
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background-color: transparent; -fx-background: transparent;">
+                    <VBox fx:id="requestsList" spacing="10" style="-fx-padding: 20;">
+                        <!-- Populated dynamically -->
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+
+            <!-- ── Pulse Tab ── -->
+            <Tab text="💬 Pulse" closable="false">
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background-color: transparent; -fx-background: transparent;">
+                    <VBox fx:id="pulseList" spacing="8" style="-fx-padding: 20;">
+                        <!-- Populated dynamically -->
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+        </TabPane>
+    </VBox>
+</HBox>

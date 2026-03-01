@@ -496,6 +496,11 @@ public class DashboardController {
     }
 
     @FXML
+    private void handleMyCircle() {
+        SceneUtil.switchScene("my_circle.fxml");
+    }
+
+    @FXML
     private void handleNotifications() {
         SceneUtil.switchScene("notifications.fxml");
     }

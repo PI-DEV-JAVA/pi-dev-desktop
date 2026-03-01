@@ -21,6 +21,7 @@
         <Label text="MAIN" styleClass="sidebar-section-label"/>
         <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
         <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
+        <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
         <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
         <Region VBox.vgrow="ALWAYS"/>
         <Separator style="-fx-opacity: 0.1;"/>
