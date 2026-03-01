@@ -152,4 +152,25 @@ public class EvenementRhDAO {
         }
         return evenements;
     }
+    public List<EvenementRh> rechercherParTitre(String titre) throws SQLException {
+        List<EvenementRh> evenements = new ArrayList<>();
+        String query = "SELECT * FROM evenement_rh WHERE titre LIKE ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, "%" + titre + "%");
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                EvenementRh e = new EvenementRh();
+                e.setIdEvent(rs.getInt("id_event"));
+                e.setTitre(rs.getString("titre"));
+                e.setTypeEvent(rs.getString("type_event"));
+                e.setDateEvent(rs.getDate("date_event").toLocalDate());
+                e.setLieu(rs.getString("lieu"));
+                e.setStatut(rs.getString("statut"));
+                evenements.add(e);
+            }
+        }
+        return evenements;
+    }
 }

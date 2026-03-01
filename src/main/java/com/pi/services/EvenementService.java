@@ -44,4 +44,7 @@ public class EvenementService {
     public List<EvenementRh> getEvenementsAVenir() throws SQLException {
         return evenementDAO.getEvenementsAVenir();
     }
+    public List<EvenementRh> rechercherParTitre(String titre) throws SQLException {
+        return evenementDAO.rechercherParTitre(titre);
+    }
 }

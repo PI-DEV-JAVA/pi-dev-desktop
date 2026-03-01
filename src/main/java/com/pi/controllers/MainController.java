@@ -16,7 +16,7 @@ public class MainController {
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Gestion des Événements");
-            stage.setScene(new Scene(root, 600, 500));
+            stage.setScene(new Scene(root, 800, 600));
             stage.show();
         } catch (Exception e) {
             AlertUtil.showError("Erreur", "Impossible d'ouvrir: " + e.getMessage());
@@ -30,7 +30,7 @@ public class MainController {
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Liste des Événements");
-            stage.setScene(new Scene(root, 700, 600));
+            stage.setScene(new Scene(root, 800, 600));
             stage.show();
         } catch (Exception e) {
             AlertUtil.showError("Erreur", "Impossible d'ouvrir: " + e.getMessage());
@@ -44,7 +44,7 @@ public class MainController {
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Gestion des Participations");
-            stage.setScene(new Scene(root, 500, 400));
+            stage.setScene(new Scene(root, 800, 600));
             stage.show();
         } catch (Exception e) {
             AlertUtil.showError("Erreur", "Impossible d'ouvrir: " + e.getMessage());
@@ -58,7 +58,49 @@ public class MainController {
             Parent root = loader.load();
             Stage stage = new Stage();
             stage.setTitle("Liste des Participations");
-            stage.setScene(new Scene(root, 700, 600));
+            stage.setScene(new Scene(root, 800, 600));
+            stage.show();
+        } catch (Exception e) {
+            AlertUtil.showError("Erreur", "Impossible d'ouvrir: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void openPresence() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/pi/views/presence/presence.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Gestion des Présences");
+            stage.setScene(new Scene(root, 900, 700));
+            stage.show();
+        } catch (Exception e) {
+            AlertUtil.showError("Erreur", "Impossible d'ouvrir: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void openCalendrier() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/pi/views/calendrier/calendrier.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Calendrier des Événements");
+            stage.setScene(new Scene(root, 1000, 700));
+            stage.show();
+        } catch (Exception e) {
+            AlertUtil.showError("Erreur", "Impossible d'ouvrir le calendrier: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void openFeedback() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/pi/views/feedback/feedback.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Satisfaction et Feedback");
+            stage.setScene(new Scene(root, 900, 700));
             stage.show();
         } catch (Exception e) {
             AlertUtil.showError("Erreur", "Impossible d'ouvrir: " + e.getMessage());
@@ -67,6 +109,9 @@ public class MainController {
 
     @FXML
     private void quit() {
-        System.exit(0);
+        boolean confirm = AlertUtil.showConfirmation("Confirmation", "Voulez-vous vraiment quitter ?");
+        if (confirm) {
+            System.exit(0);
+        }
     }
 }

@@ -3,74 +3,84 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pi.controllers.ParticipationController">
 
-    <top>
-        <Label alignment="CENTER" prefHeight="60.0" text="GESTION DES PARTICIPATIONS" BorderPane.alignment="CENTER">
-            <font>
-                <Font name="System Bold" size="20.0" />
-            </font>
-        </Label>
-    </top>
-
-    <center>
-        <VBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="30.0" left="50.0" right="50.0" top="30.0" />
-            </padding>
-
+    <!-- Menu Latéral -->
+    <left>
+        <VBox prefWidth="200" spacing="10" style="-fx-background-color: #2c3e50; -fx-padding: 30 20 30 20;" BorderPane.alignment="CENTER">
             <children>
-                <!-- Ligne de recherche par ID -->
-                <HBox spacing="10.0" alignment="CENTER">
-                    <Label text="Rechercher par ID Participation:" />
-                    <TextField fx:id="rechercheIdField" promptText="Entrez l'ID" HBox.hgrow="ALWAYS" />
-                    <Button mnemonicParsing="false" onAction="#rechercherParId" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Rechercher" />
-                </HBox>
-
-                <GridPane hgap="10.0" vgap="10.0">
-                    <children>
-                        <Label text="ID Participation:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <TextField fx:id="idField" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                        <Label text="ID Événement:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <TextField fx:id="idEventField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                        <Label text="ID Utilisateur:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <TextField fx:id="idUserField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                        <Label text="Statut:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                        <TextField fx:id="statutField" promptText="Inscrit/Annulé" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                    </children>
-                    <columnConstraints>
-                        <javafx.scene.layout.ColumnConstraints halignment="RIGHT" minWidth="120.0" />
-                        <javafx.scene.layout.ColumnConstraints hgrow="ALWAYS" minWidth="200.0" />
-                    </columnConstraints>
-                </GridPane>
-
-                <HBox alignment="CENTER" spacing="20.0">
-                    <children>
-                        <Button mnemonicParsing="false" onAction="#ajouterParticipation" prefWidth="100.0" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Ajouter" />
-                        <Button mnemonicParsing="false" onAction="#modifierStatut" prefWidth="100.0" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Modifier" />
-                        <Button mnemonicParsing="false" onAction="#supprimerParticipation" prefWidth="100.0" style="-fx-background-color: #f44336; -fx-text-fill: white;" text="Supprimer" />
-                        <Button mnemonicParsing="false" onAction="#effacerFormulaire" prefWidth="100.0" text="Effacer" />
-                    </children>
-                </HBox>
-
-                <HBox alignment="CENTER" spacing="10.0">
-                    <children>
-                        <TextField fx:id="rechercheField" promptText="ID Événement" HBox.hgrow="ALWAYS" />
-                        <Button mnemonicParsing="false" onAction="#rechercherParEvenement" text="Par événement" />
-                        <Button mnemonicParsing="false" onAction="#rechercherParUtilisateur" text="Par utilisateur" />
-                    </children>
-                </HBox>
+                <Label text="TalentOs" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 0 0 20 0;" />
+                <Label text="📊 Dashboard" style="-fx-text-fill: #ecf0f1; -fx-font-size: 14px; -fx-padding: 10 15 10 15;" />
+                <Label text="📅 Events" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 15 10 15; -fx-background-color: #3498db; -fx-background-radius: 5;" />
             </children>
         </VBox>
+    </left>
+
+    <!-- Contenu -->
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+            <VBox spacing="20" alignment="TOP_CENTER" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+
+                <children>
+                    <Label text="GESTION DES PARTICIPATIONS" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-padding: 0 0 20 0;" />
+
+                    <!-- Barre de recherche par ID -->
+                    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #ecf0f1; -fx-border-radius: 5;">
+                        <children>
+                            <Label text="Rechercher par ID:" style="-fx-font-size: 14px; -fx-text-fill: #95a5a6;" />
+                            <TextField fx:id="rechercheIdField" promptText="Entrez l'ID" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-padding: 8 12 8 12; -fx-font-size: 14px;" />
+                            <Button mnemonicParsing="false" onAction="#rechercherParId" text="Rechercher" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 15 8 15; -fx-background-radius: 5;" />
+                        </children>
+                    </HBox>
+
+                    <!-- Formulaire -->
+                    <GridPane hgap="15" vgap="15" alignment="CENTER">
+                        <children>
+                            <Label text="ID Participation:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-size: 14px; -fx-text-fill: #95a5a6;" />
+                            <TextField fx:id="idField" editable="false" style="-fx-background-color: white; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-padding: 8 12 8 12; -fx-font-size: 14px;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                            <Label text="ID Événement:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-size: 14px; -fx-text-fill: #95a5a6;" />
+                            <TextField fx:id="idEventField" style="-fx-background-color: white; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-padding: 8 12 8 12; -fx-font-size: 14px;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                            <Label text="ID Utilisateur:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-size: 14px; -fx-text-fill: #95a5a6;" />
+                            <TextField fx:id="idUserField" style="-fx-background-color: white; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-padding: 8 12 8 12; -fx-font-size: 14px;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                            <Label text="Statut:" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-size: 14px; -fx-text-fill: #95a5a6;" />
+                            <TextField fx:id="statutField" promptText="Inscrit/Annulé" style="-fx-background-color: white; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-padding: 8 12 8 12; -fx-font-size: 14px;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        </children>
+                        <columnConstraints>
+                            <javafx.scene.layout.ColumnConstraints minWidth="120" halignment="RIGHT" />
+                            <javafx.scene.layout.ColumnConstraints minWidth="250" hgrow="ALWAYS" />
+                        </columnConstraints>
+                    </GridPane>
+
+                    <!-- Boutons CRUD -->
+                    <HBox spacing="20" alignment="CENTER">
+                        <children>
+                            <Button mnemonicParsing="false" onAction="#ajouterParticipation" text="Ajouter" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5;" />
+                            <Button mnemonicParsing="false" onAction="#modifierStatut" text="Modifier" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5;" />
+                            <Button mnemonicParsing="false" onAction="#supprimerParticipation" text="Supprimer" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5;" />
+                            <Button mnemonicParsing="false" onAction="#effacerFormulaire" text="Effacer" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5;" />
+                        </children>
+                    </HBox>
+
+                    <!-- Barre de recherche par événement/utilisateur -->
+                    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #ecf0f1; -fx-border-radius: 5;">
+                        <children>
+                            <TextField fx:id="rechercheField" promptText="ID Événement ou Utilisateur" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-padding: 8 12 8 12; -fx-font-size: 14px;" />
+                            <Button mnemonicParsing="false" onAction="#rechercherParEvenement" text="Par événement" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 15 8 15; -fx-background-radius: 5;" />
+                            <Button mnemonicParsing="false" onAction="#rechercherParUtilisateur" text="Par utilisateur" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8 15 8 15; -fx-background-radius: 5;" />
+                        </children>
+                    </HBox>
+                </children>
+            </VBox>
+        </ScrollPane>
     </center>
 </BorderPane>

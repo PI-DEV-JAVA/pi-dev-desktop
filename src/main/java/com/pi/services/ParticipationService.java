@@ -13,6 +13,7 @@ public class ParticipationService {
         this.participationDAO = new ParticipationDAO();
     }
 
+    // CRUD de base
     public void ajouterParticipation(Participation participation) throws SQLException {
         participationDAO.ajouter(participation);
     }
@@ -51,5 +52,31 @@ public class ParticipationService {
 
     public void supprimerParticipationsParEvent(int idEvent) throws SQLException {
         participationDAO.supprimerParEvent(idEvent);
+    }
+
+    // Méthodes supplémentaires pour les présences
+    public Participation getParticipationByUserAndEvent(int idUser, int idEvent) throws SQLException {
+        List<Participation> participations = participationDAO.getByEvent(idEvent);
+        for (Participation p : participations) {
+            if (p.getIdUser() == idUser) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public List<Participation> getParticipationsAvecStatut(String statut) throws SQLException {
+        List<Participation> toutes = participationDAO.afficherToutes();
+        List<Participation> filtrees = new java.util.ArrayList<>();
+        for (Participation p : toutes) {
+            if (p.getStatut().equalsIgnoreCase(statut)) {
+                filtrees.add(p);
+            }
+        }
+        return filtrees;
+    }
+
+    public int getTotalInscrits(int idEvent) throws SQLException {
+        return participationDAO.compterParticipants(idEvent);
     }
 }

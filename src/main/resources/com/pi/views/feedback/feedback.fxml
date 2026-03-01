@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pi.controllers.FeedbackController">
+
+    <top>
+        <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #ecf0f1; -fx-border-width: 0 0 1 0;">
+            <children>
+                <Label text="Satisfaction et Feedback" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="Sélectionner un événement:" style="-fx-font-size: 14px;" />
+                        <ComboBox fx:id="evenementCombo" prefWidth="300" />
+                        <Button onAction="#ajouterFeedback" text="+ Ajouter un feedback" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 15;" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+            <VBox spacing="20" style="-fx-padding: 20;">
+                <children>
+                    <!-- Statistiques globales -->
+                    <GridPane hgap="20" vgap="10" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-background-radius: 10;">
+                        <children>
+                            <Label text="Note moyenne:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;" />
+                            <Label fx:id="noteMoyenneLabel" text="0.0 / 5" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                            <Label text="Total feedbacks:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;" />
+                            <Label fx:id="totalFeedbacksLabel" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        </children>
+                        <columnConstraints>
+                            <javafx.scene.layout.ColumnConstraints minWidth="120" />
+                            <javafx.scene.layout.ColumnConstraints hgrow="ALWAYS" />
+                        </columnConstraints>
+                    </GridPane>
+
+                    <!-- Distribution des notes -->
+                    <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #ecf0f1;">
+                        <children>
+                            <Label text="Distribution des notes" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+
+                            <GridPane hgap="10" vgap="5">
+                                <children>
+                                    <Label text="5 ⭐" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                    <ProgressBar fx:id="note5Bar" progress="0" GridPane.columnIndex="1" GridPane.rowIndex="0" prefWidth="300" />
+                                    <Label fx:id="note5Count" text="0" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+                                    <Label text="4 ⭐" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                    <ProgressBar fx:id="note4Bar" progress="0" GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="300" />
+                                    <Label fx:id="note4Count" text="0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+
+                                    <Label text="3 ⭐" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                    <ProgressBar fx:id="note3Bar" progress="0" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="300" />
+                                    <Label fx:id="note3Count" text="0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+
+                                    <Label text="2 ⭐" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                    <ProgressBar fx:id="note2Bar" progress="0" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="300" />
+                                    <Label fx:id="note2Count" text="0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+
+                                    <Label text="1 ⭐" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                    <ProgressBar fx:id="note1Bar" progress="0" GridPane.columnIndex="1" GridPane.rowIndex="4" prefWidth="300" />
+                                    <Label fx:id="note1Count" text="0" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                </children>
+                                <columnConstraints>
+                                    <javafx.scene.layout.ColumnConstraints minWidth="40" />
+                                    <javafx.scene.layout.ColumnConstraints hgrow="ALWAYS" />
+                                    <javafx.scene.layout.ColumnConstraints minWidth="30" />
+                                </columnConstraints>
+                            </GridPane>
+                        </children>
+                    </VBox>
+
+                    <!-- Liste des feedbacks -->
+                    <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #ecf0f1;">
+                        <children>
+                            <Label text="Commentaires détaillés" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                            <ListView fx:id="feedbackListView" prefHeight="200" />
+                        </children>
+                    </VBox>
+
+                    <!-- Top événements -->
+                    <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #ecf0f1;">
+                        <children>
+                            <Label text="Top 5 des événements" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                            <ListView fx:id="topEvenementsList" prefHeight="150" />
+                        </children>
+                    </VBox>
+                </children>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
