@@ -13,6 +13,8 @@ import talentospidev.models.Activity.Activity;
 import talentospidev.models.Project.Project;
 import talentospidev.models.User;
 import talentospidev.services.AuthService;
+import talentospidev.services.EmailService;
+import talentospidev.services.TrelloService;
 import talentospidev.utils.DB;
 import talentospidev.utils.SceneUtil;
 import talentospidev.utils.ViewContext;
@@ -300,19 +302,52 @@ public class ActivityController {
         submitBtn.setOnAction(e -> updateActivity());
     }
 
-    @FXML
-    private void addActivity() {
-        if (!validate())
-            return;
-        Employee emp = employeeCombo.getValue();
-        Project proj = projectCombo.getValue();
-        Activity a = new Activity(emp.getId(), proj.getId(), datePicker.getValue(),
-                descriptionField.getText(), Double.parseDouble(hoursField.getText()));
-        activityDAO.add(a);
-        showAlert("Success", "Activity assigned to " + emp.getName() + "!", Alert.AlertType.INFORMATION);
-        loadAllActivities();
-        clear();
+@FXML
+private void addActivity() {
+    if (!validate())
+        return;
+    
+    Employee emp = employeeCombo.getValue();
+    Project proj = projectCombo.getValue();
+    
+    Activity a = new Activity(emp.getId(), proj.getId(), datePicker.getValue(),
+            descriptionField.getText(), Double.parseDouble(hoursField.getText()));
+    
+    // Add activity to database
+    activityDAO.add(a);
+    
+    // Send email notification
+    try {
+        String formattedDate = a.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        EmailService.sendActivityAssignmentEmail(
+            emp.getEmail(),
+            emp.getName(),
+            proj.getName(),
+            a.getDescription(),
+            a.getHoursWorked(),
+            formattedDate
+        );
+        showAlert("Success", "Activity assigned to " + emp.getName() + "! An email notification has been sent.", 
+                 Alert.AlertType.INFORMATION);
+    } catch (Exception e) {
+        showAlert("Success with warning", "Activity assigned but email notification failed: " + e.getMessage(), 
+                 Alert.AlertType.WARNING);
     }
+    
+    // Create Trello card
+    try {
+        String cardId = TrelloService.createActivityCard(a, emp.getName(), proj.getName());
+        if (cardId != null) {
+            // You would store this cardId in a mapping table if needed
+            System.out.println("✅ Trello card created with ID: " + cardId);
+        }
+    } catch (Exception e) {
+        System.err.println("⚠️ Failed to create Trello card: " + e.getMessage());
+    }
+    
+    loadAllActivities();
+    clear();
+}
 
     private void updateActivity() {
         if (selectedActivity == null || !validate())
