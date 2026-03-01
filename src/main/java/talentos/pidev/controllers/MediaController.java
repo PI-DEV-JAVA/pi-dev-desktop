@@ -10,6 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import talentos.pidev.models.schema.ChatMessage;
+import talentos.pidev.models.schema.InterviewMeet;
 import talentos.pidev.services.ChatService;
 import talentos.pidev.services.MediaService;
 import talentos.pidev.services.WebRTCService;
@@ -40,16 +41,17 @@ public class MediaController {
     private ServerSocket discoverSocket;
 
     private ChatService client;
-    private String currentRoom = "1234";
+    // private String currentRoom = "1234";
     private String username = "speedweed";
+    private InterviewMeet meet;
 
     private volatile boolean isDiscoveryActive = false;
 
-    @FXML
-    public void initialize() {
-        isDiscoveryActive = true;
+    public void initData(InterviewMeet meet){
+        this.meet=meet;
+        this.username="speedweed";
         startDiscoveryListener();
-        WebRTCService.startScripts(17);
+        WebRTCService.startScripts(meet.getId());
         
 
         try {
@@ -58,6 +60,11 @@ public class MediaController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    @FXML
+    public void initialize() {
+        isDiscoveryActive = true;
+        
 
         Platform.runLater(() -> {
             javafx.stage.Stage stage = (javafx.stage.Stage) videoGrid.getScene().getWindow();
@@ -100,7 +107,7 @@ public class MediaController {
     private void sendMessage() {
         String text = messageInput.getText().trim();
         if (!text.isEmpty() && client != null && client.isOpen()) {
-            ChatMessage msg = new ChatMessage("chat", currentRoom, username, text);
+            ChatMessage msg = new ChatMessage("chat", Long.toString(meet.getId()), username, text);
 
             client.sendMessage(msg);
 
