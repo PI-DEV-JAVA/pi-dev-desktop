@@ -31,7 +31,7 @@ public class SidebarController {
     @FXML
     private void meet() {
         MainLayoutController.getInstance()
-                .openWindow("videoPreview.fxml", "Meet");
+                .navigate("calendarView.fxml", "Meet");
     }
 
     @FXML

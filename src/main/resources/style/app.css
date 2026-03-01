@@ -60,3 +60,35 @@
 .tile-pane {
     -fx-transition: all 0.3s ease-in-out;
 }
+
+
+
+
+.calendar-view {
+    -fx-background-color: #f8f9fa; /* Or #1a1a1a for dark mode */
+}
+
+/* Style the Month headers */
+.month-view .header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+}
+
+/* Modern Entry (The "jQgcaFLW" bubble) */
+.entry {
+    -fx-background-color: #4c6ef5; /* Nice modern blue */
+    -fx-background-radius: 5;
+    -fx-padding: 2 5;
+}
+
+.entry .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+}
+
+/* Remove the "Current Time" red line if it feels cluttered */
+.time-now-indicator {
+    -fx-stroke: #ff4757;
+    -fx-stroke-width: 2px;
+}

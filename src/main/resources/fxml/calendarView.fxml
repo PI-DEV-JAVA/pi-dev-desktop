@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentos.pidev.controllers.CalendarViewController"
+            prefHeight="800.0" prefWidth="1200.0"
+            style="-fx-background-color: #1a1a1a;">
+    
+    <top>
+        <Label text="Interview Schedule" 
+               style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;">
+            <padding>
+                <Insets top="10" bottom="10" left="20"/>
+            </padding>
+        </Label>
+    </top>
+
+    <center>
+        <StackPane fx:id="calendarContainer" />
+    </center>
+    
+</BorderPane>

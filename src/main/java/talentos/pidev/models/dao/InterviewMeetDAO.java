@@ -107,6 +107,27 @@ public class InterviewMeetDAO {
         return list;
     }
 
+    public List<InterviewMeet> findByUserId(long userId) {
+        String sql = """
+                    SELECT m.* FROM interview_meet m
+                    JOIN interview i ON m.interview_id = i.id
+                    WHERE i.recruiter_id = ? OR i.candidate_id = ?
+                    ORDER BY m.scheduled_at ASC
+                """;
+        List<InterviewMeet> list = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            ps.setLong(2, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     private InterviewMeet mapResultSet(ResultSet rs) throws SQLException {
         InterviewMeet meet = new InterviewMeet();
         meet.setId(rs.getLong("id"));
