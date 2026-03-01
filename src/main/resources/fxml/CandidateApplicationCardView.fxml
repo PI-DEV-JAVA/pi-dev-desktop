@@ -40,6 +40,11 @@
 
                 <Label text="Contrat" style="-fx-text-fill: #94A3B8;"/>
                 <ComboBox fx:id="contractFilter" prefWidth="140"/>
+                <ToggleButton fx:id="savedFilterToggle"
+                              text="⭐ Mes sauvegardes"
+                              style="-fx-background-color: transparent; -fx-text-fill: #94A3B8;
+                                     -fx-border-color: #334155; -fx-border-radius: 20;
+                                     -fx-padding: 8 16; -fx-cursor: hand;"/>
             </HBox>
         </VBox>
     </top>

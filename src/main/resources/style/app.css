@@ -750,3 +750,18 @@
     -fx-font-size: 14px;
     -fx-text-fill: #475569;
 }
+/* Style pour le toggle button */
+.toggle-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #94A3B8;
+    -fx-border-color: #334155;
+    -fx-border-radius: 20;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+
+.toggle-button:selected {
+    -fx-background-color: #FBBF24;
+    -fx-text-fill: #0F172A;
+    -fx-border-color: #FBBF24;
+}

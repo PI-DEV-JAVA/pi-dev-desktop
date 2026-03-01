@@ -12,6 +12,7 @@ import javafx.stage.FileChooser;
 import talentos.pidev.models.Application;
 import talentos.pidev.models.Offer;
 import talentos.pidev.services.ApplicationService;
+import talentos.pidev.services.BookmarkService;
 import talentos.pidev.services.OfferService;
 
 import java.io.File;
@@ -20,6 +21,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ResourceBundle;
+import java.util.List;
+import java.util.ArrayList;
 
 public class CandidateApplicationCardController implements Initializable {
 
@@ -28,6 +31,8 @@ public class CandidateApplicationCardController implements Initializable {
     @FXML private ComboBox<String> contractFilter;
     @FXML private FlowPane offersCardsContainer;
     @FXML private Label totalOffersLabel;
+    @FXML private ToggleButton savedFilterToggle;
+    private BookmarkService bookmarkService;
 
     private final OfferService offerService;
     private final ApplicationService applicationService;
@@ -45,6 +50,11 @@ public class CandidateApplicationCardController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        bookmarkService = new BookmarkService();
+
+        // ✅ Le toggle est déjà dans le FXML, juste configurer le listener
+        savedFilterToggle.setOnAction(e -> filterSavedOffers());
+
         setupFilters();
         loadOffers();
         styleComponents();
@@ -83,6 +93,9 @@ public class CandidateApplicationCardController implements Initializable {
         searchField.textProperty().addListener((obs, old, newVal) -> filterOffers());
         departmentFilter.setOnAction(e -> filterOffers());
         contractFilter.setOnAction(e -> filterOffers());
+
+
+
     }
 
     private void loadOffers() {
@@ -128,6 +141,41 @@ public class CandidateApplicationCardController implements Initializable {
         updateTotalLabel(filtered.size());
     }
 
+    private void filterSavedOffers() {
+        if (savedFilterToggle.isSelected()) {
+            // Mode sauvegardes
+            List<Offer> saved = bookmarkService.getBookmarkedOffers();
+
+            // Convertir List en ObservableList
+            ObservableList<Offer> savedObservable = FXCollections.observableArrayList();
+            savedObservable.addAll(saved);
+
+            displayOffersCards(savedObservable);
+
+            // ✅ Style quand sélectionné (adapté de ton FXML)
+            savedFilterToggle.setStyle(
+                    "-fx-background-color: #FBBF24;" +
+                            "-fx-text-fill: #0F172A;" +
+                            "-fx-border-color: #FBBF24;" +
+                            "-fx-border-radius: 20;" +
+                            "-fx-padding: 8 16;" +
+                            "-fx-cursor: hand;"
+            );
+        } else {
+            // Mode normal
+            filterOffers();
+
+            // ✅ Style par défaut (copié de ton FXML)
+            savedFilterToggle.setStyle(
+                    "-fx-background-color: transparent;" +
+                            "-fx-text-fill: #94A3B8;" +
+                            "-fx-border-color: #334155;" +
+                            "-fx-border-radius: 20;" +
+                            "-fx-padding: 8 16;" +
+                            "-fx-cursor: hand;"
+            );
+        }
+    }
     private void displayOffersCards(ObservableList<Offer> offers) {
         offersCardsContainer.getChildren().clear();
 
@@ -158,6 +206,34 @@ public class CandidateApplicationCardController implements Initializable {
 
         card.setOnMouseEntered(e -> card.setStyle(hoverStyle));
         card.setOnMouseExited(e -> card.setStyle(defaultStyle));
+
+        BookmarkService bookmarkService = new BookmarkService();
+        boolean isBookmarked = bookmarkService.isBookmarked(offer.getId());
+        // Bouton bookmark
+        Button bookmarkBtn = new Button(isBookmarked ? "🔖" : "☆");
+        bookmarkBtn.setStyle(
+                "-fx-background-color: transparent;" +
+                        "-fx-text-fill: " + (isBookmarked ? "#FBBF24" : "#94A3B8") + ";" +
+                        "-fx-font-size: 20px;" +
+                        "-fx-cursor: hand;"
+        );
+        bookmarkBtn.setOnAction(e -> {
+            boolean success = bookmarkService.toggleBookmark(offer.getId());
+            if (success) {
+                boolean newState = bookmarkService.isBookmarked(offer.getId());
+                bookmarkBtn.setText(newState ? "🔖" : "☆");
+                bookmarkBtn.setStyle(
+                        "-fx-background-color: transparent;" +
+                                "-fx-text-fill: " + (newState ? "#FBBF24" : "#94A3B8") + ";" +
+                                "-fx-font-size: 20px;" +
+                                "-fx-cursor: hand;"
+                );
+
+                // Notification toast (optionnel)
+                showAlert("Bookmark", newState ? "Offre sauvegardée" : "Offre retirée des favoris", Alert.AlertType.INFORMATION);
+
+            }
+        });
 
         // En-tête avec titre et badge
         HBox headerBox = new HBox(10);
@@ -192,7 +268,9 @@ public class CandidateApplicationCardController implements Initializable {
             );
         }
 
-        headerBox.getChildren().addAll(titleLabel, daysBadge);
+        headerBox.getChildren().addAll(titleLabel,bookmarkBtn,daysBadge);
+
+
 
         // Département et type de contrat
         HBox deptBox = new HBox(8);
