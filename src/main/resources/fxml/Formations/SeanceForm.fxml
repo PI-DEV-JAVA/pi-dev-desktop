@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="talentos.pidev.controllers.formations.SeanceFormController"
+            styleClass="content-pane">
+
+    <!-- TOP -->
+    <top>
+        <VBox spacing="16">
+            <padding>
+                <Insets top="22" right="22" bottom="18" left="22"/>
+            </padding>
+
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label fx:id="titleLabel" text="Séance" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Retour" onAction="#onCancel" styleClass="btn-secondary"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- CENTER -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="card-scroll">
+            <content>
+                <VBox spacing="16">
+                    <padding>
+                        <Insets top="16" right="24" bottom="24" left="24"/>
+                    </padding>
+
+                    <!-- Card 1 : Infos séance -->
+                    <VBox spacing="12" styleClass="offer-card">
+                        <padding>
+                            <Insets top="16" right="16" bottom="16" left="16"/>
+                        </padding>
+
+                        <Label text="Informations séance" styleClass="filter-label"/>
+
+                        <GridPane hgap="12" vgap="12">
+                            <columnConstraints>
+                                <ColumnConstraints prefWidth="170"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                            </columnConstraints>
+
+                            <Label text="Titre" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <TextField fx:id="tfTitre" promptText="Ex: Introduction, Atelier pratique..."
+                                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                            <Label text="Type" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <ComboBox fx:id="cbType" promptText="PRESENTIEL / EN_LIGNE"
+                                      GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- Card 2 : Planning -->
+                    <VBox spacing="12" styleClass="offer-card">
+                        <padding>
+                            <Insets top="16" right="16" bottom="16" left="16"/>
+                        </padding>
+
+                        <Label text="Planification" styleClass="filter-label"/>
+
+                        <!-- Début -->
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="Date début" styleClass="muted-text"/>
+                                <DatePicker fx:id="dpDebut" promptText="Date début"/>
+                            </VBox>
+
+                            <VBox spacing="6">
+                                <Label text="Heure" styleClass="muted-text"/>
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Spinner fx:id="spDebutH" prefWidth="90"/>
+                                    <Label text=":" styleClass="muted-text"/>
+                                    <Spinner fx:id="spDebutM" prefWidth="90"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Fin -->
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                                <Label text="Date fin" styleClass="muted-text"/>
+                                <DatePicker fx:id="dpFin" promptText="Date fin"/>
+                            </VBox>
+
+                            <VBox spacing="6">
+                                <Label text="Heure" styleClass="muted-text"/>
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Spinner fx:id="spFinH" prefWidth="90"/>
+                                    <Label text=":" styleClass="muted-text"/>
+                                    <Spinner fx:id="spFinM" prefWidth="90"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Card 3 : PRESENTIEL -->
+                    <VBox fx:id="presentielBox" spacing="12" styleClass="offer-card">
+                        <padding>
+                            <Insets top="16" right="16" bottom="16" left="16"/>
+                        </padding>
+
+                        <Label text="Séance présentielle" styleClass="filter-label"/>
+
+                        <Label text="Adresse" styleClass="muted-text"/>
+                        <TextField fx:id="tfAdresse" promptText="Ex: ESPRIT, Ariana, Tunis..."/>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Button text="Ouvrir Map (choisir)" onAction="#onPickFromMap" styleClass="btn-success"/>
+                            <Button fx:id="btnOpenMap" text="Voir Map" onAction="#onOpenMap" styleClass="btn-secondary" disable="true"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lbLatLng" text="Non géolocalisé" styleClass="muted-text"/>
+                        </HBox>
+
+                        <Label text="Astuce : Ouvrir Map peut géocoder automatiquement l'adresse." styleClass="muted-text"/>
+                    </VBox>
+
+                    <!-- Card 4 : EN LIGNE -->
+                    <VBox fx:id="onlineBox" spacing="12" styleClass="offer-card">
+                        <padding>
+                            <Insets top="16" right="16" bottom="16" left="16"/>
+                        </padding>
+
+                        <Label text="Séance en ligne" styleClass="filter-label"/>
+
+                        <Label text="Lien vidéo (Google Drive / YouTube / etc.)" styleClass="muted-text"/>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="tfVideoLink" promptText="Colle ici le lien (Drive, YouTube...)"
+                                       HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="btnOpenLink" text="Ouvrir lien" onAction="#onOpenLink" styleClass="btn-secondary"/>
+                        </HBox>
+
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Label text="Durée (min)" styleClass="muted-text"/>
+                            <Spinner fx:id="spDuree" prefWidth="160"/>
+                        </HBox>
+
+                        <Label text="Astuce : ce lien sera utilisé plus tard côté candidat pour ouvrir la vidéo." styleClass="muted-text"/>
+                    </VBox>
+
+                    <!-- Errors -->
+                    <Label fx:id="errorLabel" text="" styleClass="error-label" wrapText="true"/>
+
+                    <!-- Actions -->
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Button text="Annuler" onAction="#onCancel" styleClass="btn-secondary"/>
+                        <Button text="Enregistrer" onAction="#onSave" styleClass="btn-success"/>
+                    </HBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

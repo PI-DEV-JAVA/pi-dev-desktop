@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.web.WebView?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="talentos.pidev.controllers.common.MapPickerController">
+
+    <top>
+        <HBox spacing="10" style="-fx-padding:10;">
+            <Label text="Choisir un emplacement (clic sur la carte)"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnClose" text="Fermer" onAction="#onClose"/>
+        </HBox>
+    </top>
+
+    <center>
+        <!-- IMPORTANT: StackPane pour forcer le resize -->
+        <StackPane>
+            <WebView fx:id="webView"
+                     maxWidth="Infinity"
+                     maxHeight="Infinity"/>
+        </StackPane>
+    </center>
+
+</BorderPane>

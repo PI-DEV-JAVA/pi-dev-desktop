@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentos.pidev.controllers.formations.FormationCandidatDetailsController"
+            styleClass="content-pane">
+
+    <top>
+        <VBox spacing="14">
+            <padding>
+                <Insets top="22" right="22" bottom="12" left="22"/>
+            </padding>
+
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label fx:id="lbTitle" text="Ma formation" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Retour" onAction="#onBack" styleClass="btn-secondary"/>
+            </HBox>
+
+            <VBox spacing="6" styleClass="offer-card">
+                <padding>
+                    <Insets top="12" right="16" bottom="12" left="16"/>
+                </padding>
+
+                <Label fx:id="lbInfo1" text="..." styleClass="muted-text"/>
+                <Label fx:id="lbInfo2" text="..." styleClass="muted-text"/>
+                <Label fx:id="lbInfo3" text="..." styleClass="muted-text"/>
+            </VBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="12" styleClass="content-inner">
+            <padding>
+                <Insets top="12" right="22" bottom="22" left="22"/>
+            </padding>
+
+            <Label text="Séances" styleClass="filter-label"/>
+
+            <!-- ✅ ListView Design -->
+            <ListView fx:id="lvSeances" VBox.vgrow="ALWAYS" styleClass="list-view"/>
+
+        </VBox>
+    </center>
+
+</BorderPane>
