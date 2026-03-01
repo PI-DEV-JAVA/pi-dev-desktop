@@ -443,6 +443,11 @@ public class ProfileViewController {
         /* Already on profile */ }
 
     @FXML
+    private void handleNotifications() {
+        talentospidev.utils.SceneUtil.switchScene("notifications.fxml");
+    }
+
+    @FXML
     private void handleSettings() {
         talentospidev.utils.SceneUtil.switchScene("settings.fxml");
     }

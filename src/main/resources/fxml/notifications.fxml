@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="talentospidev.controllers.NotificationsController"
+      stylesheets="@/style/app.css" style="-fx-background-color: #f0f2f5;">
+
+    <!-- ======= LEFT SIDEBAR ======= -->
+    <VBox fx:id="sidebar" styleClass="sidebar">
+       <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 1 1 1 1;">
+            <ImageView fitHeight="60" fitWidth="60" preserveRatio="true">
+                <image><Image url="@/images/logo.png"/></image>
+            </ImageView>
+            <Label text="Talentos" styleClass="sidebar-logo"/>
+        </HBox>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="MAIN" styleClass="sidebar-section-label"/>
+        <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
+        <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
+        <Button text="🔔  Notifications" styleClass="sidebar-button-active" onAction="#handleNotifications"/>
+        <Button text="✅  To Do" styleClass="sidebar-button" onAction="#handleToDo"/>
+        <Region VBox.vgrow="ALWAYS"/>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
+        <Button text="👤  My Profile" styleClass="sidebar-button" onAction="#handleMyProfile"/>
+        <Button text="⚙  Settings" styleClass="sidebar-button" onAction="#handleSettings"/>
+        <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
+    </VBox>
+
+    <!-- ======= MAIN CONTENT ======= -->
+    <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS"
+                style="-fx-background-color: transparent; -fx-background: transparent;">
+        <VBox spacing="20" style="-fx-padding: 30;">
+
+            <!-- Page Header -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="🔔 Notifications" style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+                    <Label text="Your support tickets and admin replies"
+                           style="-fx-font-size: 13px; -fx-text-fill: #6b7280;"/>
+                </VBox>
+                <Label fx:id="unreadBadge" text=""
+                       style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-size: 12px;
+                              -fx-font-weight: 800; -fx-padding: 4 12; -fx-background-radius: 12;"/>
+            </HBox>
+
+            <!-- Filter bar -->
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: white; -fx-background-radius: 12;
+                         -fx-padding: 10 16; -fx-border-color: #e5e7eb; -fx-border-radius: 12;">
+                <ComboBox fx:id="statusFilterBox" prefWidth="140" style="-fx-font-size: 11px;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="ticketCountLabel" text="0 tickets"
+                       style="-fx-font-size: 11px; -fx-text-fill: #9ca3af; -fx-font-weight: 600;"/>
+            </HBox>
+
+            <!-- Tickets List -->
+            <VBox fx:id="ticketsList" spacing="10"/>
+
+            <!-- Empty state -->
+            <VBox fx:id="emptyState" alignment="CENTER" spacing="10" visible="false" managed="false"
+                  style="-fx-padding: 40;">
+                <Label text="🎉" style="-fx-font-size: 40px;"/>
+                <Label text="No tickets yet" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                <Label text="Submit a support ticket from Settings if you need help"
+                       style="-fx-font-size: 12px; -fx-text-fill: #9ca3af;"/>
+                <Button text="⚙ Go to Settings" onAction="#handleSettings"
+                        style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-size: 12px;
+                               -fx-font-weight: 700; -fx-padding: 8 20; -fx-background-radius: 8; -fx-cursor: hand;"/>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</HBox>

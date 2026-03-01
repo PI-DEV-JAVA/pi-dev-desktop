@@ -21,6 +21,7 @@
         <Label text="MAIN" styleClass="sidebar-section-label"/>
         <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
         <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
+        <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
         <Region VBox.vgrow="ALWAYS"/>
         <Separator style="-fx-opacity: 0.1;"/>
         <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
@@ -44,7 +45,7 @@
             <!-- Settings Cards -->
             <VBox maxWidth="600" spacing="16">
 
-                <!-- Appearance Section -->
+                <!-- ═══ Appearance Section ═══ -->
                 <VBox spacing="0"
                       style="-fx-background-color: white; -fx-background-radius: 16;
                              -fx-border-color: #e5e7eb; -fx-border-radius: 16;
@@ -83,6 +84,57 @@
                         <Label fx:id="themeIcon" text="☀"
                                style="-fx-font-size: 24px;"/>
                     </HBox>
+                </VBox>
+
+                <!-- ═══ Contact Support Section ═══ -->
+                <VBox spacing="0"
+                      style="-fx-background-color: white; -fx-background-radius: 16;
+                             -fx-border-color: #e5e7eb; -fx-border-radius: 16;
+                             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);">
+
+                    <HBox alignment="CENTER_LEFT" style="-fx-padding: 20 24 12 24;">
+                        <Label text="CONTACT SUPPORT" style="-fx-font-size: 11px; -fx-font-weight: 800;
+                                                              -fx-text-fill: #6b7280; -fx-letter-spacing: 1px;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="myTicketsBtn" text="🔔 My Tickets →"
+                                style="-fx-background-color: transparent; -fx-text-fill: #6366f1;
+                                       -fx-font-size: 11px; -fx-font-weight: 700; -fx-cursor: hand;"
+                                onAction="#handleNotifications"/>
+                    </HBox>
+
+                    <VBox spacing="12" style="-fx-padding: 8 24 20 24;">
+                        <!-- Category -->
+                        <VBox spacing="4">
+                            <Label text="Category" style="-fx-font-size: 12px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                            <ComboBox fx:id="categoryBox" prefWidth="300" style="-fx-font-size: 12px;"/>
+                        </VBox>
+
+                        <!-- Subject -->
+                        <VBox spacing="4">
+                            <Label text="Subject" style="-fx-font-size: 12px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                            <TextField fx:id="subjectField" promptText="Brief description of your issue"
+                                       styleClass="input-field"/>
+                        </VBox>
+
+                        <!-- Message -->
+                        <VBox spacing="4">
+                            <Label text="Message" style="-fx-font-size: 12px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                            <TextArea fx:id="messageArea" promptText="Describe your issue in detail..."
+                                      prefRowCount="4" wrapText="true"
+                                      style="-fx-font-size: 12px;"/>
+                        </VBox>
+
+                        <!-- Error/Success label -->
+                        <Label fx:id="ticketStatusLabel" text="" visible="false" managed="false"
+                               style="-fx-font-size: 11px; -fx-font-weight: 600;" wrapText="true"/>
+
+                        <!-- Submit -->
+                        <HBox alignment="CENTER_RIGHT">
+                            <Button text="📤 Submit Ticket" styleClass="primary-button"
+                                    onAction="#handleSubmitTicket"
+                                    style="-fx-padding: 10 24; -fx-font-size: 12px;"/>
+                        </HBox>
+                    </VBox>
                 </VBox>
 
             </VBox>

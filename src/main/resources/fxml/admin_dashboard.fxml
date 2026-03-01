@@ -37,54 +37,99 @@
 
             <!-- Page Header -->
             <VBox spacing="4">
-                <Label text="Admin Dashboard" style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
-                <Label text="Manage all users and platform statistics"
+                <Label text="Admin Dashboard"
+                       style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+                <Label text="Manage users and support tickets"
                        style="-fx-font-size: 13px; -fx-text-fill: #6b7280;"/>
             </VBox>
 
-            <!-- Stats Row -->
-            <HBox spacing="16">
+            <!-- ═══ Stats Row ═══ -->
+            <HBox spacing="14">
                 <VBox alignment="CENTER" HBox.hgrow="ALWAYS"
-                      style="-fx-background-color: #eef2ff; -fx-background-radius: 14; -fx-padding: 20;
+                      style="-fx-background-color: #eef2ff; -fx-background-radius: 14; -fx-padding: 18;
                              -fx-border-color: #6366f122; -fx-border-radius: 14;">
-                    <Label text="Total Users" style="-fx-font-size: 12px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
-                    <Label fx:id="totalUsersLabel" text="0" style="-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #6366f1;"/>
+                    <Label text="Total Users"
+                           style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
+                    <Label fx:id="totalUsersLabel" text="0"
+                           style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #6366f1;"/>
                 </VBox>
                 <VBox alignment="CENTER" HBox.hgrow="ALWAYS"
-                      style="-fx-background-color: #f0fdf4; -fx-background-radius: 14; -fx-padding: 20;
+                      style="-fx-background-color: #f0fdf4; -fx-background-radius: 14; -fx-padding: 18;
                              -fx-border-color: #22c55e22; -fx-border-radius: 14;">
-                    <Label text="Active" style="-fx-font-size: 12px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
-                    <Label fx:id="activeUsersLabel" text="0" style="-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #22c55e;"/>
+                    <Label text="Active"
+                           style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
+                    <Label fx:id="activeUsersLabel" text="0"
+                           style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #22c55e;"/>
                 </VBox>
                 <VBox alignment="CENTER" HBox.hgrow="ALWAYS"
-                      style="-fx-background-color: #fef3c7; -fx-background-radius: 14; -fx-padding: 20;
+                      style="-fx-background-color: #fef3c7; -fx-background-radius: 14; -fx-padding: 18;
                              -fx-border-color: #f59e0b22; -fx-border-radius: 14;">
-                    <Label text="Candidates" style="-fx-font-size: 12px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
-                    <Label fx:id="candidatesLabel" text="0" style="-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #f59e0b;"/>
+                    <Label text="Candidates"
+                           style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
+                    <Label fx:id="candidatesLabel" text="0"
+                           style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #f59e0b;"/>
                 </VBox>
                 <VBox alignment="CENTER" HBox.hgrow="ALWAYS"
-                      style="-fx-background-color: #fce4ec; -fx-background-radius: 14; -fx-padding: 20;
+                      style="-fx-background-color: #fce4ec; -fx-background-radius: 14; -fx-padding: 18;
                              -fx-border-color: #e91e6322; -fx-border-radius: 14;">
-                    <Label text="Recruiters" style="-fx-font-size: 12px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
-                    <Label fx:id="recruitersLabel" text="0" style="-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #e91e63;"/>
+                    <Label text="Recruiters"
+                           style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
+                    <Label fx:id="recruitersLabel" text="0"
+                           style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #e91e63;"/>
+                </VBox>
+                <VBox alignment="CENTER" HBox.hgrow="ALWAYS"
+                      style="-fx-background-color: #fff7ed; -fx-background-radius: 14; -fx-padding: 18;
+                             -fx-border-color: #ea580c22; -fx-border-radius: 14;">
+                    <Label text="🎫 Open Tickets"
+                           style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
+                    <Label fx:id="openTicketsLabel" text="0"
+                           style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: #ea580c;"/>
                 </VBox>
             </HBox>
 
-            <!-- Filters -->
-            <HBox spacing="12" alignment="CENTER_LEFT"
-                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 12 16;
-                         -fx-border-color: #e5e7eb; -fx-border-radius: 12;">
-                <TextField fx:id="searchField" promptText="🔍 Search users..."
-                           style="-fx-background-color: #f3f4f6; -fx-border-color: transparent;
-                                  -fx-background-radius: 8; -fx-padding: 8 12; -fx-pref-width: 220; -fx-font-size: 12px;"/>
-                <ComboBox fx:id="roleFilterBox" prefWidth="120" style="-fx-font-size: 11px;"/>
-                <ComboBox fx:id="sortByBox" prefWidth="120" style="-fx-font-size: 11px;"/>
-                <ComboBox fx:id="sortOrderBox" prefWidth="100" style="-fx-font-size: 11px;"/>
-            </HBox>
+            <!-- ═══ Tab Panel: Users | Support ═══ -->
+            <TabPane fx:id="mainTabPane" VBox.vgrow="ALWAYS"
+                     style="-fx-background-color: transparent;">
 
-            <!-- Users List -->
-            <ListView fx:id="userListView" VBox.vgrow="ALWAYS"
-                      style="-fx-background-color: transparent; -fx-border-color: transparent;"/>
+                <!-- ── Users Tab ── -->
+                <Tab text="👥 Users" closable="false">
+                    <VBox spacing="12">
+                        <HBox spacing="12" alignment="CENTER_LEFT"
+                              style="-fx-background-color: white; -fx-background-radius: 12;
+                                     -fx-padding: 12 16; -fx-border-color: #e5e7eb; -fx-border-radius: 12;">
+                            <TextField fx:id="searchField" promptText="🔍 Search users..."
+                                       style="-fx-background-color: #f3f4f6; -fx-border-color: transparent;
+                                              -fx-background-radius: 8; -fx-padding: 8 12;
+                                              -fx-pref-width: 220; -fx-font-size: 12px;"/>
+                            <ComboBox fx:id="roleFilterBox" prefWidth="120" style="-fx-font-size: 11px;"/>
+                            <ComboBox fx:id="sortByBox" prefWidth="120" style="-fx-font-size: 11px;"/>
+                            <ComboBox fx:id="sortOrderBox" prefWidth="100" style="-fx-font-size: 11px;"/>
+                        </HBox>
+                        <ListView fx:id="userListView" VBox.vgrow="ALWAYS" prefHeight="400"
+                                  style="-fx-background-color: transparent; -fx-border-color: transparent;"/>
+                    </VBox>
+                </Tab>
+
+                <!-- ── Support Tab ── -->
+                <Tab text="🎫 Support" closable="false">
+                    <VBox spacing="12">
+                        <HBox spacing="12" alignment="CENTER_LEFT"
+                              style="-fx-background-color: white; -fx-background-radius: 12;
+                                     -fx-padding: 12 16; -fx-border-color: #e5e7eb; -fx-border-radius: 12;">
+                            <TextField fx:id="ticketSearchField" promptText="🔍 Search tickets..."
+                                       style="-fx-background-color: #f3f4f6; -fx-border-color: transparent;
+                                              -fx-background-radius: 8; -fx-padding: 8 12;
+                                              -fx-pref-width: 220; -fx-font-size: 12px;"/>
+                            <ComboBox fx:id="ticketStatusFilter" prefWidth="140" style="-fx-font-size: 11px;"/>
+                            <ComboBox fx:id="ticketCategoryFilter" prefWidth="140" style="-fx-font-size: 11px;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="ticketCountLabel" text="0 tickets"
+                                   style="-fx-font-size: 11px; -fx-text-fill: #9ca3af; -fx-font-weight: 600;"/>
+                        </HBox>
+                        <VBox fx:id="supportTicketsList" spacing="10" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </Tab>
+            </TabPane>
         </VBox>
     </ScrollPane>
 </HBox>

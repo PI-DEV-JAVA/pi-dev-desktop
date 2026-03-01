@@ -496,6 +496,11 @@ public class DashboardController {
     }
 
     @FXML
+    private void handleNotifications() {
+        SceneUtil.switchScene("notifications.fxml");
+    }
+
+    @FXML
     private void handleSettings() {
         SceneUtil.switchScene("settings.fxml");
     }

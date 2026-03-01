@@ -1,9 +1,12 @@
 package talentospidev.controllers;
 
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import talentospidev.dao.SupportTicketDao;
+import talentospidev.models.SupportTicket;
+import talentospidev.models.User;
 import talentospidev.services.AuthService;
 import talentospidev.utils.SceneUtil;
 import talentospidev.utils.SidebarUtil;
@@ -20,25 +23,42 @@ public class SettingsController {
     @FXML
     private Label themeIcon;
 
+    // Contact support fields
+    @FXML
+    private ComboBox<String> categoryBox;
+    @FXML
+    private TextField subjectField;
+    @FXML
+    private TextArea messageArea;
+    @FXML
+    private Label ticketStatusLabel;
+
+    private final SupportTicketDao ticketDao = new SupportTicketDao();
+
     @FXML
     public void initialize() {
         SidebarUtil.applySidebarIcons(sidebar);
 
-        // Restore toggle state
+        // Dark mode toggle
         darkModeToggle.setSelected(ThemeManager.isDarkMode());
         updateToggleVisual();
+
+        // Category ComboBox
+        categoryBox.setItems(FXCollections.observableArrayList(
+                "Bug Report", "Question", "Feature Request", "Other"));
+        categoryBox.setValue("Other");
     }
+
+    // ═══ DARK MODE ═══
 
     @FXML
     private void handleDarkModeToggle() {
         ThemeManager.toggle();
-        // Reload the settings page to reflect the new theme immediately
         SceneUtil.switchScene("settings.fxml");
     }
 
     private void updateToggleVisual() {
         boolean dark = ThemeManager.isDarkMode();
-
         if (dark) {
             darkModeToggle.setText("ON");
             darkModeToggle.setStyle(
@@ -58,7 +78,56 @@ public class SettingsController {
         }
     }
 
-    // === Sidebar Navigation ===
+    // ═══ CONTACT SUPPORT ═══
+
+    @FXML
+    private void handleSubmitTicket() {
+        User user = AuthService.getCurrentUser();
+        if (user == null)
+            return;
+
+        String subject = subjectField.getText();
+        String message = messageArea.getText();
+        String categoryDisplay = categoryBox.getValue();
+
+        // Validation
+        if (subject == null || subject.trim().isEmpty()) {
+            showTicketStatus("⚠ Please enter a subject.", true);
+            return;
+        }
+        if (message == null || message.trim().isEmpty()) {
+            showTicketStatus("⚠ Please describe your issue.", true);
+            return;
+        }
+
+        // Map display name to DB enum
+        String category = switch (categoryDisplay) {
+            case "Bug Report" -> "BUG";
+            case "Question" -> "QUESTION";
+            case "Feature Request" -> "FEATURE";
+            default -> "OTHER";
+        };
+
+        SupportTicket ticket = new SupportTicket(user.getId(), subject.trim(), message.trim(), category);
+        ticketDao.createTicket(ticket);
+
+        // Success feedback
+        subjectField.clear();
+        messageArea.clear();
+        categoryBox.setValue("Other");
+        showTicketStatus("✅ Ticket submitted successfully! Our team will get back to you.", false);
+    }
+
+    private void showTicketStatus(String msg, boolean isError) {
+        ticketStatusLabel.setText(msg);
+        ticketStatusLabel.setStyle("-fx-font-size: 11px; -fx-font-weight: 600; -fx-text-fill: " +
+                (isError ? "#dc2626" : "#16a34a") + ";");
+        ticketStatusLabel.setVisible(true);
+        ticketStatusLabel.setManaged(true);
+    }
+
+    // ═══ SIDEBAR NAVIGATION ═══
+
     @FXML
     private void handleDashboard() {
         var user = AuthService.getCurrentUser();
@@ -84,6 +153,11 @@ public class SettingsController {
     @FXML
     private void handleSettings() {
         /* Already here */ }
+
+    @FXML
+    private void handleNotifications() {
+        SceneUtil.switchScene("notifications.fxml");
+    }
 
     @FXML
     private void handleLogout() {

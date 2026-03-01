@@ -34,6 +34,7 @@
         <Label text="MAIN" styleClass="sidebar-section-label"/>
         <Button text="📊  Dashboard" styleClass="sidebar-button-active" onAction="#handleDashboard"/>
         <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
+        <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
         <Button text="✅  To Do" styleClass="sidebar-button" onAction="#handleToDo"/>
 
         <Region VBox.vgrow="ALWAYS"/>
