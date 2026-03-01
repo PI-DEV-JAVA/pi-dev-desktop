@@ -25,6 +25,12 @@ public class MyCircleController {
     @FXML
     private VBox sidebar;
     @FXML
+    private Button toDoTab;
+    @FXML
+    private Button activitiesTab;
+    @FXML
+    private Button projectsTab;
+    @FXML
     private Label circleStatsLabel;
     @FXML
     private Label pendingBadge;
@@ -49,7 +55,7 @@ public class MyCircleController {
 
     @FXML
     public void initialize() {
-        SidebarUtil.applySidebarIcons(sidebar);
+        SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
         User user = AuthService.getCurrentUser();
         if (user == null)
             return;
@@ -382,6 +388,16 @@ public class MyCircleController {
     @FXML
     private void handleToDo() {
         SceneUtil.switchScene("activities/activity_employee.fxml");
+    }
+
+    @FXML
+    private void handleActivities() {
+        SceneUtil.switchScene("activities/activities.fxml");
+    }
+
+    @FXML
+    private void handleProjects() {
+        SceneUtil.switchScene("projects/projects.fxml");
     }
 
     @FXML

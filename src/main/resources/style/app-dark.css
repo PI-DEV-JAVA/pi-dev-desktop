@@ -299,3 +299,94 @@
 .reset-link {
     -fx-text-fill: #60a5fa;
 }
+
+/* ================================================
+   GLOBAL TEXT CONTRAST OVERRIDES
+   Inline styles in FXML use dark colors (#111827 etc.)
+   that are invisible on #1a1a2e. These rules force
+   all Labels and Text nodes to be light.
+   ================================================ */
+
+/* Force ALL labels to light text unless they have
+   a more specific rule (sidebar, badges, etc.) */
+.label {
+    -fx-text-fill: #e2e8f0;
+}
+
+.text {
+    -fx-fill: #cbd5e1;
+}
+
+/* ---- ScrollPane / TabPane backgrounds ---- */
+.scroll-pane,
+.scroll-pane>.viewport {
+    -fx-background-color: #1a1a2e;
+    -fx-background: #1a1a2e;
+}
+
+.tab-pane {
+    -fx-background-color: transparent;
+}
+
+.tab-pane>.tab-header-area {
+    -fx-background-color: #16213e;
+}
+
+.tab-pane>.tab-header-area>.tab-header-background {
+    -fx-background-color: #16213e;
+}
+
+.tab-header-area .tab {
+    -fx-background-color: #1e293b;
+}
+
+.tab-header-area .tab:selected {
+    -fx-background-color: #334155;
+}
+
+.tab-header-area .tab .tab-label {
+    -fx-text-fill: #e2e8f0;
+}
+
+/* ---- Stat labels (inline font-weight: 800 headings) ---- */
+.avatar-large {
+    -fx-text-fill: white;
+}
+
+/* ---- Inline-styled HBox/VBox backgrounds that use #f0f2f5, white, #f9fafb, #fafbfc ---- */
+.scroll-pane .content {
+    -fx-background-color: #1a1a2e;
+}
+
+/* ---- CheckBox and RadioButton ---- */
+.check-box {
+    -fx-text-fill: #e2e8f0;
+}
+
+.radio-button {
+    -fx-text-fill: #e2e8f0;
+}
+
+/* ---- Tooltip ---- */
+.tooltip {
+    -fx-background-color: #334155;
+    -fx-text-fill: #e2e8f0;
+}
+
+/* ---- Alert / Dialog ---- */
+.dialog-pane {
+    -fx-background-color: #16213e;
+}
+
+.dialog-pane .label {
+    -fx-text-fill: #e2e8f0;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: #1e293b;
+}
+
+/* ---- Hyperlink ---- */
+.hyperlink {
+    -fx-text-fill: #60a5fa;
+}

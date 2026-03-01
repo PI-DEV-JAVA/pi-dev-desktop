@@ -9,7 +9,7 @@
 
 /* ---- Sidebar ---- */
 .sidebar {
-    -fx-background-color: linear-gradient(to bottom, #0D203B, #162d50);
+    -fx-background-color: linear-gradient(to bottom, #0a5aca, #162d50);
     -fx-padding: 24 0 24 0;
     -fx-pref-width: 230;
     -fx-min-width: 230;

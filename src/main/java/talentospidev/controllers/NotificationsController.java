@@ -25,6 +25,12 @@ public class NotificationsController {
     @FXML
     private VBox sidebar;
     @FXML
+    private Button toDoTab;
+    @FXML
+    private Button activitiesTab;
+    @FXML
+    private Button projectsTab;
+    @FXML
     private Label unreadBadge;
     @FXML
     private ComboBox<String> statusFilterBox;
@@ -41,7 +47,7 @@ public class NotificationsController {
 
     @FXML
     public void initialize() {
-        SidebarUtil.applySidebarIcons(sidebar);
+        SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
 
         statusFilterBox.setItems(FXCollections.observableArrayList(
                 "All", "Open", "In Progress", "Resolved", "Closed"));
@@ -215,6 +221,16 @@ public class NotificationsController {
     @FXML
     private void handleToDo() {
         SceneUtil.switchScene("activities/activity_employee.fxml");
+    }
+
+    @FXML
+    private void handleActivities() {
+        SceneUtil.switchScene("activities/activities.fxml");
+    }
+
+    @FXML
+    private void handleProjects() {
+        SceneUtil.switchScene("projects/projects.fxml");
     }
 
     @FXML

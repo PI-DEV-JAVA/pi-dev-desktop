@@ -12,6 +12,8 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.control.TextField?>
 
 <HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="talentospidev.controllers.ProfileViewController"
@@ -123,6 +125,21 @@
                             <Label fx:id="birthDateLabel" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #111827;" text="—"/>
                         </VBox>
                     </HBox>
+
+                    <Separator style="-fx-opacity: 0.08;"/>
+
+                    <!-- Skills Section -->
+                    <VBox spacing="10">
+                        <Label text="Skills" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #111827;"/>
+                        <FlowPane fx:id="skillsFlowPane" hgap="8" vgap="8"/>
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <TextField fx:id="skillInput" promptText="Add a skill (e.g. Java, SQL, Design...)"
+                                       style="-fx-background-radius: 10; -fx-padding: 6 12; -fx-font-size: 12px; -fx-pref-width: 250;"/>
+                            <Button text="+ Add" onAction="#handleAddSkill"
+                                    style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-font-size: 11px;
+                                           -fx-font-weight: 700; -fx-padding: 6 16; -fx-background-radius: 10; -fx-cursor: hand;"/>
+                        </HBox>
+                    </VBox>
                 </VBox>
 
                 <!-- Actions -->

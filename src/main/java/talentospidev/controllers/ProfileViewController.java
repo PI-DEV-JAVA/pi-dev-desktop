@@ -62,9 +62,14 @@ public class ProfileViewController {
     private Button activitiesTab;
     @FXML
     private Button projectsTab;
+    @FXML
+    private FlowPane skillsFlowPane;
+    @FXML
+    private TextField skillInput;
 
     private final ProfileDao profileDao = new ProfileDao();
     private final UserDao userDao = new UserDao();
+    private final talentospidev.dao.SkillDao skillDao = new talentospidev.dao.SkillDao();
 
     @FXML
     public void initialize() {
@@ -120,6 +125,9 @@ public class ProfileViewController {
         if (user.getCreatedAt() != null) {
             joinDateLabel.setText(user.getCreatedAt().format(DateTimeFormatter.ofPattern("MMM yyyy")));
         }
+
+        // Load skills
+        loadSkills(user.getId());
     }
 
     // ===== AVATAR LOADING =====
@@ -262,6 +270,58 @@ public class ProfileViewController {
     @FXML
     private void handleEdit() {
         SceneUtil.switchScene("update-profile.fxml");
+    }
+
+    // ═══ SKILLS MANAGEMENT ═══
+
+    private void loadSkills(int userId) {
+        skillsFlowPane.getChildren().clear();
+        var skills = skillDao.getSkills(userId);
+        if (skills.isEmpty()) {
+            Label noSkills = new Label("No skills added yet");
+            noSkills.setStyle("-fx-text-fill: #9ca3af; -fx-font-size: 12px; -fx-font-style: italic;");
+            skillsFlowPane.getChildren().add(noSkills);
+            return;
+        }
+        for (String skill : skills) {
+            skillsFlowPane.getChildren().add(createSkillBadge(skill, userId));
+        }
+    }
+
+    private HBox createSkillBadge(String skill, int userId) {
+        HBox badge = new HBox(4);
+        badge.setAlignment(javafx.geometry.Pos.CENTER);
+        badge.setStyle("-fx-background-color: #eef2ff; -fx-background-radius: 12; -fx-padding: 4 10;");
+
+        Label label = new Label(skill);
+        label.setStyle("-fx-font-size: 11px; -fx-font-weight: 600; -fx-text-fill: #6366f1;");
+
+        Label removeBtn = new Label("✕");
+        removeBtn.setStyle("-fx-text-fill: #a5b4fc; -fx-font-size: 10px; -fx-cursor: hand;");
+        removeBtn.setOnMouseClicked(e -> {
+            skillDao.removeSkill(userId, skill);
+            loadSkills(userId);
+        });
+        removeBtn.setOnMouseEntered(
+                e -> removeBtn.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 10px; -fx-cursor: hand;"));
+        removeBtn.setOnMouseExited(
+                e -> removeBtn.setStyle("-fx-text-fill: #a5b4fc; -fx-font-size: 10px; -fx-cursor: hand;"));
+
+        badge.getChildren().addAll(label, removeBtn);
+        return badge;
+    }
+
+    @FXML
+    private void handleAddSkill() {
+        User user = AuthService.getCurrentUser();
+        if (user == null)
+            return;
+        String skill = skillInput.getText();
+        if (skill == null || skill.trim().isEmpty())
+            return;
+        skillDao.addSkill(user.getId(), skill.trim());
+        skillInput.clear();
+        loadSkills(user.getId());
     }
 
     private void handleUploadPhoto() {

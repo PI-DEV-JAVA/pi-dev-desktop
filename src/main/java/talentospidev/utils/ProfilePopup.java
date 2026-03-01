@@ -132,6 +132,27 @@ public class ProfilePopup {
         summaryValue.setMaxWidth(380);
         summaryBox.getChildren().addAll(summaryLabel, summaryValue);
 
+        // Skills Section
+        var skillDao = new talentospidev.dao.SkillDao();
+        var userSkills = skillDao.getSkills(profile.getId());
+        VBox skillsBox = new VBox(6);
+        Label skillsLabel = new Label("Skills");
+        skillsLabel.getStyleClass().add("detail-label");
+        javafx.scene.layout.FlowPane skillsFlow = new javafx.scene.layout.FlowPane(6, 6);
+        if (userSkills.isEmpty()) {
+            Label noSkills = new Label("No skills listed");
+            noSkills.setStyle("-fx-text-fill: #9ca3af; -fx-font-size: 11px; -fx-font-style: italic;");
+            skillsFlow.getChildren().add(noSkills);
+        } else {
+            for (String skill : userSkills) {
+                Label badge = new Label(skill);
+                badge.setStyle("-fx-background-color: #eef2ff; -fx-text-fill: #6366f1; -fx-padding: 3 10; " +
+                        "-fx-background-radius: 10; -fx-font-size: 10px; -fx-font-weight: 700;");
+                skillsFlow.getChildren().add(badge);
+            }
+        }
+        skillsBox.getChildren().addAll(skillsLabel, skillsFlow);
+
         Separator sep = new Separator();
         sep.setStyle("-fx-opacity: 0.3;");
 
@@ -180,13 +201,13 @@ public class ProfilePopup {
             }
         }
 
-        body.getChildren().addAll(grid, sep, summaryBox, footer);
+        body.getChildren().addAll(grid, sep, summaryBox, skillsBox, footer);
 
         // ============ ROOT ============
         VBox root = new VBox(header, body);
         root.getStyleClass().add("popup-root");
 
-        Scene scene = new Scene(root, 500, 560);
+        Scene scene = new Scene(root, 500, 620);
         scene.getStylesheets().add(ProfilePopup.class.getResource("/style/app.css").toExternalForm());
         ThemeManager.applyToScene(scene);
         popup.setScene(scene);

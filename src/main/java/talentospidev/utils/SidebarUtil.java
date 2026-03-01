@@ -84,6 +84,10 @@ public class SidebarUtil {
                     setIcon(btn, FontAwesomeSolid.PLUS_CIRCLE, "Add Offer", color);
                 } else if (text.contains("Settings")) {
                     setIcon(btn, FontAwesomeSolid.COG, "Settings", color);
+                } else if (text.contains("My Circle")) {
+                    setIcon(btn, FontAwesomeSolid.BOLT, "My Circle", color);
+                } else if (text.contains("Notifications")) {
+                    setIcon(btn, FontAwesomeSolid.BELL, "Notifications", color);
                 }
             }
         }

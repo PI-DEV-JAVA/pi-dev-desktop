@@ -28,7 +28,8 @@
         <Label text="MAIN" styleClass="sidebar-section-label"/>
         <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
         <Button text="💼  Job Offers" styleClass="sidebar-button-active" onAction="#handleJobOffers"/>
-        <!-- Candidate only -->
+        <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
+        <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
         <Button fx:id="toDoTab" text="✅  To Do" styleClass="sidebar-button" onAction="#handleToDo" visible="false" managed="false"/>
         <!-- Recruiter only -->
         <Button fx:id="activitiesTab" text="📋  Activities" styleClass="sidebar-button" onAction="#handleActivities" visible="false" managed="false"/>

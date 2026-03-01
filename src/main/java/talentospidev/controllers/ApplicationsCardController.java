@@ -850,6 +850,16 @@ public class ApplicationsCardController implements Initializable {
     }
 
     @FXML
+    private void handleMyCircle() {
+        SceneUtil.switchScene("my_circle.fxml");
+    }
+
+    @FXML
+    private void handleNotifications() {
+        SceneUtil.switchScene("notifications.fxml");
+    }
+
+    @FXML
     private void handleLogout() {
         AuthService.logout();
         SceneUtil.switchScene("login.fxml");

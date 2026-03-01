@@ -23,6 +23,11 @@
         <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
         <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
         <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
+        <!-- Candidate only -->
+        <Button fx:id="toDoTab" text="✅  To Do" styleClass="sidebar-button" onAction="#handleToDo" visible="false" managed="false"/>
+        <!-- Recruiter only -->
+        <Button fx:id="activitiesTab" text="📋  Activities" styleClass="sidebar-button" onAction="#handleActivities" visible="false" managed="false"/>
+        <Button fx:id="projectsTab" text="📁  Projects" styleClass="sidebar-button" onAction="#handleProjects" visible="false" managed="false"/>
         <Region VBox.vgrow="ALWAYS"/>
         <Separator style="-fx-opacity: 0.1;"/>
         <Label text="ACCOUNT" styleClass="sidebar-section-label"/>

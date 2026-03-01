@@ -17,6 +17,12 @@ public class SettingsController {
     @FXML
     private VBox sidebar;
     @FXML
+    private Button toDoTab;
+    @FXML
+    private Button activitiesTab;
+    @FXML
+    private Button projectsTab;
+    @FXML
     private ToggleButton darkModeToggle;
     @FXML
     private Label themeStatusLabel;
@@ -37,7 +43,7 @@ public class SettingsController {
 
     @FXML
     public void initialize() {
-        SidebarUtil.applySidebarIcons(sidebar);
+        SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
 
         // Dark mode toggle
         darkModeToggle.setSelected(ThemeManager.isDarkMode());
@@ -162,6 +168,21 @@ public class SettingsController {
     @FXML
     private void handleNotifications() {
         SceneUtil.switchScene("notifications.fxml");
+    }
+
+    @FXML
+    private void handleToDo() {
+        SceneUtil.switchScene("activities/activity_employee.fxml");
+    }
+
+    @FXML
+    private void handleActivities() {
+        SceneUtil.switchScene("activities/activities.fxml");
+    }
+
+    @FXML
+    private void handleProjects() {
+        SceneUtil.switchScene("projects/projects.fxml");
     }
 
     @FXML

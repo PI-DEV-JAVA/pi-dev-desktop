@@ -447,6 +447,11 @@ public class RecruiterDashboardController {
     }
 
     @FXML
+    private void handleMyCircle() {
+        SceneUtil.switchScene("my_circle.fxml");
+    }
+
+    @FXML
     private void handleLogout() {
         AuthService.logout();
         SceneUtil.switchScene("login.fxml");

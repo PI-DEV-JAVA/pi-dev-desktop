@@ -126,6 +126,10 @@ public class ThemeManager {
             fixed = replaceProp(fixed, "-fx-background-color", "#f3f4f6", "#283548");
             fixed = replaceProp(fixed, "-fx-background-color", "#e5e7eb", "#334155");
             fixed = replaceProp(fixed, "-fx-background-color", "#eff6ff", "#1e3a5f");
+            fixed = replaceProp(fixed, "-fx-background-color", "#fafbfc", "#1e293b");
+            fixed = replaceProp(fixed, "-fx-background-color", "#eef2ff", "rgba(99,102,241,0.15)");
+            fixed = replaceProp(fixed, "-fx-background-color", "#dcfce7", "rgba(34,197,94,0.15)");
+            fixed = replaceProp(fixed, "-fx-background-color", "#fef3c7", "rgba(245,158,11,0.15)");
             // Login page gradient
             fixed = fixed.replace(
                     "linear-gradient(to bottom right, #eef2ff, #f0f2f5, #ede9fe)",
@@ -141,7 +145,9 @@ public class ThemeManager {
 
             // ── Fill (Text nodes use -fx-fill) ─────────────────
             fixed = replaceProp(fixed, "-fx-fill", "#111827", "#e2e8f0");
+            fixed = replaceProp(fixed, "-fx-fill", "#4b5563", "#94a3b8");
             fixed = replaceProp(fixed, "-fx-fill", "#6b7280", "#94a3b8");
+            fixed = replaceProp(fixed, "-fx-fill", "#1f2937", "#e2e8f0");
 
             // ── Border colors ──────────────────────────────────
             fixed = replaceProp(fixed, "-fx-border-color", "#e5e7eb", "#334155");
