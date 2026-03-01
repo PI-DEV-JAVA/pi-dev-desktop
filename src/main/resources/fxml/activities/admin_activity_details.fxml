@@ -23,7 +23,9 @@
         <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
         <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
         <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
-        <Button text="📋  Activities" styleClass="sidebar-button-active" onAction="#handleActivities"/>
+        <Button fx:id="toDoTab" text="✅  To Do" styleClass="sidebar-button" onAction="#handleToDo" visible="false" managed="false"/>
+        <Button fx:id="activitiesTab" text="📋  Activities" styleClass="sidebar-button-active" onAction="#handleActivities"/>
+        <Button fx:id="projectsTab" text="📂  Projects" styleClass="sidebar-button" onAction="#handleProjects"/>
         <Region VBox.vgrow="ALWAYS"/>
         <Separator style="-fx-opacity: 0.1;"/>
         <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
@@ -35,82 +37,106 @@
     <!-- ======= MAIN CONTENT ======= -->
     <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS"
                 style="-fx-background-color: transparent; -fx-background: transparent;">
-        <VBox fx:id="mainContent" spacing="20" style="-fx-padding: 28;" alignment="TOP_CENTER">
-
-            <!-- Back -->
-            <HBox alignment="CENTER_LEFT" spacing="12">
-                <Button text="← Back to Activities" onAction="#handleActivities"
-                        style="-fx-background-color: transparent; -fx-text-fill: #6366f1;
-                               -fx-font-size: 12px; -fx-font-weight: 600; -fx-cursor: hand;"/>
-            </HBox>
-
-            <!-- Detail Card -->
-            <VBox maxWidth="700" spacing="0"
-                  style="-fx-background-color: white; -fx-background-radius: 16;
-                         -fx-border-color: #e5e7eb; -fx-border-radius: 16;
-                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 2);">
-
-                <!-- Header -->
-                <VBox spacing="6"
-                      style="-fx-background-color: linear-gradient(to right, #0D203B, #1e40af);
-                             -fx-background-radius: 16 16 0 0; -fx-padding: 24;">
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label fx:id="activityIdLabel" text="Activity" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: white;"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Label fx:id="statusLabel" text="—"/>
-                    </HBox>
-                    <Label fx:id="projectNameLabel" text="—" style="-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.8);"/>
-                </VBox>
-
-                <!-- Employee Info -->
-                <HBox spacing="16" alignment="CENTER_LEFT"
-                      style="-fx-background-color: #f9fafb; -fx-padding: 14 24;">
-                    <Label text="👤" style="-fx-font-size: 20px;"/>
-                    <VBox spacing="2">
-                        <Label fx:id="employeeNameLabel" text="—" style="-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #111827;"/>
-                        <Label fx:id="employeeEmailLabel" text="—" style="-fx-font-size: 11px; -fx-text-fill: #6b7280;"/>
-                    </VBox>
+        <VBox fx:id="mainContent" spacing="20" style="-fx-padding: 28;">
+                
+                <!-- Header with Back Button -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Button text="← Back" onAction="#handleBack" style="-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand;"/>
+                    <Label text="Activity Details" style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
                 </HBox>
 
-                <!-- Details -->
-                <VBox spacing="16" style="-fx-padding: 24;">
-                    <HBox spacing="24">
-                        <Label fx:id="dateLabel" text="" style="-fx-font-size: 13px; -fx-text-fill: #6b7280;"/>
-                        <Label fx:id="hoursLabel" text="" style="-fx-font-size: 13px; -fx-text-fill: #6b7280;"/>
-                    </HBox>
-
-                    <VBox spacing="4">
-                        <Label text="Task Description / Updates" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
-                        <Label fx:id="descriptionLabel" text="—" wrapText="true"
-                               style="-fx-font-size: 13px; -fx-text-fill: #4b5563; -fx-line-spacing: 2;"/>
-                    </VBox>
-
-                    <Separator/>
-
-                    <!-- Files -->
-                    <VBox spacing="8">
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Label text="📎 Candidate Files" style="-fx-font-size: 13px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Button text="⬇ Download All" onAction="#downloadAllFiles"
-                                    style="-fx-background-color: #eef2ff; -fx-text-fill: #6366f1;
-                                           -fx-font-size: 11px; -fx-font-weight: 700; -fx-padding: 5 12;
-                                           -fx-background-radius: 8; -fx-cursor: hand;"/>
-                        </HBox>
-                        <VBox fx:id="filesContainer" spacing="6"/>
-                    </VBox>
-
-                    <Separator/>
-
-                    <!-- Actions -->
-                    <HBox spacing="12" alignment="CENTER_RIGHT">
-                        <Button text="✅ Mark as Reviewed" onAction="#markAsReviewed"
-                                style="-fx-background-color: linear-gradient(to right, #22c55e, #16a34a);
-                                       -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 700;
-                                       -fx-padding: 10 24; -fx-background-radius: 10; -fx-cursor: hand;"/>
+                <!-- Employee Info Card -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);">
+                    <Label text="Employee Information" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                    <HBox spacing="20" alignment="CENTER_LEFT">
+                        <VBox spacing="5">
+                            <Label text="Name:" style="-fx-font-size: 12px; -fx-text-fill: #6b7280;"/>
+                            <Label fx:id="employeeNameLabel" text="-" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #111827;"/>
+                        </VBox>
+                        <VBox spacing="5">
+                            <Label text="Email:" style="-fx-font-size: 12px; -fx-text-fill: #6b7280;"/>
+                            <Label fx:id="employeeEmailLabel" text="-" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #111827;"/>
+                        </VBox>
                     </HBox>
                 </VBox>
-            </VBox>
+
+                <!-- Activity Details Card -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label fx:id="activityIdLabel" text="Activity #0" style="-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #6366f1;"/>
+                        <Label fx:id="statusLabel" text="PLANNED" style="-fx-background-color: #f3f4f6; -fx-text-fill: #6b7280; -fx-padding: 4 12; -fx-background-radius: 10; -fx-font-size: 11px; -fx-font-weight: 700;"/>
+                    </HBox>
+                    
+                    <GridPane hgap="20" vgap="10">
+                        <Label text="Project:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-size: 12px; -fx-text-fill: #6b7280;"/>
+                        <Label fx:id="projectNameLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #111827;"/>
+                        
+                        <Label text="Date:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-font-size: 12px; -fx-text-fill: #6b7280;"/>
+                        <Label fx:id="dateLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="1" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #111827;"/>
+                        
+                        <Label text="Assigned Hours:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-size: 12px; -fx-text-fill: #6b7280;"/>
+                        <Label fx:id="hoursLabel" text="-" GridPane.rowIndex="2" GridPane.columnIndex="1" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #111827;"/>
+                    </GridPane>
+                    
+                    <Label text="Description:" style="-fx-font-size: 12px; -fx-text-fill: #6b7280;"/>
+                    <Label fx:id="descriptionLabel" text="-" wrapText="true" style="-fx-font-size: 14px; -fx-text-fill: #374151; -fx-background-color: #f9fafb; -fx-padding: 12; -fx-background-radius: 8;"/>
+                </VBox>
+
+                <!-- Time Tracking Card -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="⏱ Time Tracking" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <Label fx:id="currentStatusLabel" text="○ NOT STARTED" style="-fx-font-size: 11px; -fx-font-weight: bold;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <HBox fx:id="liveTrackingPanel" spacing="10" alignment="CENTER_RIGHT">
+                            <ToggleButton fx:id="trackLiveToggle" text="Live Tracking Off" style="-fx-background-color: #6b7280; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 6 12; -fx-font-size: 11px;"/>
+                        </HBox>
+                    </HBox>
+                    
+                    <HBox spacing="20" alignment="CENTER_LEFT">
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Tracked Time" style="-fx-font-size: 11px; -fx-text-fill: #6b7280;"/>
+                            <Label fx:id="trackedTimeLabel" text="0h 0m" style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #6366f1;"/>
+                        </VBox>
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Completion" style="-fx-font-size: 11px; -fx-text-fill: #6b7280;"/>
+                            <Label fx:id="completionLabel" text="0%" style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #f59e0b;"/>
+                        </VBox>
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Sessions" style="-fx-font-size: 11px; -fx-text-fill: #6b7280;"/>
+                            <Label fx:id="sessionsLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #10b981;"/>
+                        </VBox>
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Last Active" style="-fx-font-size: 11px; -fx-text-fill: #6b7280;"/>
+                            <Label fx:id="lastActiveLabel" text="Never" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #6b7280;"/>
+                        </VBox>
+                    </HBox>
+                    
+                    <ProgressBar fx:id="progressBar" progress="0.0" prefWidth="Infinity" prefHeight="8" style="-fx-accent: #6366f1;"/>
+                    
+                    <Label text="Tracking History" style="-fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #374151; -fx-padding: 10 0 0 0;"/>
+                    <ListView fx:id="trackingHistoryList" prefHeight="150" style="-fx-background-color: #f9fafb; -fx-background-radius: 8;"/>
+                    
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Button text="🔄 Refresh" onAction="#refreshData" style="-fx-background-color: #eef2ff; -fx-text-fill: #6366f1; -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand;"/>
+                        <Button text="📧 Send Reminder" onAction="#sendReminder" style="-fx-background-color: #fef3c7; -fx-text-fill: #d97706; -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Files Card -->
+                <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="📎 Uploaded Files" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="📦 Download All" onAction="#downloadAllFiles" style="-fx-background-color: #eef2ff; -fx-text-fill: #6366f1; -fx-background-radius: 8; -fx-padding: 6 12; -fx-cursor: hand; -fx-font-size: 11px;"/>
+                    </HBox>
+                    
+                    <VBox fx:id="filesContainer" spacing="8"/>
+                    
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Button text="✅ Mark as Reviewed" onAction="#markAsReviewed" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand; -fx-font-weight: bold;"/>
+                    </HBox>
+                </VBox>
         </VBox>
     </ScrollPane>
 </HBox>

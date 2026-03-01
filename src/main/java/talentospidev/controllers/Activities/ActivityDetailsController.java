@@ -1,10 +1,16 @@
 package talentospidev.controllers.Activities;
 
+import talentospidev.services.TrelloService;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.util.Duration;
 import talentospidev.dao.ActivityDAO.ActivityDAO;
 import talentospidev.dao.ActivityDAO.ActivityFileDAO;
 import talentospidev.dao.ProjectDAO.ProjectDAO;
@@ -23,12 +29,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Candidate activity detail page.
  * View assigned activity + upload files / write notes to update the recruiter.
+ * Includes automatic time tracking based on user activity.
  */
 public class ActivityDetailsController {
 
@@ -45,23 +54,45 @@ public class ActivityDetailsController {
     @FXML
     private Label statusLabel;
     @FXML
+    private Label trackedTimeLabel;
+    @FXML
+    private Label trackingStatusLabel;
+    @FXML
+    private ProgressBar progressBar;
+    @FXML
     private VBox filesContainer;
     @FXML
     private TextArea notesField;
     @FXML
     private VBox mainContent;
+    @FXML
+    private HBox trackingIndicator;
+    @FXML
+    private VBox sidebar;
+    @FXML
+    private Button toDoTab;
+    @FXML
+    private Button activitiesTab;
+    @FXML
+    private Button projectsTab;
 
     private final ActivityDAO activityDAO = new ActivityDAO();
     private final ActivityFileDAO fileDAO = new ActivityFileDAO();
     private final ProjectDAO projectDAO = new ProjectDAO();
     private Activity currentActivity;
     private static final String UPLOAD_DIR = System.getProperty("user.home") + "/talentos_uploads/";
-    @FXML
-    private VBox sidebar;
+
+    // Time tracking variables
+    private Timeline trackingTimeline;
+    private LocalDateTime sessionStartTime;
+    private long sessionTrackedSeconds = 0;
+    private LocalDateTime lastUserActivity = LocalDateTime.now();
+    private static final int INACTIVITY_TIMEOUT_SECONDS = 300; // 5 minutes
+    private boolean isTrackingActive = false;
 
     @FXML
     private void initialize() {
-        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
+        talentospidev.utils.SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
         createUploadDirectory();
         int activityId = ViewContext.getSelectedActivityId();
         if (activityId > 0) {
@@ -69,6 +100,8 @@ public class ActivityDetailsController {
             if (currentActivity != null) {
                 displayActivityDetails();
                 loadFiles();
+                setupInactivityDetection();
+                startTracking(); // Auto-start tracking when view opens
             }
         }
     }
@@ -92,6 +125,286 @@ public class ActivityDetailsController {
         if (p != null) {
             statusLabel.setText(p.getStatus());
             statusLabel.setStyle(getStatusStyle(p.getStatus()));
+        }
+
+        // Display tracked time
+        updateTrackedTimeDisplay();
+    }
+
+    private void updateTrackedTimeDisplay() {
+        if (trackedTimeLabel != null) {
+            long totalSeconds = currentActivity.getTotalTrackedSeconds() + sessionTrackedSeconds;
+            long hours = totalSeconds / 3600;
+            long minutes = (totalSeconds % 3600) / 60;
+            long seconds = totalSeconds % 60;
+
+            trackedTimeLabel.setText(String.format("Tracked: %02d:%02d:%02d", hours, minutes, seconds));
+        }
+
+        if (progressBar != null) {
+            double assignedHours = currentActivity.getHoursWorked();
+            double trackedHours = (currentActivity.getTotalTrackedSeconds() + sessionTrackedSeconds) / 3600.0;
+            double progress = assignedHours > 0 ? Math.min(trackedHours / assignedHours, 1.0) : 0;
+            progressBar.setProgress(progress);
+
+            // Color code progress
+            if (progress >= 1.0) {
+                progressBar.setStyle("-fx-accent: #10b981;");
+            } else if (progress >= 0.75) {
+                progressBar.setStyle("-fx-accent: #f59e0b;");
+            } else {
+                progressBar.setStyle("-fx-accent: #6366f1;");
+            }
+        }
+    }
+
+    private void setupInactivityDetection() {
+        // Detect mouse movement on the main content
+        mainContent.addEventFilter(MouseEvent.MOUSE_MOVED, e -> {
+            if (isTrackingActive) {
+                lastUserActivity = LocalDateTime.now();
+                updateTrackingStatus("Active");
+            }
+        });
+
+        mainContent.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+            if (isTrackingActive) {
+                lastUserActivity = LocalDateTime.now();
+                updateTrackingStatus("Active");
+            }
+        });
+
+        mainContent.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> {
+            if (isTrackingActive) {
+                lastUserActivity = LocalDateTime.now();
+                updateTrackingStatus("Active");
+            }
+        });
+
+        // Detect keyboard activity
+        mainContent.setOnKeyPressed(e -> {
+            if (isTrackingActive) {
+                lastUserActivity = LocalDateTime.now();
+                updateTrackingStatus("Active");
+            }
+        });
+
+        mainContent.setFocusTraversable(true);
+
+        // Check for inactivity every 10 seconds
+        Timeline inactivityChecker = new Timeline(
+                new KeyFrame(Duration.seconds(10), e -> {
+                    if (isTrackingActive) {
+                        LocalDateTime now = LocalDateTime.now();
+                        // Use java.time.Duration with fully qualified name
+                        long idleSeconds = java.time.Duration.between(lastUserActivity, now).getSeconds();
+
+                        if (idleSeconds > INACTIVITY_TIMEOUT_SECONDS) {
+                            // Auto-pause tracking due to inactivity
+                            pauseTracking();
+                            showAlert("Inactivity Detected",
+                                    "Tracking paused due to 5 minutes of inactivity. Move your mouse to resume.",
+                                    Alert.AlertType.WARNING);
+                        }
+                    }
+                }));
+        inactivityChecker.setCycleCount(Animation.INDEFINITE);
+        inactivityChecker.play();
+    }
+
+    private void startTracking() {
+        if (!isTrackingActive) {
+            sessionStartTime = LocalDateTime.now();
+            sessionTrackedSeconds = 0;
+            isTrackingActive = true;
+
+            // Update activity status in database
+            activityDAO.updateTrackingStatus(currentActivity.getIdActivity(), true, LocalDateTime.now());
+
+            // Start the tracking timeline (updates every second)
+            trackingTimeline = new Timeline(
+                    new KeyFrame(Duration.seconds(1), e -> {
+                        sessionTrackedSeconds++;
+                        updateTrackedTimeDisplay();
+
+                        // Auto-save every 30 seconds
+                        if (sessionTrackedSeconds % 30 == 0) {
+                            saveTrackingProgress();
+                        }
+                    }));
+            trackingTimeline.setCycleCount(Animation.INDEFINITE);
+            trackingTimeline.play();
+
+            updateTrackingStatus("Tracking Active");
+            System.out.println("✅ Tracking started for activity " + currentActivity.getIdActivity());
+        }
+    }
+
+    private void pauseTracking() {
+        if (isTrackingActive) {
+            // Save current session progress
+            saveTrackingProgress();
+
+            // Stop the timeline
+            if (trackingTimeline != null) {
+                trackingTimeline.stop();
+            }
+
+            isTrackingActive = false;
+            activityDAO.updateTrackingStatus(currentActivity.getIdActivity(), false, LocalDateTime.now());
+
+            updateTrackingStatus("Paused");
+            System.out.println("⏸️ Tracking paused for activity " + currentActivity.getIdActivity());
+        }
+    }
+
+    private void resumeTracking() {
+        if (!isTrackingActive) {
+            sessionStartTime = LocalDateTime.now();
+            sessionTrackedSeconds = 0;
+            isTrackingActive = true;
+
+            activityDAO.updateTrackingStatus(currentActivity.getIdActivity(), true, LocalDateTime.now());
+
+            // Restart timeline
+            trackingTimeline = new Timeline(
+                    new KeyFrame(Duration.seconds(1), e -> {
+                        sessionTrackedSeconds++;
+                        updateTrackedTimeDisplay();
+
+                        if (sessionTrackedSeconds % 30 == 0) {
+                            saveTrackingProgress();
+                        }
+                    }));
+            trackingTimeline.setCycleCount(Animation.INDEFINITE);
+            trackingTimeline.play();
+
+            updateTrackingStatus("Tracking Active");
+            System.out.println("▶️ Tracking resumed for activity " + currentActivity.getIdActivity());
+        }
+    }
+
+    private void stopTracking() {
+        if (isTrackingActive || sessionTrackedSeconds > 0) {
+            // Save the final session
+            if (sessionStartTime != null && sessionTrackedSeconds > 0) {
+                LocalDateTime now = LocalDateTime.now();
+
+                // Save to tracking history
+                activityDAO.saveTrackingSession(
+                        currentActivity.getIdActivity(),
+                        sessionStartTime,
+                        now,
+                        (int) sessionTrackedSeconds);
+
+                System.out.println("💾 Saved tracking session: " + sessionTrackedSeconds + " seconds");
+            }
+
+            // Stop timeline
+            if (trackingTimeline != null) {
+                trackingTimeline.stop();
+            }
+
+            // Update total tracked time
+            activityDAO.updateTotalTrackedTime(currentActivity.getIdActivity());
+
+            // Update activity status
+            isTrackingActive = false;
+            activityDAO.updateTrackingStatus(currentActivity.getIdActivity(), false, LocalDateTime.now());
+
+            // Reload activity to get updated totals
+            currentActivity = activityDAO.getById(currentActivity.getIdActivity());
+
+            sessionTrackedSeconds = 0;
+            sessionStartTime = null;
+
+            updateTrackedTimeDisplay();
+            updateTrackingStatus("Stopped");
+            System.out.println("⏹️ Tracking stopped for activity " + currentActivity.getIdActivity());
+        }
+    }
+
+    private void saveTrackingProgress() {
+        if (sessionTrackedSeconds > 0 && sessionStartTime != null) {
+            // Save current progress to history
+            LocalDateTime now = LocalDateTime.now();
+
+            activityDAO.saveTrackingSession(
+                    currentActivity.getIdActivity(),
+                    sessionStartTime,
+                    now,
+                    (int) sessionTrackedSeconds);
+
+            // Update total in activities table
+            activityDAO.updateTotalTrackedTime(currentActivity.getIdActivity());
+
+            // Reload activity to get updated totals
+            Activity updatedActivity = activityDAO.getById(currentActivity.getIdActivity());
+
+            // Calculate progress percentage
+            double oldTrackedHours = currentActivity.getTrackedHours();
+            double newTrackedHours = updatedActivity.getTrackedHours();
+            double progressPercent = (newTrackedHours / currentActivity.getHoursWorked()) * 100;
+
+            // Update current activity with new values
+            currentActivity.setTotalTrackedSeconds(updatedActivity.getTotalTrackedSeconds());
+
+            // Update Trello if progress crossed a milestone
+            if (Math.floor(oldTrackedHours) != Math.floor(newTrackedHours)) {
+                // Get the card ID from somewhere (you'd need to store it)
+                String cardId = getTrelloCardIdForActivity(currentActivity.getIdActivity());
+                if (cardId != null) {
+                    TrelloService.updateActivityCard(cardId, currentActivity, progressPercent);
+                }
+            }
+
+            // Reset session start for next segment
+            sessionStartTime = now;
+            sessionTrackedSeconds = 0;
+
+            // Update display
+            updateTrackedTimeDisplay();
+
+            System.out.println("💾 Auto-saved tracking progress: " +
+                    String.format("%.1f/%.1f hours (%.0f%%)",
+                            newTrackedHours, currentActivity.getHoursWorked(), progressPercent));
+        }
+    }
+
+    // Helper method to get Trello card ID for an activity
+    // You need to store this in a database table when creating the Trello card
+    private String getTrelloCardIdForActivity(int activityId) {
+        // TODO: Implement this by querying a table that stores activity_id ->
+        // trello_card_id mapping
+        // For now, this returns null and Trello won't be updated
+        return null;
+    }
+
+    private void updateTrackingStatus(String status) {
+        if (trackingStatusLabel != null) {
+            trackingStatusLabel.setText(status);
+
+            switch (status) {
+                case "Tracking Active":
+                    trackingStatusLabel.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;");
+                    break;
+                case "Paused":
+                    trackingStatusLabel.setStyle("-fx-text-fill: #f59e0b; -fx-font-weight: bold;");
+                    break;
+                case "Stopped":
+                    trackingStatusLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-weight: bold;");
+                    break;
+                default:
+                    trackingStatusLabel.setStyle("-fx-text-fill: #6b7280;");
+            }
+        }
+
+        if (trackingIndicator != null) {
+            if (status.equals("Tracking Active")) {
+                trackingIndicator.setStyle("-fx-background-color: #10b981; -fx-background-radius: 5;");
+            } else {
+                trackingIndicator.setStyle("-fx-background-color: #9ca3af; -fx-background-radius: 5;");
+            }
         }
     }
 
@@ -197,6 +510,13 @@ public class ActivityDetailsController {
         showAlert("Saved", "Your update has been sent to the recruiter!", Alert.AlertType.INFORMATION);
     }
 
+    @FXML
+    private void handleBack() {
+        // Stop tracking when navigating away
+        stopTracking();
+        SceneUtil.switchScene("activities/activity_employee.fxml");
+    }
+
     private void showAlert(String title, String msg, Alert.AlertType type) {
         Alert a = new Alert(type);
         a.setTitle(title);
@@ -221,22 +541,56 @@ public class ActivityDetailsController {
     // === Sidebar Navigation ===
     @FXML
     private void handleDashboard() {
+        stopTracking(); // Stop tracking before navigating away
         SceneUtil.switchScene("dashboard.fxml");
     }
 
     @FXML
     private void handleJobOffers() {
+        stopTracking(); // Stop tracking before navigating away
         SceneUtil.switchScene("OffersCardView.fxml");
     }
 
     @FXML
+    private void handleMyCircle() {
+        stopTracking();
+        SceneUtil.switchScene("my_circle.fxml");
+    }
+
+    @FXML
+    private void handleNotifications() {
+        stopTracking();
+        SceneUtil.switchScene("notifications.fxml");
+    }
+
+    @FXML
+    private void handleActivities() {
+        stopTracking();
+        SceneUtil.switchScene("activities/activities.fxml");
+    }
+
+    @FXML
+    private void handleProjects() {
+        stopTracking();
+        SceneUtil.switchScene("projects/projects.fxml");
+    }
+
+    @FXML
     private void handleToDo() {
+        stopTracking(); // Stop tracking before navigating away
         SceneUtil.switchScene("activities/activity_employee.fxml");
     }
 
     @FXML
     private void handleMyProfile() {
+        stopTracking(); // Stop tracking before navigating away
         SceneUtil.switchScene("profile-view.fxml");
+    }
+
+    @FXML
+    private void handleSettings() {
+        stopTracking();
+        SceneUtil.switchScene("settings.fxml");
     }
 
     @FXML
@@ -245,22 +599,8 @@ public class ActivityDetailsController {
     }
 
     @FXML
-    private void handleSettings() {
-        SceneUtil.switchScene("settings.fxml");
-    }
-
-    @FXML
-    private void handleMyCircle() {
-        SceneUtil.switchScene("my_circle.fxml");
-    }
-
-    @FXML
-    private void handleNotifications() {
-        SceneUtil.switchScene("notifications.fxml");
-    }
-
-    @FXML
     private void handleLogout() {
+        stopTracking(); // Stop tracking before logout
         AuthService.logout();
         SceneUtil.switchScene("login.fxml");
     }

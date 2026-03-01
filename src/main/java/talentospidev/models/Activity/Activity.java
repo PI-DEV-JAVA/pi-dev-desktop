@@ -1,6 +1,7 @@
 package talentospidev.models.Activity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Activity {
     private int idActivity;
@@ -9,8 +10,16 @@ public class Activity {
     private LocalDate activityDate;
     private String description;
     private double hoursWorked;
+    
+    // New time tracking fields
+    private LocalDateTime startTime;
+    private LocalDateTime lastActivityTime;
+    private long totalTrackedSeconds;
+    private boolean isTracking;
 
     public Activity() {
+        this.totalTrackedSeconds = 0;
+        this.isTracking = false;
     }
 
     public Activity(int employeeId, int projectId, LocalDate activityDate, String description, double hoursWorked) {
@@ -19,6 +28,8 @@ public class Activity {
         this.activityDate = activityDate;
         this.description = description;
         this.hoursWorked = hoursWorked;
+        this.totalTrackedSeconds = 0;
+        this.isTracking = false;
     }
 
     public Activity(int idActivity, int employeeId, int projectId, LocalDate activityDate, String description,
@@ -29,8 +40,11 @@ public class Activity {
         this.activityDate = activityDate;
         this.description = description;
         this.hoursWorked = hoursWorked;
+        this.totalTrackedSeconds = 0;
+        this.isTracking = false;
     }
 
+    // Existing getters and setters
     public int getIdActivity() {
         return idActivity;
     }
@@ -95,10 +109,55 @@ public class Activity {
         this.hoursWorked = hoursWorked;
     }
 
+    // New getters and setters for time tracking
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getLastActivityTime() {
+        return lastActivityTime;
+    }
+
+    public void setLastActivityTime(LocalDateTime lastActivityTime) {
+        this.lastActivityTime = lastActivityTime;
+    }
+
+    public long getTotalTrackedSeconds() {
+        return totalTrackedSeconds;
+    }
+
+    public void setTotalTrackedSeconds(long totalTrackedSeconds) {
+        this.totalTrackedSeconds = totalTrackedSeconds;
+    }
+
+    public boolean isTracking() {
+        return isTracking;
+    }
+
+    public void setTracking(boolean tracking) {
+        isTracking = tracking;
+    }
+
+    // Helper methods
+    public double getTrackedHours() {
+        return totalTrackedSeconds / 3600.0;
+    }
+
+    public double getCompletionPercentage() {
+        if (hoursWorked <= 0) return 0;
+        return (getTrackedHours() / hoursWorked) * 100;
+    }
+
     @Override
     public String toString() {
         return "Activity{id=" + idActivity + ", employeeId=" + employeeId +
                 ", projectId=" + projectId + ", date=" + activityDate +
-                ", desc='" + description + "', hours=" + hoursWorked + '}';
+                ", desc='" + description + "', hours=" + hoursWorked + 
+                ", tracked=" + getTrackedHours() + "h" + 
+                (isTracking ? " (active)" : "") + '}';
     }
 }

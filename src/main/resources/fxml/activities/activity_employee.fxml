@@ -23,7 +23,9 @@
         <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
         <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
         <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
-        <Button text="✅  To Do" styleClass="sidebar-button-active" onAction="#handleToDo"/>
+        <Button fx:id="toDoTab" text="✅  To Do" styleClass="sidebar-button-active" onAction="#handleToDo"/>
+        <Button fx:id="activitiesTab" text="📋  Activities" styleClass="sidebar-button" onAction="#handleActivities" visible="false" managed="false"/>
+        <Button fx:id="projectsTab" text="📂  Projects" styleClass="sidebar-button" onAction="#handleProjects" visible="false" managed="false"/>
         <Region VBox.vgrow="ALWAYS"/>
         <Separator style="-fx-opacity: 0.1;"/>
         <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
@@ -36,50 +38,56 @@
     <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS"
                 style="-fx-background-color: transparent; -fx-background: transparent;">
         <VBox spacing="20" style="-fx-padding: 28;">
+                
+                <!-- Welcome Section with visible background -->
+                <VBox spacing="16" style="-fx-background-color: linear-gradient(to right, #6366f1, #8b5cf6); -fx-background-radius: 16; -fx-padding: 24;">
+                    <Label fx:id="welcomeLabel" text="Welcome back!" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: white;"/>
+                    
+                    <!-- Statistics Row - Test with visible colors -->
+                    <HBox spacing="16" alignment="CENTER">
+                        <VBox alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-padding: 12 20;">
+                            <Label fx:id="totalActivitiesLabel" text="0" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: white;"/>
+                            <Label text="Activities" style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 600;"/>
+                        </VBox>
+                        <VBox alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-padding: 12 20;">
+                            <Label fx:id="totalHoursLabel" text="0" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: white;"/>
+                            <Label text="Assigned Hrs" style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 600;"/>
+                        </VBox>
+                        <VBox alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-padding: 12 20;">
+                            <Label fx:id="totalTrackedLabel" text="0.0" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: #10b981;"/>
+                            <Label text="Tracked Hrs" style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 600;"/>
+                        </VBox>
+                        <VBox alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-padding: 12 20;">
+                            <Label fx:id="completionRateLabel" text="0%" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: #fbbf24;"/>
+                            <Label text="Completed" style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 600;"/>
+                            <ProgressBar fx:id="overallProgressBar" progress="0.0" prefWidth="100" prefHeight="4" style="-fx-accent: white;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
 
-            <!-- Welcome + Stats -->
-            <VBox spacing="16"
-                  style="-fx-background-color: linear-gradient(to right, #6366f1, #8b5cf6);
-                         -fx-background-radius: 16; -fx-padding: 24;">
-                <Label fx:id="welcomeLabel" text="Welcome back!" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: white;"/>
-                <HBox spacing="16">
-                    <VBox alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-padding: 12 20;">
-                        <Label fx:id="totalActivitiesLabel" text="0" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: white;"/>
-                        <Label text="Activities" style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 600;"/>
-                    </VBox>
-                    <VBox alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-padding: 12 20;">
-                        <Label fx:id="totalHoursLabel" text="0" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: white;"/>
-                        <Label text="Total Hours" style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 600;"/>
-                    </VBox>
-                    <VBox alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-padding: 12 20;">
-                        <Label fx:id="projectsCountLabel" text="0" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: white;"/>
-                        <Label text="Projects" style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 600;"/>
-                    </VBox>
-                    <VBox alignment="CENTER" style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 10; -fx-padding: 12 20;">
-                        <Label fx:id="avgHoursLabel" text="0" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: white;"/>
-                        <Label text="Avg Hours" style="-fx-font-size: 10px; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-weight: 600;"/>
-                    </VBox>
+                <!-- Filters Section -->
+                <VBox spacing="10" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 16; -fx-border-color: #e5e7eb; -fx-border-radius: 12;">
+                    <Label text="Filter Activities" style="-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                    
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <TextField fx:id="searchField" promptText="🔍 Search tasks..." prefWidth="200"/>
+                        <ComboBox fx:id="filterProjectCombo" promptText="All Projects" prefWidth="160"/>
+                        <ComboBox fx:id="filterStatusCombo" promptText="All Status" prefWidth="140"/>
+                        <DatePicker fx:id="filterDatePicker" promptText="Filter by date" prefWidth="140"/>
+                        <Button fx:id="clearFilterBtn" text="✕ Clear" style="-fx-background-color: #f3f4f6; -fx-padding: 6 12; -fx-cursor: hand;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="activitiesCountLabel" text="0 activities" style="-fx-text-fill: #9ca3af; -fx-font-size: 11px;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Activity Cards Container -->
+                <VBox fx:id="activitiesContainer" spacing="12"/>
+                
+                <!-- Auto-refresh indicator -->
+                <HBox alignment="CENTER_RIGHT" spacing="5">
+                    <Label text="Auto-refreshing every 30s" style="-fx-font-size: 9px; -fx-text-fill: #9ca3af;"/>
+                    <Label text="●" style="-fx-font-size: 8px; -fx-text-fill: #10b981;"/>
                 </HBox>
-            </VBox>
-
-            <!-- Filters -->
-            <HBox spacing="12" alignment="CENTER_LEFT"
-                  style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 10 16;
-                         -fx-border-color: #e5e7eb; -fx-border-radius: 12;">
-                <TextField fx:id="searchField" promptText="🔍 Search tasks..."
-                           style="-fx-background-color: #f3f4f6; -fx-border-color: transparent;
-                                  -fx-background-radius: 8; -fx-padding: 8 12; -fx-pref-width: 200; -fx-font-size: 12px;"/>
-                <ComboBox fx:id="filterProjectCombo" prefWidth="160" style="-fx-font-size: 11px;"/>
-                <DatePicker fx:id="filterDatePicker" promptText="Filter by date" style="-fx-font-size: 11px;"/>
-                <Button fx:id="clearFilterBtn" text="✕ Clear"
-                        style="-fx-background-color: #f3f4f6; -fx-text-fill: #6b7280; -fx-font-size: 11px;
-                               -fx-padding: 6 12; -fx-background-radius: 8; -fx-cursor: hand;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="activitiesCountLabel" text="" style="-fx-font-size: 10px; -fx-text-fill: #9ca3af;"/>
-            </HBox>
-
-            <!-- Activity Cards -->
-            <VBox fx:id="activitiesContainer" spacing="12"/>
         </VBox>
     </ScrollPane>
 </HBox>

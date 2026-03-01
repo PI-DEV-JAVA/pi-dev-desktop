@@ -9,7 +9,7 @@ public class GoogleOAuthConfig {
     // ── Your credentials ──
     public static final String CLIENT_ID = "xxx";
 
-    public static final String CLIENT_SECRET = "xx";
+    public static final String CLIENT_SECRET = "xxx";
 
     // ── OAuth endpoints ──
     public static final String REDIRECT_URI = "http://localhost:8888/callback";

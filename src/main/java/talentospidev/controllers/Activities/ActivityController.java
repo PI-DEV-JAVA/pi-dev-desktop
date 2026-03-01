@@ -84,10 +84,16 @@ public class ActivityController {
 
     @FXML
     private VBox sidebar;
+    @FXML
+    private Button toDoTab;
+    @FXML
+    private Button activitiesTab;
+    @FXML
+    private Button projectsTab;
 
     @FXML
     private void initialize() {
-        talentospidev.utils.SidebarUtil.applySidebarIcons(sidebar);
+        talentospidev.utils.SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
         User user = AuthService.getCurrentUser();
         if (user == null || user.getRole() != User.Role.HR)
             return;
@@ -372,6 +378,11 @@ public class ActivityController {
     @FXML
     private void handleJobOffers() {
         SceneUtil.switchScene("OffersCardView.fxml");
+    }
+
+    @FXML
+    private void handleToDo() {
+        SceneUtil.switchScene("activities/activity_employee.fxml");
     }
 
     @FXML
