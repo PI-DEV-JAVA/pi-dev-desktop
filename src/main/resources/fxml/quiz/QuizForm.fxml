@@ -4,45 +4,76 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="talentos.pidev.controllers.quiz.QuizFormController"
-      spacing="12"
-      styleClass="content-card">
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="talentos.pidev.controllers.quiz.QuizFormController"
+            styleClass="content-pane">
 
-    <!-- ✅ FIX padding -->
-    <padding>
-        <Insets top="16" right="16" bottom="16" left="16"/>
-    </padding>
+    <!-- TOP (comme FormationForm) -->
+    <top>
+        <VBox spacing="16">
+            <padding>
+                <Insets top="22" right="22" bottom="18" left="22"/>
+            </padding>
 
-    <Label text="Quiz" styleClass="form-title"/>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label fx:id="titleLabel" text="Quiz" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Retour" onAction="#onCancel" styleClass="btn-secondary"/>
+            </HBox>
+        </VBox>
+    </top>
 
-    <GridPane hgap="12" vgap="12">
-        <columnConstraints>
-            <ColumnConstraints prefWidth="140"/>
-            <ColumnConstraints hgrow="ALWAYS"/>
-        </columnConstraints>
+    <!-- CENTER -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="card-scroll">
+            <content>
+                <VBox spacing="16">
+                    <padding>
+                        <Insets top="16" right="24" bottom="24" left="24"/>
+                    </padding>
 
-        <Label text="Titre" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="tfTitre" promptText="Titre" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                    <!-- Card Quiz -->
+                    <VBox spacing="12" styleClass="offer-card">
+                        <padding>
+                            <Insets top="16" right="16" bottom="16" left="16"/>
+                        </padding>
 
-        <Label text="Description" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <TextArea fx:id="taDescription" promptText="Description" prefRowCount="4"
-                  GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Label text="Informations" styleClass="filter-label"/>
 
-        <Label text="Durée (min)" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <Spinner fx:id="spDuree" prefWidth="140" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <GridPane hgap="12" vgap="12">
+                            <columnConstraints>
+                                <ColumnConstraints prefWidth="140"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                            </columnConstraints>
 
-        <Label text="Date" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-        <DatePicker fx:id="dpDate" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                            <Label text="Titre" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <TextField fx:id="tfTitre" promptText="Titre" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="Statut" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-        <CheckBox fx:id="cbActif" text="Actif" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-    </GridPane>
+                            <Label text="Description" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <TextArea fx:id="taDescription" promptText="Description" prefRowCount="4"
+                                      GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button fx:id="btnCancel" text="Annuler" onAction="#onCancel" styleClass="secondary-button"/>
-        <Button fx:id="btnSave" text="Enregistrer" onAction="#onSave" styleClass="primary-button"/>
-    </HBox>
+                            <Label text="Durée (min)" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <Spinner fx:id="spDuree" prefWidth="140" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-</VBox>
+                            <Label text="Date" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                            <DatePicker fx:id="dpDate" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                            <Label text="Statut" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                            <CheckBox fx:id="cbActif" text="Actif" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- Actions (mêmes classes que FormationForm) -->
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Button text="Annuler" onAction="#onCancel" styleClass="btn-secondary"/>
+                        <Button text="Enregistrer" onAction="#onSave" styleClass="btn-success"/>
+                    </HBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

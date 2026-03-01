@@ -10,17 +10,20 @@
             styleClass="content">
 
     <top>
-        <VBox spacing="12" styleClass="card">
-            <Label text="Gestion des quiz (RH)" styleClass="page-title"/>
-
+        <VBox spacing="16">
+            <padding>
+                <Insets top="22" right="22" bottom="18" left="22"/>
+            </padding>
             <HBox spacing="10" alignment="CENTER_LEFT" styleClass="sort-toolbar">
 
+            <Label text="Gestion des quiz (RH)" styleClass="page-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
 
-                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Ajouter" onAction="#onAdd" styleClass="btn-info"/>
 
-                <Button text="Ajouter" onAction="#onAdd" styleClass="action-button"/>
-                <Button text="Rafraîchir" onAction="#onRefresh" styleClass="action-button"/>
             </HBox>
+
+
         </VBox>
     </top>
 
@@ -29,7 +32,7 @@
             <content>
                 <FlowPane fx:id="cardsContainer"
                           hgap="20" vgap="20"
-                          alignment="TOP_CENTER">
+                >
                     <padding>
                         <Insets top="20" right="20" bottom="20" left="20"/>
                     </padding>

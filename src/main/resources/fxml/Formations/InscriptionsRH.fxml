@@ -10,18 +10,18 @@
             styleClass="content-pane">
 
     <top>
-        <VBox spacing="16" styleClass="filter-panel">
+        <VBox spacing="16" >
             <padding>
                 <Insets top="22" right="22" bottom="18" left="22"/>
             </padding>
 
             <!-- Title row -->
             <HBox spacing="12" alignment="CENTER_LEFT">
-                <Label text="🧾" style="-fx-font-size: 22px;"/>
+
                 <Label fx:id="titleLabel" text="Inscriptions" styleClass="page-title"/>
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <Button text="Rafraîchir" onAction="#onRefresh" styleClass="btn-info"/>
+
                 <Button text="Retour" onAction="#onBack" styleClass="btn-secondary"/>
             </HBox>
 
@@ -43,7 +43,7 @@
                 <FlowPane fx:id="cardsContainer"
                           hgap="20"
                           vgap="20"
-                          alignment="TOP_CENTER">
+                          alignment="TOP_LEFT">
                     <padding>
                         <Insets top="20" right="24" bottom="24" left="24"/>
                     </padding>

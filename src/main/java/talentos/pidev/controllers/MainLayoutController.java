@@ -44,6 +44,15 @@ public class MainLayoutController {
             if (controller instanceof talentos.pidev.controllers.quiz.QuizRHController qrh) {
                 qrh.setMainLayout(this);
             }
+            if (controller instanceof talentos.pidev.controllers.quiz.QuizCandidatController qc) {
+                qc.setMainLayout(this);
+            }
+            if (controller instanceof talentos.pidev.controllers.formations.FormationFormController ff) {
+                ff.setMainLayout(this);
+                ff.setSelfView(view);
+            }
+
+
 
             contentPane.getChildren().setAll(view);
 
@@ -53,8 +62,18 @@ public class MainLayoutController {
     }
 
     public void setView(Node view) {
-        contentPane.getChildren().setAll(view);
+        try {
+            // Si le Node vient d'un FXMLLoader, on peut récupérer le controller via userData
+            // Mais JavaFX ne le met pas automatiquement, donc on gère le cas classique :
+            // -> on préfère une méthode dédiée (ci-dessous) quand on charge nous-mêmes.
+
+            contentPane.getChildren().setAll(view);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 
     public void goFormationsRH() {
         setContent("/fxml/formations/FormationsRH.fxml");

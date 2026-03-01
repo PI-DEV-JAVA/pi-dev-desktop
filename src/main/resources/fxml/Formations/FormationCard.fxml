@@ -49,6 +49,12 @@
             <Label fx:id="datesLabel" text="Du ... au ..." styleClass="card-detail" wrapText="true"/>
             <Label fx:id="formateurLabel" text="Formateur : ..." styleClass="card-detail" wrapText="true"/>
 
+            <!-- ✅ NEW INFO -->
+            <Label fx:id="modeLabel" text="Mode : -" styleClass="card-detail" wrapText="true"/>
+            <Label fx:id="lieuLabel" text="Lieu : -" styleClass="card-detail" wrapText="true"/>
+            <Label fx:id="capaciteLabel" text="Capacité : -" styleClass="card-detail" wrapText="true"/>
+            <Label fx:id="descLabel" text="" styleClass="muted-text" wrapText="true"/>
+
             <Region VBox.vgrow="ALWAYS"/>
         </VBox>
     </center>

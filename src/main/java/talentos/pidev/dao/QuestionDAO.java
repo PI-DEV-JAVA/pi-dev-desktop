@@ -87,10 +87,14 @@ public class QuestionDAO {
     }
     public List<Question> getPublishedByQuiz(int quizId) throws SQLException {
         List<Question> list = new ArrayList<>();
+
         String sql =
-                "SELECT id, quiz_id, enonce, is_published " +
-                        "FROM question WHERE quiz_id=? AND is_published=1 " +
-                        "ORDER BY ordre ASC, id ASC";
+                "SELECT q.id, q.quiz_id, q.enonce, q.is_published, " +
+                        "       (SELECT COUNT(*) FROM choix c WHERE c.question_id=q.id) AS nb_choix, " +
+                        "       (SELECT c.texte FROM choix c WHERE c.question_id=q.id AND c.est_correct=1 LIMIT 1) AS correct_preview " +
+                        "FROM question q " +
+                        "WHERE q.quiz_id=? AND q.is_published=1 " +
+                        "ORDER BY q.ordre ASC, q.id ASC";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, quizId);
@@ -100,11 +104,46 @@ public class QuestionDAO {
                     q.setId(rs.getInt("id"));
                     q.setQuizId(rs.getInt("quiz_id"));
                     q.setEnonce(rs.getString("enonce"));
-                    q.setPublished(true);
+                    q.setNbChoix(rs.getInt("nb_choix"));
+                    q.setCorrectPreview(rs.getString("correct_preview"));
+                    q.setPublished(rs.getInt("is_published") == 1);
                     list.add(q);
                 }
             }
         }
+
         return list;
+    }
+    // في QuestionDAO
+
+    public int countByQuiz(int quizId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM question WHERE quiz_id=?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, quizId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
+        }
+        return 0;
+    }
+
+    /** ✅ true si le quiz a au moins 1 question ET au moins 1 choix lié */
+    public boolean hasQuestionsAndChoices(int quizId) throws SQLException {
+        String sql = """
+        SELECT COUNT(*)
+        FROM question q
+        WHERE q.quiz_id = ?
+          AND EXISTS (SELECT 1 FROM choix c WHERE c.question_id = q.id)
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, quizId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -57,7 +57,7 @@ public class SidebarController {
 
     @FXML
     private void goQuizPassage() {
-        open("/fxml/quiz/QuizPassage.fxml");
+        open("/fxml/quiz/QuizCandidat.fxml");
     }
 
     @FXML

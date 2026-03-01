@@ -15,19 +15,15 @@ public class TentativeDAO {
     }
 
     public void add(TentativeQuiz t) throws SQLException {
-        String sql = "INSERT INTO tentative_quiz(quiz_id, candidat_email, score, total, started_at, finished_at) VALUES(?,?,?,?,?,?)";
+        String sql = "INSERT INTO tentative_quiz(quiz_id, candidat_nom, candidat_email, score, total) VALUES(?,?,?,?,?)";
+
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, t.getQuizId());
-            ps.setString(2, t.getCandidatEmail());
-            ps.setInt(3, t.getScore());
-            ps.setInt(4, t.getTotal());
-
-            LocalDateTime start = t.getStartedAt() != null ? t.getStartedAt() : LocalDateTime.now();
-            ps.setTimestamp(5, Timestamp.valueOf(start));
-
-            if (t.getFinishedAt() != null) ps.setTimestamp(6, Timestamp.valueOf(t.getFinishedAt()));
-            else ps.setNull(6, Types.TIMESTAMP);
+            ps.setString(2, t.getCandidatNom() == null ? "" : t.getCandidatNom());
+            ps.setString(3, t.getCandidatEmail() == null ? "" : t.getCandidatEmail());
+            ps.setInt(4, t.getScore());
+            ps.setInt(5, t.getTotal());
 
             ps.executeUpdate();
 

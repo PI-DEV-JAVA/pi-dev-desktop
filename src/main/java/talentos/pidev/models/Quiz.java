@@ -9,16 +9,19 @@ public class Quiz {
     private int dureeMinutes;
     private LocalDate dateCreation;
     private boolean actif;
+    private Integer seanceId;
+
 
     public Quiz() {}
 
-    public Quiz(int id, String titre, String description, int dureeMinutes, LocalDate dateCreation, boolean actif) {
+    public Quiz(int id, String titre, String description, int dureeMinutes, LocalDate dateCreation, boolean actif, Integer seanceId) {
         this.id = id;
         this.titre = titre;
         this.description = description;
         this.dureeMinutes = dureeMinutes;
         this.dateCreation = dateCreation;
         this.actif = actif;
+        this.seanceId=seanceId;
     }
 
     public int getId() { return id; }
@@ -38,6 +41,9 @@ public class Quiz {
 
     public boolean isActif() { return actif; }
     public void setActif(boolean actif) { this.actif = actif; }
+
+    public Integer getSeanceId() { return seanceId; }
+    public void setSeanceId(Integer seanceId) { this.seanceId = seanceId; }
 
     @Override
     public String toString() {

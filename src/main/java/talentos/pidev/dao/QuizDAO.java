@@ -17,7 +17,6 @@ public class QuizDAO {
     }
 
     public void add(Quiz q) throws SQLException {
-        // created_at existe dans la base -> on le met avec NOW()
         String sql = "INSERT INTO quiz(titre, description, duree_minutes, actif, created_at) VALUES(?,?,?,?,NOW())";
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, q.getTitre());
@@ -33,7 +32,6 @@ public class QuizDAO {
     }
 
     public void update(Quiz q) throws SQLException {
-        // created_at on ne le touche pas
         String sql = "UPDATE quiz SET titre=?, description=?, duree_minutes=?, actif=? WHERE id=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, q.getTitre());
@@ -68,7 +66,6 @@ public class QuizDAO {
                 q.setDureeMinutes(rs.getInt("duree_minutes"));
                 q.setActif(rs.getBoolean("actif"));
 
-                // created_at peut être DATETIME/TIMESTAMP -> on lit en Timestamp
                 Timestamp ts = rs.getTimestamp("created_at");
                 if (ts != null) q.setDateCreation(ts.toLocalDateTime().toLocalDate());
                 else q.setDateCreation(LocalDate.now());
@@ -78,4 +75,76 @@ public class QuizDAO {
         }
         return list;
     }
+
+    // ======================= NEW (SEANCE ↔ QUIZ) =======================
+
+    public Quiz findBySeanceId(int seanceId) throws SQLException {
+        String sql = """
+            SELECT id, titre, description, duree_minutes, actif, created_at, seance_id
+            FROM quiz
+            WHERE seance_id = ?
+            LIMIT 1
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, seanceId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Quiz q = new Quiz();
+                    q.setId(rs.getInt("id"));
+                    q.setTitre(rs.getString("titre"));
+                    q.setDescription(rs.getString("description"));
+                    q.setDureeMinutes(rs.getInt("duree_minutes"));
+                    q.setActif(rs.getBoolean("actif"));
+
+                    Timestamp ts = rs.getTimestamp("created_at");
+                    if (ts != null) q.setDateCreation(ts.toLocalDateTime().toLocalDate());
+                    else q.setDateCreation(LocalDate.now());
+
+                    // si ton modèle Quiz a seanceId
+                     q.setSeanceId(rs.getInt("seance_id"));
+
+                    return q;
+                }
+            }
+        }
+        return null;
+    }
+
+    public void linkQuizToSeance(int seanceId, int quizId) throws SQLException {
+        connection.setAutoCommit(false);
+        try {
+            // libérer ancien quiz déjà lié à cette séance
+            try (PreparedStatement ps1 = connection.prepareStatement(
+                    "UPDATE quiz SET seance_id=NULL WHERE seance_id=?")) {
+                ps1.setInt(1, seanceId);
+                ps1.executeUpdate();
+            }
+
+            // lier le nouveau quiz
+            try (PreparedStatement ps2 = connection.prepareStatement(
+                    "UPDATE quiz SET seance_id=? WHERE id=?")) {
+                ps2.setInt(1, seanceId);
+                ps2.setInt(2, quizId);
+                ps2.executeUpdate();
+            }
+
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            throw e;
+        } finally {
+            connection.setAutoCommit(true);
+        }
+    }
+    public Integer findQuizIdBySeance(int seanceId) throws SQLException {
+        String sql = "SELECT id FROM quiz WHERE seance_id=? LIMIT 1";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, seanceId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("id");
+            }
+        }
+        return null;
+    }
+
 }

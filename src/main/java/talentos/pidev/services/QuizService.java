@@ -48,4 +48,11 @@ public class QuizService {
     public void setChoiceCorrect(int choixId, int questionId) throws SQLException {
         choixDAO.setCorrectUnique(choixId, questionId);
     }
+
+
+    public List<Quiz> getAllQuizzesForCandidat() throws SQLException {
+        return quizDAO.getAll(); //getAllActifs();
+    }
+
+
 }

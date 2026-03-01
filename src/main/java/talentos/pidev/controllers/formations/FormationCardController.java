@@ -3,13 +3,12 @@ package talentos.pidev.controllers.formations;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import talentos.pidev.controllers.MainLayoutController;
 import talentos.pidev.dao.FormationDAO;
+import talentos.pidev.dao.InscriptionDAO;
 import talentos.pidev.models.Formation;
+import talentos.pidev.utils.SessionCandidat;
 
 public class FormationCardController {
 
@@ -20,6 +19,12 @@ public class FormationCardController {
     @FXML private Label datesLabel;
     @FXML private Label formateurLabel;
 
+    // ✅ NEW labels (added in FXML)
+    @FXML private Label modeLabel;
+    @FXML private Label lieuLabel;
+    @FXML private Label capaciteLabel;
+    @FXML private Label descLabel;
+
     @FXML private Button inscriptionsBtn;
     @FXML private Button editBtn;
     @FXML private Button deleteBtn;
@@ -27,9 +32,11 @@ public class FormationCardController {
 
     private Formation formation;
     private Runnable onChanged;
-
-    // ✅ NEW: to open views inside main content pane
     private MainLayoutController mainLayout;
+
+    private boolean rhMode = false;
+
+    private final InscriptionDAO inscriptionDAO = new InscriptionDAO();
 
     public void setMainLayout(MainLayoutController mainLayout) {
         this.mainLayout = mainLayout;
@@ -47,52 +54,84 @@ public class FormationCardController {
             datesLabel.setText("Dates: -");
         }
 
-        // Badges
-        categorieLabel.setText((f.getCategorie() == null || f.getCategorie().isBlank()) ? "Catégorie" : f.getCategorie());
-        difficulteLabel.setText((f.getDifficulte() == null || f.getDifficulte().isBlank()) ? "N/A" : f.getDifficulte());
+        categorieLabel.setText(blankOr(f.getCategorie(), "Catégorie"));
+        difficulteLabel.setText(blankOr(f.getDifficulte(), "N/A"));
 
-        // Formateur
-        formateurLabel.setText("Formateur : " + ((f.getFormateur() == null || f.getFormateur().isBlank()) ? "-" : f.getFormateur()));
+        formateurLabel.setText("Formateur : " + blankOr(f.getFormateur(), "-"));
 
-        // Statut
-        String st = (f.getStatut() == null || f.getStatut().isBlank()) ? "OUVERTE" : f.getStatut();
+        String st = blankOr(f.getStatut(), "OUVERTE");
         statutLabel.setText(st);
         applyStatutBadge(st);
+
+        // ✅ EXTRA INFOS (candidat)
+        if (modeLabel != null) modeLabel.setText("Mode : " + blankOr(f.getMode(), "-"));
+        if (lieuLabel != null) lieuLabel.setText("Lieu : " + blankOr(f.getLieu(), "-"));
+        if (capaciteLabel != null) capaciteLabel.setText("Capacité : " + (f.getCapaciteMax() <= 0 ? "-" : String.valueOf(f.getCapaciteMax())));
+
+        if (descLabel != null) {
+            String d = f.getDescription();
+            if (d != null) {
+                d = d.trim();
+                if (d.length() > 90) d = d.substring(0, 90) + "…";
+            }
+            descLabel.setText(d == null ? "" : d);
+        }
+
+        // ✅ set button state for candidate
+        refreshCandidateButtonState();
+    }
+
+    private void refreshCandidateButtonState() {
+        if (rhMode) return; // RH ignore
+        if (inscrireBtn == null || formation == null) return;
+
+        try {
+            boolean already = inscriptionDAO.exists(SessionCandidat.EMAIL, formation.getId());
+            if (already) {
+                inscrireBtn.setText("Ouvrir");
+                inscrireBtn.getStyleClass().remove("btn-primary");
+                if (!inscrireBtn.getStyleClass().contains("btn-success")) inscrireBtn.getStyleClass().add("btn-success");
+            } else {
+                inscrireBtn.setText("S'inscrire");
+                inscrireBtn.getStyleClass().remove("btn-success");
+                if (!inscrireBtn.getStyleClass().contains("btn-primary")) inscrireBtn.getStyleClass().add("btn-primary");
+            }
+        } catch (Exception e) {
+            // en cas d’erreur DB, on laisse "S'inscrire"
+            inscrireBtn.setText("S'inscrire");
+        }
     }
 
     private void applyStatutBadge(String st) {
-        // reset old badge classes
         statutLabel.getStyleClass().removeIf(c -> c.startsWith("status-") || c.startsWith("badge"));
-
-        // Use your theme style:
-        // status-badge + status-open/status-encours/status-filled/... etc
-        if (!statutLabel.getStyleClass().contains("status-badge")) {
-            statutLabel.getStyleClass().add("status-badge");
-        }
+        if (!statutLabel.getStyleClass().contains("status-badge")) statutLabel.getStyleClass().add("status-badge");
 
         String s = (st == null) ? "" : st.trim().toUpperCase().replace(" ", "_");
-
         switch (s) {
             case "OUVERTE" -> statutLabel.getStyleClass().add("status-open");
             case "EN_COURS" -> statutLabel.getStyleClass().add("status-encours");
-            case "TERMINEE" -> statutLabel.getStyleClass().add("status-closed"); // ou status-filled si tu préfères
+            case "TERMINEE" -> statutLabel.getStyleClass().add("status-closed");
             default -> statutLabel.getStyleClass().add("status-default");
         }
     }
 
-    /** true = RH (modifier/supprimer/inscriptions), false = candidat (inscrire) */
+    /** true = RH, false = candidat */
     public void setRHMode(boolean rhMode) {
+        this.rhMode = rhMode;
+
         if (inscriptionsBtn != null) inscriptionsBtn.setVisible(rhMode);
         if (editBtn != null) editBtn.setVisible(rhMode);
         if (deleteBtn != null) deleteBtn.setVisible(rhMode);
 
         if (inscrireBtn != null) inscrireBtn.setVisible(!rhMode);
+
+        // refresh btn state when switching mode
+        refreshCandidateButtonState();
     }
 
-    public void setOnChanged(Runnable r) {
-        this.onChanged = r;
-    }
+    public void setOnChanged(Runnable r) { this.onChanged = r; }
 
+    // ---------------- RH actions ----------------
 
     @FXML
     private void onInscriptions() {
@@ -103,36 +142,21 @@ public class FormationCardController {
             InscriptionsRHController controller = loader.getController();
             controller.setFormation(formation.getId(), formation.getNom());
 
-            // ✅ NEW: callbacks pour retour + refresh après actions
             controller.setOnBack(() -> {
                 if (mainLayout != null) mainLayout.setContent("/fxml/formations/FormationsRH.fxml");
             });
 
             controller.setOnChanged(() -> {
-                if (onChanged != null) onChanged.run(); // refresh cards
+                if (onChanged != null) onChanged.run();
             });
 
-            if (mainLayout != null) {
-                mainLayout.setView(view);
-            } else {
-                System.out.println("MainLayout is null, cannot open inscriptions inside contentPane.");
-            }
+            if (mainLayout != null) mainLayout.setView(view);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // ✅ Candidat -> formulaire inscription (tu peux le laisser popup, ou pareil inside main)
-    @FXML
-    private void onInscrire() {
-        if (onInscrireRequested != null) {
-            onInscrireRequested.run();
-            return;
-        }
-        System.out.println("onInscrireRequested is null (no navigation configured).");
-    }
-    // ✅ RH -> modifier : OPEN IN MAIN LAYOUT (no Stage)
     @FXML
     private void onEdit() {
         try {
@@ -140,11 +164,17 @@ public class FormationCardController {
             Node view = loader.load();
 
             FormationFormController controller = loader.getController();
-            controller.setFormation(formation);
+
+            // ✅ IMPORTANT: inject mainLayout (sinon btn Seance/Quiz ne naviguent pas)
+            controller.setMainLayout(mainLayout);
+            controller.setSelfView(view);
+
+            // ✅ BONUS (recommandé): charger formation complète depuis DB
+            Formation full = new FormationDAO().getById(formation.getId());
+            controller.setFormation(full);
 
             controller.setOnSaved(() -> {
                 if (onChanged != null) onChanged.run();
-                // back to list after save
                 if (mainLayout != null) mainLayout.setContent("/fxml/formations/FormationsRH.fxml");
             });
 
@@ -152,11 +182,7 @@ public class FormationCardController {
                 if (mainLayout != null) mainLayout.setContent("/fxml/formations/FormationsRH.fxml");
             });
 
-            if (mainLayout != null) {
-                mainLayout.setView(view);
-            } else {
-                System.out.println("MainLayout is null, cannot open inside contentPane.");
-            }
+            if (mainLayout != null) mainLayout.setView(view);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -179,9 +205,54 @@ public class FormationCardController {
             e.printStackTrace();
         }
     }
-    private Runnable onInscrireRequested;
+
+    // ---------------- Candidate action ----------------
+
+    private Runnable onInscrireRequested; // open inscription form
 
     public void setOnInscrireRequested(Runnable r) {
         this.onInscrireRequested = r;
+    }
+
+    @FXML
+    private void onInscrire() {
+        if (formation == null) return;
+
+        // ✅ if already registered => open details directly
+        try {
+            boolean already = inscriptionDAO.exists(SessionCandidat.EMAIL, formation.getId());
+            if (already) {
+                openDetails();
+                return;
+            }
+        } catch (Exception ignored) {}
+
+        // else -> normal inscription flow
+        if (onInscrireRequested != null) {
+            onInscrireRequested.run();
+            return;
+        }
+        System.out.println("onInscrireRequested is null (no navigation configured).");
+    }
+
+    private void openDetails() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/formations/FormationCandidatDetails.fxml"));
+            Node view = loader.load();
+
+            FormationCandidatDetailsController c = loader.getController();
+            c.setMainLayout(mainLayout);
+            c.init(formation.getId(), formation.getNom(), SessionCandidat.EMAIL);
+
+            if (mainLayout != null) mainLayout.setView(view);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Ouverture détails: " + e.getMessage()).show();
+        }
+    }
+
+    private String blankOr(String s, String def) {
+        return (s == null || s.isBlank()) ? def : s;
     }
 }

@@ -10,93 +10,142 @@
             styleClass="content-pane">
 
     <top>
-        <VBox spacing="16" styleClass="filter-panel">
+        <VBox spacing="16">
             <padding>
                 <Insets top="22" right="22" bottom="18" left="22"/>
             </padding>
 
             <HBox spacing="12" alignment="CENTER_LEFT">
-                <Label text="🧾" style="-fx-font-size: 22px;"/>
                 <Label fx:id="titleLabel" text="Formation" styleClass="page-title"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button text="Retour" onAction="#onCancel" styleClass="btn-secondary"/>
             </HBox>
 
-            <Label fx:id="errorLabel" text="" wrapText="true" styleClass="form-error"/>
         </VBox>
     </top>
 
     <center>
-        <ScrollPane fitToWidth="true" styleClass="card-scroll">
-            <content>
-                <VBox spacing="16">
-                    <padding>
-                        <Insets top="16" right="24" bottom="24" left="24"/>
-                    </padding>
+        <TabPane fx:id="tabPane" styleClass="tab-pane" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
 
-                    <!-- Section 1: Infos -->
-                    <VBox spacing="12" styleClass="offer-card">
+                <!-- TAB 1: FORMATION -->
+                <Tab fx:id="tabFormation" text="Formation">
+                    <ScrollPane fitToWidth="true" styleClass="card-scroll">
+                        <content>
+                            <VBox spacing="16">
+                                <padding>
+                                    <Insets top="16" right="24" bottom="24" left="24"/>
+                                </padding>
+
+                                <!-- Section 1: Infos -->
+                                <VBox spacing="12" styleClass="offer-card">
+                                    <padding>
+                                        <Insets top="16" right="16" bottom="16" left="16"/>
+                                    </padding>
+
+                                    <Label text="Informations" styleClass="filter-label"/>
+                                    <TextField fx:id="nomField" promptText="Nom formation"/>
+                                    <TextArea fx:id="descriptionArea" promptText="Description" prefRowCount="3"/>
+
+                                    <HBox spacing="12">
+                                        <DatePicker fx:id="dateDebutPicker" promptText="Date début" HBox.hgrow="ALWAYS"/>
+                                        <DatePicker fx:id="dateFinPicker" promptText="Date fin" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </VBox>
+
+                                <!-- Section 2: Contenu -->
+                                <VBox spacing="12" styleClass="offer-card">
+                                    <padding>
+                                        <Insets top="16" right="16" bottom="16" left="16"/>
+                                    </padding>
+
+                                    <Label text="Contenu" styleClass="filter-label"/>
+                                    <TextArea fx:id="contenuArea" promptText="Contenu" prefRowCount="4"/>
+                                    <TextArea fx:id="prerequisArea" promptText="Prérequis" prefRowCount="2"/>
+                                </VBox>
+
+                                <!-- Section 3: Paramètres -->
+                                <VBox spacing="12" styleClass="offer-card">
+                                    <padding>
+                                        <Insets top="16" right="16" bottom="16" left="16"/>
+                                    </padding>
+
+                                    <Label text="Paramètres" styleClass="filter-label"/>
+
+                                    <HBox spacing="12">
+                                        <ComboBox fx:id="categorieCombo" promptText="Catégorie" HBox.hgrow="ALWAYS"/>
+                                        <ComboBox fx:id="difficulteCombo" promptText="Difficulté" HBox.hgrow="ALWAYS"/>
+                                        <ComboBox fx:id="statutCombo" promptText="Statut" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+
+                                    <HBox spacing="12">
+                                        <ComboBox fx:id="modeCombo" promptText="Mode" HBox.hgrow="ALWAYS"/>
+                                        <TextField fx:id="lieuField" promptText="Lieu (si présentiel)" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+
+                                    <HBox spacing="12">
+                                        <TextField fx:id="formateurField" promptText="Formateur" HBox.hgrow="ALWAYS"/>
+                                        <TextField fx:id="capaciteField" promptText="Capacité max (ex: 20)" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </VBox>
+
+                                <Label fx:id="errorLabel" styleClass="error-label"/>
+
+                                <HBox spacing="10" alignment="CENTER_RIGHT">
+                                    <Button text="Annuler" onAction="#onCancel" styleClass="btn-secondary"/>
+                                    <Button text="Enregistrer &amp; Continuer" onAction="#onSaveAndGoSeances" styleClass="btn-success"/>
+                                </HBox>
+
+                            </VBox>
+                        </content>
+                    </ScrollPane>
+                </Tab>
+
+                <!-- TAB 2: SEANCES -->
+                <Tab fx:id="tabSeances" text="Séances">
+                    <VBox spacing="12" styleClass="content-inner">
                         <padding>
-                            <Insets top="16" right="16" bottom="16" left="16"/>
+                            <Insets top="16" right="24" bottom="24" left="24"/>
                         </padding>
 
-                        <Label text="Informations" styleClass="filter-label"/>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Planning des séances" styleClass="filter-label"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="+ Ajouter séance" onAction="#onAddSeance" styleClass="btn-success"/>
+                        </HBox>
 
-                        <TextField fx:id="nomField" promptText="Nom formation"/>
+                        <!-- ✅ LISTVIEW instead of TABLEVIEW -->
+                        <ListView fx:id="lvSeances" VBox.vgrow="ALWAYS" styleClass="list-view"/>
 
-                        <TextArea fx:id="descriptionArea" promptText="Description" prefRowCount="3"/>
-
-                        <HBox spacing="12">
-                            <DatePicker fx:id="dateDebutPicker" promptText="Date début" HBox.hgrow="ALWAYS"/>
-                            <DatePicker fx:id="dateFinPicker" promptText="Date fin" HBox.hgrow="ALWAYS"/>
+                        <HBox spacing="10" alignment="CENTER_RIGHT">
+                            <Button text="← Retour" onAction="#onBackToFormationTab" styleClass="btn-secondary"/>
+                            <Button text="Continuer → Quiz" onAction="#onGoQuizTab" styleClass="btn-success"/>
                         </HBox>
                     </VBox>
+                </Tab>
 
-                    <!-- Section 2: Contenu -->
-                    <VBox spacing="12" styleClass="offer-card">
+                <!-- TAB 3: QUIZ -->
+                <Tab fx:id="tabQuiz" text="Quiz">
+                    <VBox spacing="12" styleClass="content-inner">
                         <padding>
-                            <Insets top="16" right="16" bottom="16" left="16"/>
+                            <Insets top="16" right="24" bottom="24" left="24"/>
                         </padding>
 
-                        <Label text="Contenu" styleClass="filter-label"/>
-                        <TextArea fx:id="contenuArea" promptText="Contenu" prefRowCount="4"/>
-                        <TextArea fx:id="prerequisArea" promptText="Prérequis" prefRowCount="2"/>
+                        <Label text="Quiz associés aux séances" styleClass="filter-label"/>
+
+                        <!-- ✅ LISTVIEW instead of TABLEVIEW -->
+                        <ListView fx:id="lvQuizSeances" VBox.vgrow="ALWAYS" styleClass="list-view"/>
+
+                        <HBox spacing="10" alignment="CENTER_RIGHT">
+                            <Button text="← Séances" onAction="#onBackToSeancesTab" styleClass="btn-secondary"/>
+                            <Button text="Terminer" onAction="#onFinish" styleClass="btn-success"/>
+                        </HBox>
+
                     </VBox>
+                </Tab>
 
-                    <!-- Section 3: Paramètres -->
-                    <VBox spacing="12" styleClass="offer-card">
-                        <padding>
-                            <Insets top="16" right="16" bottom="16" left="16"/>
-                        </padding>
-
-                        <Label text="Paramètres" styleClass="filter-label"/>
-
-                        <HBox spacing="12">
-                            <ComboBox fx:id="categorieCombo" promptText="Catégorie" HBox.hgrow="ALWAYS"/>
-                            <ComboBox fx:id="difficulteCombo" promptText="Difficulté" HBox.hgrow="ALWAYS"/>
-                            <ComboBox fx:id="statutCombo" promptText="Statut" HBox.hgrow="ALWAYS"/>
-                        </HBox>
-
-                        <HBox spacing="12">
-                            <ComboBox fx:id="modeCombo" promptText="Mode" HBox.hgrow="ALWAYS"/>
-                            <TextField fx:id="lieuField" promptText="Lieu (si présentiel)" HBox.hgrow="ALWAYS"/>
-                        </HBox>
-
-                        <HBox spacing="12">
-                            <TextField fx:id="formateurField" promptText="Formateur" HBox.hgrow="ALWAYS"/>
-                            <TextField fx:id="capaciteField" promptText="Capacité max (ex: 20)" HBox.hgrow="ALWAYS"/>
-                        </HBox>
-                    </VBox>
-
-                    <!-- Actions -->
-                    <HBox spacing="10" alignment="CENTER_RIGHT">
-                        <Button text="Annuler" onAction="#onCancel" styleClass="btn-secondary"/>
-                        <Button text="Enregistrer" onAction="#onSave" styleClass="btn-success"/>
-                    </HBox>
-
-                </VBox>
-            </content>
-        </ScrollPane>
+            </tabs>
+        </TabPane>
     </center>
 
 </BorderPane>

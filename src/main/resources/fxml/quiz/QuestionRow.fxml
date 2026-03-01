@@ -15,8 +15,7 @@
         <Insets top="10" right="12" bottom="10" left="12"/>
     </padding>
 
-    <!-- Publish checkbox -->
-    <CheckBox fx:id="publishedCheck" text="Afficher" />
+    <CheckBox fx:id="publishedCheck" text="Afficher"/>
 
     <VBox spacing="4" HBox.hgrow="ALWAYS">
         <Label fx:id="enonceLabel" wrapText="true" styleClass="row-title"/>
@@ -27,9 +26,9 @@
     </VBox>
 
     <HBox spacing="8" alignment="CENTER_RIGHT">
-        <Button text="Choix" onAction="#onChoices" styleClass="primary-button"/>
-        <Button text="Modifier" onAction="#onEdit" styleClass="secondary-button"/>
-        <Button text="Supprimer" onAction="#onDelete" styleClass="danger-button"/>
+        <Button text="Choix" onAction="#onChoices" styleClass="btn-secondary"/>
+        <Button text="Modifier" onAction="#onEdit" styleClass="btn-secondary"/>
+        <Button text="Supprimer" onAction="#onDelete" styleClass="btn-danger"/>
     </HBox>
 
 </HBox>

@@ -1,20 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      spacing="12" padding="16"
-      fx:controller="talentos.pidev.controllers.quiz.QuizPassageController">
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentos.pidev.controllers.quiz.QuizPassageController"
+            styleClass="quiz-root">
 
-    <Label fx:id="lbQuestion" wrapText="true" style="-fx-font-size:16px; -fx-font-weight:bold;"/>
+    <!-- ✅ IMPORTANT: ToggleGroup declaration -->
+    <fx:define>
+        <ToggleGroup fx:id="tgChoices"/>
+    </fx:define>
 
+    <!-- HEADER -->
+    <top>
+        <HBox spacing="12" alignment="CENTER_LEFT" styleClass="quiz-header">
+            <Button text="← Quitter" onAction="#onQuit" styleClass="secondary-button"/>
+            <VBox spacing="2">
+                <Label fx:id="lbQuizTitle" text="Quiz" styleClass="quiz-title"/>
+                <Label fx:id="lbCounter" text="Question 1 / 10" styleClass="muted-label"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lbTimer" text="" styleClass="muted-label"/>
+        </HBox>
+    </top>
 
-    <RadioButton fx:id="rb1" toggleGroup="$tgChoices"/>
-    <RadioButton fx:id="rb2" toggleGroup="$tgChoices"/>
-    <RadioButton fx:id="rb3" toggleGroup="$tgChoices"/>
-    <RadioButton fx:id="rb4" toggleGroup="$tgChoices"/>
+    <!-- CENTER -->
+    <center>
+        <VBox spacing="14" alignment="TOP_CENTER" styleClass="quiz-center">
+            <ProgressBar fx:id="progressBar" prefWidth="720" styleClass="quiz-progress"/>
 
-    <Button fx:id="btnNext" text="Suivant" onAction="#onNext"/>
-</VBox>
+            <VBox spacing="14" alignment="TOP_CENTER" maxWidth="720" styleClass="quiz-card">
+                <Label fx:id="lbQuestion" wrapText="true" styleClass="quiz-question"/>
+
+                <!-- OPTIONS -->
+                <VBox fx:id="optionsBox" spacing="10" alignment="CENTER" maxWidth="680">
+
+                    <ToggleButton fx:id="opt1" toggleGroup="$tgChoices" styleClass="option-card" maxWidth="Infinity"/>
+                    <ToggleButton fx:id="opt2" toggleGroup="$tgChoices" styleClass="option-card" maxWidth="Infinity"/>
+                    <ToggleButton fx:id="opt3" toggleGroup="$tgChoices" styleClass="option-card" maxWidth="Infinity"/>
+                    <ToggleButton fx:id="opt4" toggleGroup="$tgChoices" styleClass="option-card" maxWidth="Infinity"/>
+
+                </VBox>
+            </VBox>
+
+            <!-- FOOTER ACTIONS -->
+            <HBox spacing="10" alignment="CENTER" maxWidth="720">
+                <Button fx:id="btnPrev" text="Précédent" onAction="#onPrev" styleClass="secondary-button"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnNext" text="Suivant" onAction="#onNext" styleClass="primary-button"/>
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>

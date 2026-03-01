@@ -4,33 +4,60 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="talentos.pidev.controllers.quiz.QuestionFormController"
-      spacing="12"
-      styleClass="card"
-      prefWidth="800">
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="talentos.pidev.controllers.quiz.QuestionFormController"
+            styleClass="content-pane">
 
-    <padding>
-        <Insets top="18" right="18" bottom="18" left="18"/>
-    </padding>
+    <!-- TOP comme FormationForm -->
+    <top>
+        <VBox spacing="16">
+            <padding>
+                <Insets top="22" right="22" bottom="18" left="22"/>
+            </padding>
 
-    <HBox spacing="12" alignment="CENTER_LEFT">
-        <Label fx:id="titleLabel" text="Question" styleClass="page-title"/>
-        <Region HBox.hgrow="ALWAYS"/>
-    </HBox>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label fx:id="titleLabel" text="Question" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Retour" onAction="#onCancel" styleClass="btn-secondary"/>
+            </HBox>
+        </VBox>
+    </top>
 
-    <Label text="Énoncé" styleClass="muted-text"/>
-    <TextArea fx:id="enonceArea"
-              promptText="Saisir l'énoncé..."
-              prefRowCount="6"
-              wrapText="true"/>
+    <!-- CENTER -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="card-scroll">
+            <content>
+                <VBox spacing="16">
+                    <padding>
+                        <Insets top="16" right="24" bottom="24" left="24"/>
+                    </padding>
 
-    <Label fx:id="errorLabel" text="" styleClass="error-label" wrapText="true"/>
+                    <VBox spacing="12" styleClass="offer-card" prefWidth="800">
+                        <padding>
+                            <Insets top="16" right="16" bottom="16" left="16"/>
+                        </padding>
 
-    <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button text="Annuler" onAction="#onCancel" styleClass="secondary-button"/>
-        <Button text="Enregistrer" onAction="#onSave" styleClass="primary-button"/>
-    </HBox>
+                        <Label text="Informations" styleClass="filter-label"/>
 
-</VBox>
+                        <Label text="Énoncé" styleClass="muted-text"/>
+                        <TextArea fx:id="enonceArea"
+                                  promptText="Saisir l'énoncé..."
+                                  prefRowCount="6"
+                                  wrapText="true"/>
+
+                        <Label fx:id="errorLabel" text="" styleClass="error-label" wrapText="true"/>
+                    </VBox>
+
+                    <!-- Actions -->
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Button text="Annuler" onAction="#onCancel" styleClass="btn-secondary"/>
+                        <Button text="Enregistrer" onAction="#onSave" styleClass="btn-success"/>
+                    </HBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

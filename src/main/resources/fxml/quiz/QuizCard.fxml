@@ -55,7 +55,19 @@
             <padding>
                 <Insets top="12"/>
             </padding>
+
             <Button text="Questions" onAction="#onQuestions" styleClass="btn-small, btn-info"/>
+
+            <!-- ✅ NEW: visible seulement si quiz vide -->
+            <Button fx:id="btnAutoGen"
+                    text="Générer auto"
+                    onAction="#onAutoGenerate"
+                    styleClass="btn-small, btn-success"
+                    visible="false"
+                    managed="false"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
             <Button text="Modifier" onAction="#onEdit" styleClass="btn-small"/>
             <Button text="Supprimer" onAction="#onDelete" styleClass="btn-small,btn-danger"/>
         </HBox>

@@ -3,13 +3,17 @@ package talentos.pidev.models;
 import java.time.LocalDateTime;
 
 public class TentativeQuiz {
+
     private int id;
     private int quizId;
+
+    private String candidatNom;      // ✅ exists in DB
     private String candidatEmail;
+
     private int score;
     private int total;
-    private LocalDateTime startedAt;
-    private LocalDateTime finishedAt;
+
+    private LocalDateTime createdAt; // ✅ exists in DB
 
     public TentativeQuiz() {}
 
@@ -18,6 +22,9 @@ public class TentativeQuiz {
 
     public int getQuizId() { return quizId; }
     public void setQuizId(int quizId) { this.quizId = quizId; }
+
+    public String getCandidatNom() { return candidatNom; }
+    public void setCandidatNom(String candidatNom) { this.candidatNom = candidatNom; }
 
     public String getCandidatEmail() { return candidatEmail; }
     public void setCandidatEmail(String candidatEmail) { this.candidatEmail = candidatEmail; }
@@ -28,14 +35,18 @@ public class TentativeQuiz {
     public int getTotal() { return total; }
     public void setTotal(int total) { this.total = total; }
 
-    public LocalDateTime getStartedAt() { return startedAt; }
-    public void setStartedAt(LocalDateTime startedAt) { this.startedAt = startedAt; }
-
-    public LocalDateTime getFinishedAt() { return finishedAt; }
-    public void setFinishedAt(LocalDateTime finishedAt) { this.finishedAt = finishedAt; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     @Override
     public String toString() {
-        return "TentativeQuiz{id=" + id + ", quizId=" + quizId + ", email='" + candidatEmail + "', score=" + score + "/" + total + "}";
+        return "TentativeQuiz{" +
+                "id=" + id +
+                ", quizId=" + quizId +
+                ", nom='" + candidatNom + '\'' +
+                ", email='" + candidatEmail + '\'' +
+                ", score=" + score + "/" + total +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }

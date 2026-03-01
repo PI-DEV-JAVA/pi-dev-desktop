@@ -26,21 +26,17 @@ public class FormationsRHController {
 
     private MainLayoutController mainLayout;
     private boolean uiReady = false;
+
     public void setMainLayout(MainLayoutController mainLayout) {
         this.mainLayout = mainLayout;
-        if (uiReady) {
-            applySearchAndSort(); // ou refresh() si tu veux recharger DB
-        }
+        if (uiReady) applySearchAndSort();
         System.out.println("✅ MainLayout injected into FormationsRHController: " + (mainLayout != null));
-
-
     }
 
     @FXML
     public void initialize() {
         uiReady = true;
-        refresh();
-        System.out.println("FormationsRHController init, mainLayout = " + mainLayout);
+
         triCombo.getItems().setAll(
                 "Date début (asc)",
                 "Date début (desc)",
@@ -50,12 +46,9 @@ public class FormationsRHController {
         );
         triCombo.getSelectionModel().selectFirst();
 
-        // optionnel: auto-search on typing
         if (searchField != null) {
             searchField.textProperty().addListener((obs, oldV, newV) -> applySearchAndSort());
         }
-
-        // optionnel: auto sort on selection
         if (triCombo != null) {
             triCombo.valueProperty().addListener((obs, oldV, newV) -> applySearchAndSort());
         }
@@ -64,9 +57,7 @@ public class FormationsRHController {
     }
 
     @FXML
-    private void onRefresh() {
-        refresh();
-    }
+    private void onRefresh() { refresh(); }
 
     public void refresh() {
         try {
@@ -90,6 +81,7 @@ public class FormationsRHController {
                 controller.setRHMode(true);
                 controller.setOnChanged(this::refresh);
                 controller.setMainLayout(mainLayout);
+
                 cardsContainer.getChildren().add(card);
 
             } catch (Exception e) {
@@ -110,21 +102,21 @@ public class FormationsRHController {
 
             FormationFormController controller = loader.getController();
 
-            // when saved -> refresh list and go back to RH list
+            // 🔥 injection pour workflow MainLayout
+            controller.setMainLayout(mainLayout);
+            controller.setSelfView(view);
+
             controller.setOnSaved(() -> {
                 refresh();
                 goBackToList();
             });
 
-            // cancel -> back to RH list
             controller.setOnCancel(this::goBackToList);
 
-            // show inside main content
             if (mainLayout != null) {
                 mainLayout.setView(view);
-            }
-            else {
-                System.out.println("ERROR: mainLayout is NULL in FormationsRHController (injection not done).");
+            } else {
+                System.out.println("ERROR: mainLayout is NULL in FormationsRHController.");
             }
 
         } catch (Exception e) {
@@ -132,14 +124,18 @@ public class FormationsRHController {
         }
     }
 
-    // Optional helper for edit mode (use later if needed)
     public void openEditForm(Formation formation) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/formations/FormationForm.fxml"));
             Node view = loader.load();
 
             FormationFormController controller = loader.getController();
-            controller.setFormation(formation);
+            Formation full = formationDAO.getById(formation.getId());
+            controller.setFormation(full);
+
+            // 🔥 injection
+            controller.setMainLayout(mainLayout);
+            controller.setSelfView(view);
 
             controller.setOnSaved(() -> {
                 refresh();
@@ -163,16 +159,14 @@ public class FormationsRHController {
     }
 
     @FXML
-    private void onSearch() {
-        applySearchAndSort();
-    }
+    private void onSearch() { applySearchAndSort(); }
 
     @FXML
-    private void onTriChanged() {
-        applySearchAndSort();
-    }
+    private void onTriChanged() { applySearchAndSort(); }
 
     private void applySearchAndSort() {
+        if (cardsContainer == null) return;
+
         String q = (searchField.getText() == null) ? "" : searchField.getText().toLowerCase().trim();
 
         List<Formation> filtered = all.stream()
@@ -201,7 +195,5 @@ public class FormationsRHController {
         renderCards(sorted);
     }
 
-    private String safe(String s) {
-        return s == null ? "" : s;
-    }
+    private String safe(String s) { return s == null ? "" : s; }
 }
