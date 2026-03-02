@@ -25,7 +25,7 @@ public class InterviewDAO {
         """;
         try (PreparedStatement ps = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, i.getTitle());
-            ps.setLong(2, 1);
+            ps.setLong(2, i.getRecruiterId());
             ps.setLong(3, i.getCandidateId());
             ps.setString(4, i.getStatus());
             if (i.getGeneralGrade() != null)
@@ -49,7 +49,7 @@ public class InterviewDAO {
         """;
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, i.getTitle());
-            ps.setLong(2, 1);
+            ps.setLong(2, i.getRecruiterId());
             ps.setLong(3, i.getCandidateId());
             ps.setString(4, i.getStatus());
             if (i.getGeneralGrade() != null)
@@ -79,6 +79,34 @@ public class InterviewDAO {
         List<Interview> list = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, "%" + keyword + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Interview i = new Interview();
+                i.setId(rs.getLong("id"));
+                i.setTitle(rs.getString("title"));
+                i.setRecruiterId(rs.getLong("recruiter_id"));
+                i.setCandidateId(rs.getLong("candidate_id"));
+                i.setStatus(rs.getString("status"));
+                double grade = rs.getDouble("general_grade");
+                if (!rs.wasNull()) i.setGeneralGrade(grade);
+                i.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                list.add(i);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public List<Interview> listByCandidateId(long candidateId, String keyword, boolean asc) {
+        String sql = """
+            SELECT * FROM interview
+            WHERE candidate_id = ? AND title LIKE ?
+            ORDER BY created_at %s
+        """.formatted(asc ? "ASC" : "DESC");
+
+        List<Interview> list = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, candidateId);
+            ps.setString(2, "%" + keyword + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Interview i = new Interview();

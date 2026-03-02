@@ -1,4 +1,4 @@
-﻿package talentospidev.controllers;
+package talentospidev.controllers;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -815,6 +815,11 @@ public class OffersCardController implements Initializable {
     @FXML
     private void handleTrends() {
         SceneUtil.switchScene("MarketTrendsView.fxml");
+    }
+
+    @FXML
+    private void handleInterviews() {
+        talentospidev.utils.SceneUtil.switchScene("Interviews/InterviewView.fxml");
     }
 
     @FXML

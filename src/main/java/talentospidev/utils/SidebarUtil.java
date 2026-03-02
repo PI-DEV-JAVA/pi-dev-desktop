@@ -88,6 +88,10 @@ public class SidebarUtil {
                     setIcon(btn, FontAwesomeSolid.BOLT, "My Circle", color);
                 } else if (text.contains("Notifications")) {
                     setIcon(btn, FontAwesomeSolid.BELL, "Notifications", color);
+                } else if (text.contains("Trends")) {
+                    setIcon(btn, FontAwesomeSolid.CHART_LINE, "Trends", color);
+                } else if (text.contains("Interviews")) {
+                    setIcon(btn, FontAwesomeSolid.MICROPHONE, "Interviews", color);
                 }
             }
         }

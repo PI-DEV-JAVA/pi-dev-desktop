@@ -551,6 +551,7 @@ public class ActivityDetailsController {
         SceneUtil.switchScene("OffersCardView.fxml");
     }
     @FXML private void handleTrends() { talentospidev.utils.SceneUtil.switchScene("MarketTrendsView.fxml"); }
+    @FXML private void handleInterviews() { talentospidev.utils.SceneUtil.switchScene("Interviews/InterviewView.fxml"); }
 
     @FXML
     private void handleMyCircle() {

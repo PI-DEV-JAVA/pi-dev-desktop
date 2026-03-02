@@ -35,6 +35,7 @@
         <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
         <Button text="💼  Job Offers" styleClass="sidebar-button-active" onAction="#handleJobOffers"/>
         <Button text="📈  Trends" styleClass="sidebar-button" onAction="#handleTrends"/>
+        <Button text="ðŸŽ¤  Interviews" styleClass="sidebar-button" onAction="#handleInterviews"/>
         <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
         <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
         <!-- Candidate only -->

@@ -9,6 +9,15 @@ public class ViewContext {
     private static int selectedOfferId = -1;
     private static int selectedApplicationId = -1;
     private static int selectedActivityId = -1;
+    private static int selectedInterviewId = -1;
+
+    public static int getSelectedInterviewId() {
+        return selectedInterviewId;
+    }
+
+    public static void setSelectedInterviewId(int id) {
+        selectedInterviewId = id;
+    }
 
     public static int getSelectedOfferId() {
         return selectedOfferId;

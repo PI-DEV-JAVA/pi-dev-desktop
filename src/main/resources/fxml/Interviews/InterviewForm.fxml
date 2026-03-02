@@ -2,117 +2,71 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
 
 <StackPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="talentospidev.controllers.interviews.InterviewFormController"
-           style="-fx-background-color:#f1f5f9;">
-    <!-- ======= LEFT SIDEBAR ======= -->
-    <VBox fx:id="sidebar" styleClass="sidebar">
-       <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 1 1 1 1;">
-            <ImageView fitHeight="60" fitWidth="60" preserveRatio="true">
-                <image><Image url="@/images/logo.png"/></image>
-            </ImageView>
-            <Label text="Talentos" styleClass="sidebar-logo"/>
+           style="-fx-background-color: rgba(0,0,0,0.05);">
+
+    <VBox spacing="20" maxWidth="480" alignment="TOP_CENTER"
+          style="-fx-background-color: white;
+                 -fx-padding: 32;
+                 -fx-background-radius: 16;
+                 -fx-border-radius: 16;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 24, 0, 0, 8);">
+
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="🎤" style="-fx-font-size: 28px;"/>
+            <VBox>
+                <Label text="Interview Form" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+                <Label text="Create or edit an interview session" style="-fx-font-size: 12px; -fx-text-fill: #9ca3af;"/>
+            </VBox>
         </HBox>
-        <Separator style="-fx-opacity: 0.1;"/>
-        <Label text="MAIN" styleClass="sidebar-section-label"/>
-        <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
-        <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
-        <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
-        <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
-        <Button text="📋  Activities" styleClass="sidebar-button" onAction="#handleActivities"/>
-        <Button text="📂  Projects" styleClass="sidebar-button" onAction="#handleProjects"/>
-        <Region VBox.vgrow="ALWAYS"/>
-        <Separator style="-fx-opacity: 0.1;"/>
-        <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
-        <Button text="👤  My Profile" styleClass="sidebar-button" onAction="#handleMyProfile"/>
-        <Button text="⚙  Settings" styleClass="sidebar-button" onAction="#handleSettings"/>
-        <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
-    </VBox>
-    <VBox spacing="25"
-          maxWidth="450"
-          style="
-              -fx-background-color:white;
-              -fx-padding:30;
-              -fx-background-radius:16;
-              -fx-border-radius:16;
-              -fx-effect:dropshadow(gaussian, rgba(0,0,0,0.15), 20,0,0,8);
-          ">
 
-        <Label text="Interview Details"
-               style="-fx-font-size:20px; -fx-font-weight:bold; -fx-text-fill:#0f172a;" />
+        <Separator/>
 
-        <GridPane hgap="15" vgap="18">
-
+        <GridPane hgap="15" vgap="16">
             <columnConstraints>
-                <ColumnConstraints percentWidth="35"/>
-                <ColumnConstraints percentWidth="65"/>
+                <ColumnConstraints percentWidth="30"/>
+                <ColumnConstraints percentWidth="70"/>
             </columnConstraints>
 
-            <Label text="Title"
-                   style="-fx-text-fill:#334155;"
+            <Label text="Title" style="-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 13px;"
                    GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-
-            <TextField fx:id="titleField"
+            <TextField fx:id="titleField" promptText="Interview title..."
                        GridPane.rowIndex="0" GridPane.columnIndex="1"
-                       style="-fx-background-radius:8; -fx-border-radius:8;
-                              -fx-border-color:#cbd5e1;"/>
+                       style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #e5e7eb; -fx-padding: 8;"/>
 
-            <Label text="Candidate"
-                   style="-fx-text-fill:#334155;"
+            <Label text="Candidate" style="-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 13px;"
                    GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-
-            <ComboBox fx:id="candidateBox"
+            <ComboBox fx:id="candidateBox" maxWidth="Infinity"
                       GridPane.rowIndex="1" GridPane.columnIndex="1"
-                      style="-fx-background-radius:8; -fx-border-radius:8;
-                             -fx-border-color:#cbd5e1;"/>
+                      style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #e5e7eb;"/>
 
-            <Label text="Status"
-                   style="-fx-text-fill:#334155;"
+            <Label text="Status" style="-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 13px;"
                    GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-
-            <ComboBox fx:id="statusBox"
+            <ComboBox fx:id="statusBox" maxWidth="Infinity"
                       GridPane.rowIndex="2" GridPane.columnIndex="1"
-                      style="-fx-background-radius:8; -fx-border-radius:8;
-                             -fx-border-color:#cbd5e1;"/>
+                      style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #e5e7eb;"/>
 
-            <Label text="General Grade"
-                   style="-fx-text-fill:#334155;"
+            <Label text="Grade" style="-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 13px;"
                    GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-
-            <TextField fx:id="gradeField"
+            <TextField fx:id="gradeField" promptText="0 - 100"
                        GridPane.rowIndex="3" GridPane.columnIndex="1"
-                       style="-fx-background-radius:8; -fx-border-radius:8;
-                              -fx-border-color:#cbd5e1;"/>
-
+                       style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #e5e7eb; -fx-padding: 8;"/>
         </GridPane>
 
-        <HBox spacing="15" alignment="CENTER_RIGHT">
+        <Separator/>
 
-            <Button text="Cancel"
-                    onAction="#onCancel"
-                    style="
-                        -fx-background-color:#e2e8f0;
-                        -fx-text-fill:#0f172a;
-                        -fx-background-radius:8;
-                        -fx-padding:8 18;
-                        -fx-cursor:hand;
-                    "/>
-
-            <Button text="Save"
-                    onAction="#onSave"
-                    style="
-                        -fx-background-color:#0D203B;
-                        -fx-text-fill:white;
-                        -fx-background-radius:8;
-                        -fx-padding:8 20;
-                        -fx-font-weight:bold;
-                        -fx-cursor:hand;
-                    "/>
-
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <Button text="Cancel" onAction="#onCancel"
+                    style="-fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-background-radius: 8;
+                           -fx-padding: 10 20; -fx-cursor: hand; -fx-font-size: 13px;"/>
+            <Button text="Save" onAction="#onSave"
+                    style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-background-radius: 8;
+                           -fx-padding: 10 24; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 13px;"/>
         </HBox>
-
     </VBox>
-
 </StackPane>

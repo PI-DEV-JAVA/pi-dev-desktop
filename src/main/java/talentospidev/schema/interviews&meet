@@ -1,0 +1,49 @@
+-- 1. interview (first, others depend on it)
+CREATE TABLE `interview` (
+  `id`            BIGINT NOT NULL AUTO_INCREMENT,
+  `title`         VARCHAR(150) NOT NULL,
+  `recruiter_id`  BIGINT NOT NULL,
+  `candidate_id`  BIGINT NOT NULL,
+  `status`        ENUM('PENDING','IN_PROGRESS','COMPLETED') DEFAULT 'PENDING',
+  `general_grade` DECIMAL(4,2) DEFAULT NULL,
+  `created_at`    TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_interview_recruiter` (`recruiter_id`),
+  KEY `fk_interview_candidate` (`candidate_id`),
+  KEY `idx_interview_status`   (`status`),
+  CONSTRAINT `fk_interview_recruiter` FOREIGN KEY (`recruiter_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `fk_interview_candidate` FOREIGN KEY (`candidate_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- 2. interview_meet (depends on interview)
+CREATE TABLE `interview_meet` (
+  `id`           BIGINT NOT NULL AUTO_INCREMENT,
+  `interview_id` BIGINT NOT NULL,
+  `meet_uuid`    CHAR(36) NOT NULL,
+  `scheduled_at` DATETIME NOT NULL,
+  `status`       ENUM('PENDING','IN_PROGRESS','COMPLETED') DEFAULT 'PENDING',
+  `grade`        DECIMAL(4,2) DEFAULT NULL,
+  `created_at`   TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `meet_uuid`         (`meet_uuid`),
+  KEY `fk_meet_interview`        (`interview_id`),
+  KEY `idx_meet_status`          (`status`),
+  KEY `idx_meet_schedule`        (`scheduled_at`),
+  CONSTRAINT `fk_meet_interview` FOREIGN KEY (`interview_id`) REFERENCES `interview` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- 3. interview_note (depends on interview and users)
+CREATE TABLE `interview_note` (
+  `id`           BIGINT NOT NULL AUTO_INCREMENT,
+  `interview_id` BIGINT NOT NULL,
+  `recruiter_id` BIGINT NOT NULL,
+  `note`         TEXT NOT NULL,
+  `created_at`   TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_note_interview`        (`interview_id`),
+  KEY `fk_note_recruiter`        (`recruiter_id`),
+  CONSTRAINT `fk_note_interview` FOREIGN KEY (`interview_id`) REFERENCES `interview` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_note_recruiter` FOREIGN KEY (`recruiter_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

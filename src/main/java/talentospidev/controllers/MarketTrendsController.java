@@ -350,6 +350,7 @@ public class MarketTrendsController implements Initializable {
     @FXML
     private void handleTrends() {
         /* Already here */ }
+    @FXML private void handleInterviews() { talentospidev.utils.SceneUtil.switchScene("Interviews/InterviewView.fxml"); }
 
     @FXML
     private void handleToDo() {
