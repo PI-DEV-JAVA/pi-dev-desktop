@@ -129,21 +129,21 @@ public class QuestionDAO {
 
     /** ✅ true si le quiz a au moins 1 question ET au moins 1 choix lié */
     public boolean hasQuestionsAndChoices(int quizId) throws SQLException {
+        // au moins 1 question ET au moins 1 choix associé
         String sql = """
-        SELECT COUNT(*)
+        SELECT COUNT(*) AS cnt
         FROM question q
+        JOIN choix c ON c.question_id = q.id
         WHERE q.quiz_id = ?
-          AND EXISTS (SELECT 1 FROM choix c WHERE c.question_id = q.id)
-    """;
+        """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, quizId);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
+                if (rs.next()) return rs.getInt("cnt") > 0;
             }
         }
         return false;
     }
+
 }

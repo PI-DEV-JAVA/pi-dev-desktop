@@ -7,78 +7,89 @@ import talentos.pidev.models.Choix;
 import talentos.pidev.models.Question;
 import talentos.pidev.models.Quiz;
 
-
-import java.sql.SQLException;
-import java.util.List;
-
 public class AutoQuizGeneratorService {
 
+    private final HuggingFaceQuizService hf = new HuggingFaceQuizService();
     private final QuestionDAO questionDAO = new QuestionDAO();
     private final ChoixDAO choixDAO = new ChoixDAO();
-    private final HuggingFaceQuizService hf = new HuggingFaceQuizService();
 
-    public void generateIfEmpty(Quiz quiz) throws SQLException {
+    /**
+     * Appelé depuis QuizCardController:
+     * autoService.generateIfEmpty(quiz);
+     */
+    public void generateIfEmpty(Quiz quiz) {
+        try {
+            if (quiz == null) return;
 
-        boolean has = questionDAO.hasQuestionsAndChoices(quiz.getId());
-        if (has) return;
+            int quizId = quiz.getId();
 
-        String prompt = """
-        Génère 5 questions QCM sur le thème suivant:
-        Titre: %s
-        Description: %s
-
-        Format EXACT JSON:
-        {
-          "questions":[
-            {
-              "enonce":"...",
-              "choix":[
-                {"texte":"...", "correct":true},
-                {"texte":"...", "correct":false},
-                {"texte":"...", "correct":false},
-                {"texte":"...", "correct":false}
-              ]
+            // ✅ Si déjà rempli => stop
+            if (questionDAO.hasQuestionsAndChoices(quizId)) {
+                return;
             }
-          ]
-        }
-        """.formatted(quiz.getTitre(), quiz.getDescription());
 
-        String response = hf.generate(prompt);
+            String theme = buildThemeFromQuiz(quiz);
 
-        // ⚠️ HuggingFace renvoie souvent un tableau JSON comme:
-        // [ { "generated_text": "..." } ]
-        String generatedText = extractGeneratedText(response);
+            // ✅ 1) Génération HF
+            String out1 = hf.generateQuizJson(theme, 5);
 
-        // Ici tu dois parser le JSON final (questions/choix)
-        // ✅ pour simplifier: on peut faire un parse minimal
-        // (si tu veux je te donne parser Gson/Jackson propre)
-        QuizJsonParser.Result parsed = QuizJsonParser.parse(generatedText);
-
-        for (QuizJsonParser.QuestionDTO qdto : parsed.questions) {
-            Question q = new Question();
-            q.setQuizId(quiz.getId());
-            q.setEnonce(qdto.enonce);
-            questionDAO.add(q);
-
-            for (QuizJsonParser.ChoixDTO cdto : qdto.choix) {
-                Choix c = new Choix();
-                c.setQuestionId(q.getId());
-                c.setTexte(cdto.texte);
-                c.setEstCorrect(cdto.correct);
-                choixDAO.add(c);
+            QuizJsonParser.Result parsed;
+            try {
+                parsed = QuizJsonParser.parse(out1);
+            } catch (RuntimeException e) {
+                // ✅ Retry 1 fois si tronqué / invalide
+                String msg = e.getMessage() == null ? "" : e.getMessage();
+                if (msg.contains("tronqué") || msg.contains("Aucun objet JSON") || msg.contains("Champ 'questions'")) {
+                    String out2 = hf.generateQuizJson(
+                            theme + " IMPORTANT: renvoie le JSON COMPLET minifié sur une seule ligne, aucun texte.",
+                            5
+                    );
+                    parsed = QuizJsonParser.parse(out2);
+                } else {
+                    throw e;
+                }
             }
+
+            // ✅ 2) Insertion DB: Question puis Choix
+            for (QuizJsonParser.QuestionDTO qdto : parsed.questions) {
+
+                Question q = new Question();
+                q.setQuizId(quizId);
+                q.setEnonce(qdto.enonce);
+
+                // ✅ Ton DAO met l'ID généré dans q.setId(...)
+                questionDAO.add(q);
+
+                int questionId = q.getId();
+                if (questionId <= 0) {
+                    throw new RuntimeException("Insertion question échouée: ID non généré.");
+                }
+
+                for (QuizJsonParser.ChoixDTO cdto : qdto.choix) {
+                    Choix c = new Choix();
+                    c.setQuestionId(questionId);
+                    c.setTexte(cdto.texte);
+
+                    // selon ton modèle: setEstCorrect / setCorrect / setCorrecte...
+                    // ici je suppose setEstCorrect(boolean)
+                    c.setEstCorrect(cdto.correct);
+
+                    choixDAO.add(c);
+                }
+            }
+
+        } catch (Exception ex) {
+            throw new RuntimeException("Erreur génération : " + ex.getMessage(), ex);
         }
     }
 
-    private String extractGeneratedText(String raw) {
-        // extraction simple sans lib
-        // cherche "generated_text"
-        int i = raw.indexOf("generated_text");
-        if (i == -1) return raw;
-        int start = raw.indexOf(':', i) + 1;
-        int firstQuote = raw.indexOf('"', start);
-        int lastQuote = raw.lastIndexOf('"');
-        if (firstQuote == -1 || lastQuote <= firstQuote) return raw;
-        return raw.substring(firstQuote + 1, lastQuote).replace("\\n", "\n").replace("\\\"", "\"");
+    private String buildThemeFromQuiz(Quiz quiz) {
+        String t = quiz.getTitre() == null ? "" : quiz.getTitre().trim();
+        String d = quiz.getDescription() == null ? "" : quiz.getDescription().trim();
+
+        if (!t.isBlank() && !d.isBlank()) return t + " - " + d;
+        if (!t.isBlank()) return t;
+
+        return "JavaFX et SceneBuilder";
     }
 }
