@@ -482,6 +482,7 @@ public class ProfileViewController {
     private void handleJobOffers() {
         SceneUtil.switchScene("OffersCardView.fxml");
     }
+    @FXML private void handleTrends() { talentospidev.utils.SceneUtil.switchScene("MarketTrendsView.fxml"); }
 
     @FXML
     private void handleToDo() {
