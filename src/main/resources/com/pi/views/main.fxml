@@ -1,135 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pi.controllers.MainController">
+<BorderPane fx:id="mainBorderPane" prefHeight="850" prefWidth="1300" style="-fx-background-color: #f0f2f5;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pi.controllers.MainController">
 
-    <!-- Menu Latéral Gauche -->
+    <!-- ======= SIDEBAR UNIQUE ======= -->
     <left>
-        <VBox prefWidth="250" spacing="10" style="-fx-background-color: #2c3e50; -fx-padding: 30 20 30 20;" BorderPane.alignment="CENTER">
+        <VBox prefWidth="260" style="-fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 0 0; -fx-padding: 20 0 0 0;">
 
-            <children>
-                <!-- Logo / Titre -->
-                <Label text="TalentOs" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-padding: 0 0 20 0;" />
+            <!-- Logo -->
+            <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 20 20;">
+                <Label text="🎯" style="-fx-font-size: 32px;"/>
+                <Label text="Talentos" style="-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+            </HBox>
 
-                <!-- Menu Items -->
-                <Label text="📊 Dashboard" style="-fx-text-fill: #ecf0f1; -fx-font-size: 14px; -fx-padding: 10 15 10 15;" />
-                <Label text="📋 Job Offers" style="-fx-text-fill: #ecf0f1; -fx-font-size: 14px; -fx-padding: 10 15 10 15;" />
-                <Label text="📚 Courses" style="-fx-text-fill: #ecf0f1; -fx-font-size: 14px; -fx-padding: 10 15 10 15;" />
+            <Separator style="-fx-opacity: 0.1; -fx-padding: 0 0 10 0;"/>
 
-                <!-- EVENTS en BLEU (sélectionné) -->
-                <Label text="📅 Events" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 15 10 15; -fx-background-color: #3498db; -fx-background-radius: 5;" />
+            <!-- MAIN SECTION -->
+            <Label text="MAIN" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280; -fx-padding: 10 20 8 20;"/>
 
-                <Label text="✅ To Do" style="-fx-text-fill: #ecf0f1; -fx-font-size: 14px; -fx-padding: 10 15 10 15;" />
+            <Button fx:id="btnEvents" maxWidth="Infinity" onAction="#openEvenementGestion"
+                    style="-fx-background-color: #eef2ff; -fx-text-fill: #6366f1; -fx-font-size: 13px; -fx-font-weight: 700; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand; -fx-border-color: transparent transparent transparent #6366f1; -fx-border-width: 0 0 0 3px;"
+                    text="📅  Events"/>
 
-                <!-- Espace flexible -->
-                <VBox spacing="10" VBox.vgrow="ALWAYS">
-                    <padding>
-                        <Insets top="50" />
-                    </padding>
-                </VBox>
+            <Button fx:id="btnEvenementListe" maxWidth="Infinity" onAction="#openEvenementListe"
+                    style="-fx-background-color: transparent; -fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-font-weight: 600; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand;"
+                    text="📋  Liste Événements"/>
 
-                <!-- Section Profil Admin -->
-                <Separator style="-fx-background-color: #34495e;" />
+            <Button fx:id="btnParticipations" maxWidth="Infinity" onAction="#openParticipationGestion"
+                    style="-fx-background-color: transparent; -fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-font-weight: 600; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand;"
+                    text="👥  Participations"/>
 
-                <Label text="Admin" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 5 0;" />
+            <Button fx:id="btnParticipationListe" maxWidth="Infinity" onAction="#openParticipationListe"
+                    style="-fx-background-color: transparent; -fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-font-weight: 600; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand;"
+                    text="📋  Liste Participations"/>
 
-                <Label text="admin sudo" style="-fx-text-fill: #95a5a6; -fx-font-size: 12px; -fx-background-color: #ecf0f1; -fx-padding: 3 8 3 8; -fx-background-radius: 12;" />
-                <Label text="admin" style="-fx-text-fill: #95a5a6; -fx-font-size: 12px; -fx-background-color: #ecf0f1; -fx-padding: 3 8 3 8; -fx-background-radius: 12;" />
-                <Label text="amen samader" style="-fx-text-fill: #95a5a6; -fx-font-size: 12px; -fx-background-color: #ecf0f1; -fx-padding: 3 8 3 8; -fx-background-radius: 12;" />
-                <Label text="HR" style="-fx-text-fill: #95a5a6; -fx-font-size: 12px; -fx-background-color: #ecf0f1; -fx-padding: 3 8 3 8; -fx-background-radius: 12;" />
+            <Button fx:id="btnPresences" maxWidth="Infinity" onAction="#openPresence"
+                    style="-fx-background-color: transparent; -fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-font-weight: 600; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand;"
+                    text="✅  Présences"/>
 
-                <Separator style="-fx-background-color: #34495e;" />
+            <Button fx:id="btnCalendrier" maxWidth="Infinity" onAction="#openCalendrier"
+                    style="-fx-background-color: transparent; -fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-font-weight: 600; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand;"
+                    text="📅  Calendrier"/>
 
-                <!-- Account Menu -->
-                <Label text="👤 Account" style="-fx-text-fill: #ecf0f1; -fx-font-size: 14px; -fx-padding: 10 15 10 15;" />
-                <Label text="👤 My Profile" style="-fx-text-fill: #ecf0f1; -fx-font-size: 14px; -fx-padding: 10 15 10 15;" />
-                <Label text="🚪 Logout" style="-fx-text-fill: #ecf0f1; -fx-font-size: 14px; -fx-padding: 10 15 10 15;" />
-            </children>
+            <Button fx:id="btnFeedback" maxWidth="Infinity" onAction="#openFeedback"
+                    style="-fx-background-color: transparent; -fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-font-weight: 600; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand;"
+                    text="⭐  Feedback"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Separator style="-fx-opacity: 0.1;"/>
+
+            <!-- ACCOUNT SECTION -->
+            <Label text="ACCOUNT" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280; -fx-padding: 20 20 8 20;"/>
+
+            <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-font-weight: 600; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand;"
+                    text="👤  My Profile"/>
+
+            <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-font-weight: 600; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand;"
+                    text="⚙  Settings"/>
+
+            <Button maxWidth="Infinity" onAction="#quit"
+                    style="-fx-background-color: transparent; -fx-text-fill: #ef4444; -fx-font-size: 13px; -fx-font-weight: 600; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand;"
+                    text="🚪  Logout"/>
         </VBox>
     </left>
 
-    <!-- Contenu Central -->
+    <!-- ======= CENTER CONTENT ======= -->
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-            <VBox spacing="20" alignment="TOP_CENTER" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);">
+        <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+            <VBox spacing="24" style="-fx-padding: 30;">
 
-                <children>
-                    <!-- Titre -->
-                    <Label text="Events" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-padding: 0 0 20 0;" />
+                <!-- Header -->
+                <VBox spacing="16" style="-fx-background-color: linear-gradient(to right, #6366f1, #8b5cf6); -fx-background-radius: 16; -fx-padding: 24;">
+                    <Label text="Events Management" style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: white;"/>
+                    <Label text="Gérez vos événements, participations et présences" style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.8);"/>
+                </VBox>
 
-                    <!-- Sous-titre -->
-                    <Label text="Gestion des Événements RH" style="-fx-font-size: 18px; -fx-text-fill: #3498db; -fx-padding: 0 0 20 0;" />
-
-                    <!-- SECTION ÉVÉNEMENTS -->
-                    <VBox spacing="15" alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #3498db; -fx-border-radius: 10; -fx-border-width: 2;">
-                        <children>
-                            <Label text="GESTION DES ÉVÉNEMENTS" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-
-                            <!-- CORRECTION : wrapText supprimé -->
-                            <HBox spacing="20" alignment="CENTER">
-                                <children>
-                                    <Button mnemonicParsing="false" onAction="#openEvenementGestion" text="Gestion" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5;" />
-                                    <Button mnemonicParsing="false" onAction="#openEvenementListe" text="Liste" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5;" />
-                                    <Button mnemonicParsing="false" onAction="#openCalendrier" text="Calendrier" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5;" />
-                                </children>
-                            </HBox>
-                        </children>
+                <!-- Quick Access Cards - CORRIGÉ : wrapText supprimé -->
+                <HBox spacing="20" alignment="CENTER">
+                    <VBox spacing="12" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 24; -fx-min-width: 180; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);">
+                        <Label text="📋" style="-fx-font-size: 32px;"/>
+                        <Label text="Événements" style="-fx-font-size: 16px; -fx-font-weight: 700;"/>
+                        <Button text="Liste" onAction="#openEvenementListe" style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 20; -fx-cursor: hand;"/>
                     </VBox>
 
-                    <!-- SECTION PARTICIPATIONS -->
-                    <VBox spacing="15" alignment="CENTER">
-                        <children>
-                            <Label text="GESTION DES PARTICIPATIONS" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-
-                            <!-- CORRECTION : wrapText supprimé -->
-                            <HBox spacing="20" alignment="CENTER">
-                                <children>
-                                    <Button mnemonicParsing="false" onAction="#openParticipationGestion" text="Gestion" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5;" />
-                                    <Button mnemonicParsing="false" onAction="#openParticipationListe" text="Liste" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5;" />
-                                </children>
-                            </HBox>
-                        </children>
+                    <VBox spacing="12" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 24; -fx-min-width: 180; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);">
+                        <Label text="👥" style="-fx-font-size: 32px;"/>
+                        <Label text="Participations" style="-fx-font-size: 16px; -fx-font-weight: 700;"/>
+                        <Button text="Liste" onAction="#openParticipationListe" style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 20; -fx-cursor: hand;"/>
                     </VBox>
-
-                    <!-- SECTION PRÉSENCES -->
-                    <VBox spacing="15" alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #9b59b6; -fx-border-radius: 10; -fx-border-width: 2;">
-                        <children>
-                            <Label text="GESTION DES PRÉSENCES" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-
-                            <!-- CORRECTION : wrapText supprimé -->
-                            <HBox spacing="20" alignment="CENTER">
-                                <children>
-                                    <Button mnemonicParsing="false" onAction="#openPresence" text="Scanner" style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5;" />
-                                </children>
-                            </HBox>
-                        </children>
-                    </VBox>
-
-                    <!-- SECTION SATISFACTION -->
-                    <VBox spacing="15" alignment="CENTER" style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #f39c12; -fx-border-radius: 10; -fx-border-width: 2;">
-                        <children>
-                            <Label text="SATISFACTION ET FEEDBACK" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
-
-                            <!-- CORRECTION : wrapText supprimé -->
-                            <HBox spacing="20" alignment="CENTER">
-                                <children>
-                                    <Button mnemonicParsing="false" onAction="#openFeedback" text="Satisfaction" style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5;" />
-                                </children>
-                            </HBox>
-                        </children>
-                    </VBox>
-
-                    <!-- Bouton Quitter -->
-                    <Button mnemonicParsing="false" onAction="#quit" text="Quitter" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20 10 20; -fx-background-radius: 5; -fx-max-width: 200;" />
-                </children>
+                </HBox>
             </VBox>
         </ScrollPane>
     </center>

@@ -8,22 +8,16 @@ import com.pi.utils.Validator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class ParticipationController implements Initializable {
+public class ParticipationController implements Initializable, BaseController {
 
     // Pour la gestion (formulaire)
     @FXML private TextField idField;
@@ -35,7 +29,7 @@ public class ParticipationController implements Initializable {
     // Pour la liste
     @FXML private TextField rechercheField;
     @FXML private TextField detailField;
-    @FXML private Label infoLabel;
+    @FXML private Label totalParticipationsLabel;
     @FXML private ListView<String> listViewParticipations;
 
     private ParticipationService participationService;
@@ -43,6 +37,12 @@ public class ParticipationController implements Initializable {
     private ObservableList<String> participationsAffichees;
     private List<Participation> participationsCompletes;
     private Participation participationEnCours;
+    private MainController mainController;
+
+    @Override
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -74,18 +74,15 @@ public class ParticipationController implements Initializable {
             }
 
             if (participationService.estInscrit(idEvent, idUser)) {
-                AlertUtil.showWarning("Attention", "Cet utilisateur est déjà inscrit.");
+                AlertUtil.showWarning("Attention", "Cet utilisateur est déjà inscrit à cet événement.");
                 return;
             }
 
             Participation participation = new Participation(idEvent, idUser, statutField.getText());
             participationService.ajouterParticipation(participation);
             effacerFormulaire();
-
-            // Ouvrir la fenêtre de la liste après ajout
-            ouvrirListeParticipations();
-
-            AlertUtil.showInfo("Succès", "Participation ajoutée!");
+            chargerListe();
+            AlertUtil.showInfo("Succès", "Participation ajoutée avec succès!");
 
         } catch (NumberFormatException e) {
             AlertUtil.showError("Erreur", "Les ID doivent être des nombres.");
@@ -109,11 +106,8 @@ public class ParticipationController implements Initializable {
 
         try {
             participationService.modifierStatut(participationEnCours.getIdParticipation(), nouveauStatut);
-
-            // Ouvrir la fenêtre de la liste après modification
-            ouvrirListeParticipations();
-
-            AlertUtil.showInfo("Succès", "Statut modifié!");
+            chargerListe();
+            AlertUtil.showInfo("Succès", "Statut modifié avec succès!");
 
         } catch (SQLException e) {
             AlertUtil.showError("Erreur", "Erreur lors de la modification: " + e.getMessage());
@@ -133,37 +127,14 @@ public class ParticipationController implements Initializable {
             try {
                 participationService.supprimerParticipation(participationEnCours.getIdParticipation());
                 effacerFormulaire();
-
-                // Ouvrir la fenêtre de la liste après suppression
-                ouvrirListeParticipations();
-
-                AlertUtil.showInfo("Succès", "Participation supprimée!");
+                chargerListe();
+                AlertUtil.showInfo("Succès", "Participation supprimée avec succès!");
 
             } catch (SQLException e) {
                 AlertUtil.showError("Erreur", "Erreur lors de la suppression: " + e.getMessage());
             }
         }
     }
-
-    // ==================== MÉTHODE POUR OUVRIR LA LISTE ====================
-
-    private void ouvrirListeParticipations() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/pi/views/participation/participation_liste.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Liste des Participations");
-            stage.setScene(new Scene(root, 800, 600));
-            stage.show();
-
-        } catch (Exception e) {
-            AlertUtil.showError("Erreur", "Impossible d'ouvrir la liste: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // ==================== RECHERCHE PAR ID ====================
 
     @FXML
     private void rechercherParId() {
@@ -192,34 +163,6 @@ public class ParticipationController implements Initializable {
     }
 
     // ==================== MÉTHODES POUR LA LISTE ====================
-
-    private void chargerListe() {
-        try {
-            participationsCompletes = participationService.getAllParticipations();
-            mettreAJourListe();
-        } catch (SQLException e) {
-            AlertUtil.showError("Erreur", "Erreur de chargement: " + e.getMessage());
-        }
-    }
-
-    private void mettreAJourListe() {
-        participationsAffichees.clear();
-        for (Participation p : participationsCompletes) {
-            String affichage = String.format("ID: %d | Événement: %d | Utilisateur: %d | %s",
-                    p.getIdParticipation(), p.getIdEvent(), p.getIdUser(), p.getStatut());
-            participationsAffichees.add(affichage);
-        }
-        if (infoLabel != null) {
-            infoLabel.setText("Total: " + participationsAffichees.size() + " participation(s)");
-        }
-    }
-
-    @FXML
-    private void actualiser() {
-        chargerListe();
-        rechercheField.clear();
-        detailField.clear();
-    }
 
     @FXML
     private void rechercherParEvenement() {
@@ -256,6 +199,73 @@ public class ParticipationController implements Initializable {
             AlertUtil.showError("Erreur", "L'ID doit être un nombre.");
         } catch (SQLException e) {
             AlertUtil.showError("Erreur", "Erreur de recherche: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void actualiser() {
+        chargerListe();
+        rechercheField.clear();
+        detailField.clear();
+        rechercheIdField.clear();
+    }
+
+    @FXML
+    private void afficherToutes() {
+        chargerListe();
+        rechercheField.clear();
+    }
+
+    @FXML
+    private void afficherInscrits() {
+        try {
+            List<Participation> toutes = participationService.getAllParticipations();
+            participationsCompletes = new java.util.ArrayList<>();
+            for (Participation p : toutes) {
+                if ("Inscrit".equalsIgnoreCase(p.getStatut())) {
+                    participationsCompletes.add(p);
+                }
+            }
+            mettreAJourListe();
+        } catch (SQLException e) {
+            AlertUtil.showError("Erreur", "Erreur: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void afficherAnnules() {
+        try {
+            List<Participation> toutes = participationService.getAllParticipations();
+            participationsCompletes = new java.util.ArrayList<>();
+            for (Participation p : toutes) {
+                if ("Annulé".equalsIgnoreCase(p.getStatut())) {
+                    participationsCompletes.add(p);
+                }
+            }
+            mettreAJourListe();
+        } catch (SQLException e) {
+            AlertUtil.showError("Erreur", "Erreur: " + e.getMessage());
+        }
+    }
+
+    private void chargerListe() {
+        try {
+            participationsCompletes = participationService.getAllParticipations();
+            mettreAJourListe();
+        } catch (SQLException e) {
+            AlertUtil.showError("Erreur", "Erreur de chargement: " + e.getMessage());
+        }
+    }
+
+    private void mettreAJourListe() {
+        participationsAffichees.clear();
+        for (Participation p : participationsCompletes) {
+            String affichage = String.format("ID: %d | Événement: %d | Utilisateur: %d | %s",
+                    p.getIdParticipation(), p.getIdEvent(), p.getIdUser(), p.getStatut());
+            participationsAffichees.add(affichage);
+        }
+        if (totalParticipationsLabel != null) {
+            totalParticipationsLabel.setText("Total: " + participationsAffichees.size() + " participations");
         }
     }
 

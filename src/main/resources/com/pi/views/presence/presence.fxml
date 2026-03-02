@@ -1,73 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pi.controllers.PresenceController">
+<VBox spacing="24" style="-fx-padding: 30; -fx-background-color: #f0f2f5;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pi.controllers.PresenceController">
 
-    <top>
-        <Label text="GESTION DES PRÉSENCES" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-padding: 20;" BorderPane.alignment="CENTER" />
-    </top>
+    <!-- Header -->
+    <VBox spacing="16" style="-fx-background-color: linear-gradient(to right, #6366f1, #8b5cf6); -fx-background-radius: 16; -fx-padding: 24;">
+        <Label text="Gestion des Présences" style="-fx-font-size: 26px; -fx-font-weight: 800; -fx-text-fill: white;"/>
+        <Label text="Générez des QR codes et scannez les présences" style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.8);"/>
+    </VBox>
 
-    <center>
-        <VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 20;">
+    <HBox spacing="24" alignment="CENTER">
+        <!-- Left: QR Generation -->
+        <VBox prefWidth="400" spacing="16" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 24; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);">
+            <Label text="Générer QR Code" style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #111827;"/>
 
-            <!-- Section Génération QR Code -->
-            <VBox spacing="10" style="-fx-border-color: #3498db; -fx-border-radius: 5; -fx-padding: 15;">
-                <Label text="Générer QR Code" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="ID Participation:" style="-fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
+                <TextField fx:id="idParticipationField" promptText="ex: 123" HBox.hgrow="ALWAYS" style="-fx-background-color: #f9fafb; -fx-border-color: #e5e7eb; -fx-border-radius: 8; -fx-padding: 8;"/>
+            </HBox>
 
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="ID Participation:" />
-                    <TextField fx:id="idParticipationField" promptText="Entrez l'ID" HBox.hgrow="ALWAYS" />
-                    <Button onAction="#genererQRCode" text="Générer QR" style="-fx-background-color: #3498db; -fx-text-fill: white;" />
-                    <Button onAction="#sauvegarderQRCode" text="Sauvegarder" />
-                </HBox>
+            <HBox spacing="12">
+                <Button text="Générer QR" onAction="#genererQRCode" style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand; -fx-font-weight: bold;"/>
+                <Button text="Sauvegarder" onAction="#sauvegarderQRCode" style="-fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;"/>
+            </HBox>
 
-                <ImageView fx:id="qrImageView" fitHeight="200" fitWidth="200" preserveRatio="true" />
-            </VBox>
-
-            <!-- Section Scanner -->
-            <VBox spacing="10" style="-fx-border-color: #27ae60; -fx-border-radius: 5; -fx-padding: 15;">
-                <Label text="Scanner Présence" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Code QR:" />
-                    <TextField fx:id="scannerField" promptText="Scannez ou entrez le code" HBox.hgrow="ALWAYS" />
-                    <Button onAction="#scannerPresence" text="Valider" style="-fx-background-color: #27ae60; -fx-text-fill: white;" />
-                </HBox>
-
-                <Label fx:id="statutLabel" text="En attente de scan" style="-fx-font-size: 16px;" />
-            </VBox>
-
-            <!-- Section Statistiques -->
-            <VBox spacing="10" style="-fx-border-color: #e74c3c; -fx-border-radius: 5; -fx-padding: 15;">
-                <Label text="Statistiques" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-
-                <HBox spacing="20">
-                    <VBox>
-                        <Label text="ID Événement:" />
-                        <TextField fx:id="eventIdField" promptText="ID événement" />
-                        <Button onAction="#chargerEvenement" text="Charger" />
-                    </VBox>
-
-                    <VBox spacing="5">
-                        <Label text="Présents:" />
-                        <Label fx:id="presentsCountLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
-                    </VBox>
-
-                    <VBox spacing="5">
-                        <Label text="Taux:" />
-                        <Label fx:id="tauxPresenceLabel" text="0%" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
-                    </VBox>
-                </HBox>
-            </VBox>
+            <ImageView fx:id="qrImageView" fitHeight="200" fitWidth="200" preserveRatio="true"/>
         </VBox>
-    </center>
-</BorderPane>
+
+        <!-- Right: Scanner -->
+        <VBox prefWidth="400" spacing="16" style="-fx-background-color: white; -fx-background-radius: 16; -fx-padding: 24; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);">
+            <Label text="Scanner Présence" style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #111827;"/>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Code QR:" style="-fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
+                <TextField fx:id="scannerField" promptText="PARTICIPATION:123" HBox.hgrow="ALWAYS" style="-fx-background-color: #f9fafb; -fx-border-color: #e5e7eb; -fx-border-radius: 8; -fx-padding: 8;"/>
+            </HBox>
+
+            <Button text="Valider" onAction="#scannerPresence" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10; -fx-cursor: hand; -fx-font-weight: bold;"/>
+
+            <Label fx:id="statutLabel" text="En attente de scan" style="-fx-text-fill: #6b7280; -fx-font-size: 14px;"/>
+        </VBox>
+    </HBox>
+
+    <!-- Statistics -->
+    <HBox spacing="20" alignment="CENTER">
+        <VBox spacing="5" alignment="CENTER" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);">
+            <Label text="Présents" style="-fx-font-size: 12px; -fx-text-fill: #6b7280;"/>
+            <Label fx:id="presentsCountLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #10b981;"/>
+        </VBox>
+        <VBox spacing="5" alignment="CENTER" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 4, 0, 0, 1);">
+            <Label text="Taux" style="-fx-font-size: 12px; -fx-text-fill: #6b7280;"/>
+            <Label fx:id="tauxPresenceLabel" text="0%" style="-fx-font-size: 24px; -fx-font-weight: 800; -fx-text-fill: #f59e0b;"/>
+        </VBox>
+    </HBox>
+
+    <!-- Event ID Input for Stats -->
+    <HBox spacing="12" alignment="CENTER">
+        <Label text="ID Événement:" style="-fx-font-weight: 600;"/>
+        <TextField fx:id="eventIdField" promptText="ex: 1" prefWidth="100" style="-fx-background-color: white; -fx-border-color: #e5e7eb; -fx-border-radius: 8; -fx-padding: 8;"/>
+        <Button text="Charger stats" onAction="#chargerEvenement" style="-fx-background-color: #8b5cf6; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 20; -fx-cursor: hand;"/>
+    </HBox>
+</VBox>

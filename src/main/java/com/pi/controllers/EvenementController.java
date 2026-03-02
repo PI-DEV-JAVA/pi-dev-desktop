@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class EvenementController implements Initializable {
+public class EvenementController implements Initializable, BaseController {
 
     // Pour la gestion (formulaire)
     @FXML private TextField rechercheTitreField;
@@ -33,11 +33,18 @@ public class EvenementController implements Initializable {
     @FXML private TextField rechercheField;
     @FXML private TextField detailField;
     @FXML private ListView<String> listViewEvenements;
+    @FXML private Label totalEvenementsLabel;
 
     private EvenementService evenementService;
     private ObservableList<String> evenementsAffiches;
     private List<EvenementRh> evenementsComplets;
     private EvenementRh evenementEnCours;
+    private MainController mainController;
+
+    @Override
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -69,11 +76,7 @@ public class EvenementController implements Initializable {
 
             evenementService.ajouterEvenement(event);
             effacerFormulaire();
-
-            if (listViewEvenements != null) {
-                chargerListe();
-            }
-
+            chargerListe();
             AlertUtil.showInfo("Succès", "Événement ajouté avec succès!");
 
         } catch (SQLException e) {
@@ -84,7 +87,7 @@ public class EvenementController implements Initializable {
     @FXML
     private void modifierEvenement() {
         if (evenementEnCours == null) {
-            AlertUtil.showWarning("Attention", "Recherchez d'abord un événement à modifier par son titre.");
+            AlertUtil.showWarning("Attention", "Recherchez d'abord un événement à modifier.");
             return;
         }
 
@@ -98,11 +101,7 @@ public class EvenementController implements Initializable {
             evenementEnCours.setStatut(statutField.getText());
 
             evenementService.modifierEvenement(evenementEnCours);
-
-            if (listViewEvenements != null) {
-                chargerListe();
-            }
-
+            chargerListe();
             AlertUtil.showInfo("Succès", "Événement modifié avec succès!");
 
         } catch (SQLException e) {
@@ -113,7 +112,7 @@ public class EvenementController implements Initializable {
     @FXML
     private void supprimerEvenement() {
         if (evenementEnCours == null) {
-            AlertUtil.showWarning("Attention", "Recherchez d'abord un événement à supprimer par son titre.");
+            AlertUtil.showWarning("Attention", "Recherchez d'abord un événement à supprimer.");
             return;
         }
 
@@ -123,11 +122,7 @@ public class EvenementController implements Initializable {
             try {
                 evenementService.supprimerEvenement(evenementEnCours.getIdEvent());
                 effacerFormulaire();
-
-                if (listViewEvenements != null) {
-                    chargerListe();
-                }
-
+                chargerListe();
                 AlertUtil.showInfo("Succès", "Événement supprimé!");
 
             } catch (SQLException e) {
@@ -135,8 +130,6 @@ public class EvenementController implements Initializable {
             }
         }
     }
-
-    // ==================== RECHERCHE PAR TITRE ====================
 
     @FXML
     private void rechercherParTitre() {
@@ -164,26 +157,6 @@ public class EvenementController implements Initializable {
             }
         } catch (SQLException e) {
             AlertUtil.showError("Erreur", "Erreur de recherche: " + e.getMessage());
-        }
-    }
-
-    // ==================== MÉTHODES POUR LA LISTE ====================
-
-    private void chargerListe() {
-        try {
-            evenementsComplets = evenementService.getAllEvenements();
-            mettreAJourListe();
-        } catch (SQLException e) {
-            AlertUtil.showError("Erreur", "Erreur de chargement: " + e.getMessage());
-        }
-    }
-
-    private void mettreAJourListe() {
-        evenementsAffiches.clear();
-        for (EvenementRh e : evenementsComplets) {
-            String affichage = String.format("%d - %s (%s) - %s",
-                    e.getIdEvent(), e.getTitre(), e.getTypeEvent(), e.getDateEvent());
-            evenementsAffiches.add(affichage);
         }
     }
 
@@ -241,10 +214,30 @@ public class EvenementController implements Initializable {
     }
 
     @FXML
+    private void afficherPasses() {
+        try {
+            // Vous devez implémenter cette méthode dans EvenementService
+            evenementsComplets = evenementService.rechercherParStatut("Passé");
+            mettreAJourListe();
+        } catch (SQLException e) {
+            AlertUtil.showError("Erreur", "Erreur: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void afficherAnnules() {
+        try {
+            evenementsComplets = evenementService.rechercherParStatut("Annulé");
+            mettreAJourListe();
+        } catch (SQLException e) {
+            AlertUtil.showError("Erreur", "Erreur: " + e.getMessage());
+        }
+    }
+
+    @FXML
     private void partagerEvenement() {
         EvenementRh event = null;
 
-        // Cas 1 : On est dans la fenêtre de liste (avec ListView)
         if (listViewEvenements != null) {
             int index = listViewEvenements.getSelectionModel().getSelectedIndex();
             if (index >= 0 && index < evenementsComplets.size()) {
@@ -252,21 +245,17 @@ public class EvenementController implements Initializable {
             }
         }
 
-        // Cas 2 : On est dans la fenêtre de gestion (avec evenementEnCours)
         if (event == null && evenementEnCours != null) {
             event = evenementEnCours;
         }
 
-        // Si toujours pas d'événement
         if (event == null) {
-            AlertUtil.showWarning("Attention", "Veuillez sélectionner ou rechercher un événement à partager.");
+            AlertUtil.showWarning("Attention", "Veuillez sélectionner un événement à partager.");
             return;
         }
 
-        // Créer une copie FINALE de l'événement pour la lambda
         final EvenementRh eventFinal = event;
 
-        // Créer le message à partager
         String message = "📅 " + eventFinal.getTitre() + "\n" +
                 "📌 " + eventFinal.getTypeEvent() + "\n" +
                 "📍 " + eventFinal.getLieu() + "\n" +
@@ -324,8 +313,6 @@ public class EvenementController implements Initializable {
         }
     }
 
-    // ==================== MÉTHODES POUR LE FORMULAIRE ====================
-
     @FXML
     private void effacerFormulaire() {
         rechercheTitreField.clear();
@@ -343,6 +330,27 @@ public class EvenementController implements Initializable {
         datePicker.setValue(event.getDateEvent());
         lieuField.setText(event.getLieu());
         statutField.setText(event.getStatut());
+    }
+
+    private void chargerListe() {
+        try {
+            evenementsComplets = evenementService.getAllEvenements();
+            mettreAJourListe();
+        } catch (SQLException e) {
+            AlertUtil.showError("Erreur", "Erreur de chargement: " + e.getMessage());
+        }
+    }
+
+    private void mettreAJourListe() {
+        evenementsAffiches.clear();
+        for (EvenementRh e : evenementsComplets) {
+            String affichage = String.format("%d - %s (%s) - %s - %s",
+                    e.getIdEvent(), e.getTitre(), e.getTypeEvent(), e.getDateEvent(), e.getStatut());
+            evenementsAffiches.add(affichage);
+        }
+        if (totalEvenementsLabel != null) {
+            totalEvenementsLabel.setText("Total: " + evenementsAffiches.size() + " événements");
+        }
     }
 
     private boolean validerFormulaire() {
