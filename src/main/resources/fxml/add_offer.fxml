@@ -23,6 +23,7 @@
         <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
         <Button text="📈  Trends" styleClass="sidebar-button" onAction="#handleTrends"/>
         <Button text="ðŸŽ¤  Interviews" styleClass="sidebar-button" onAction="#handleInterviews"/>
+        <Button text="📚  Courses" styleClass="sidebar-button" onAction="#handleCourses" maxWidth="Infinity"/>
         <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
         <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
         <Button text="📋  Activities" styleClass="sidebar-button" onAction="#handleActivities"/>

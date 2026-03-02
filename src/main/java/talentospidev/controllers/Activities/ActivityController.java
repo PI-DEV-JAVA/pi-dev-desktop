@@ -13,6 +13,8 @@ import talentospidev.models.Activity.Activity;
 import talentospidev.models.Project.Project;
 import talentospidev.models.User;
 import talentospidev.services.AuthService;
+import talentospidev.services.EmailService;
+import talentospidev.services.TrelloService;
 import talentospidev.utils.DB;
 import talentospidev.utils.SceneUtil;
 import talentospidev.utils.ViewContext;
@@ -304,12 +306,43 @@ public class ActivityController {
     private void addActivity() {
         if (!validate())
             return;
+
         Employee emp = employeeCombo.getValue();
         Project proj = projectCombo.getValue();
+
         Activity a = new Activity(emp.getId(), proj.getId(), datePicker.getValue(),
                 descriptionField.getText(), Double.parseDouble(hoursField.getText()));
+
+        // Add activity to database
         activityDAO.add(a);
-        showAlert("Success", "Activity assigned to " + emp.getName() + "!", Alert.AlertType.INFORMATION);
+
+        // Send email notification
+        try {
+            String formattedDate = a.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            EmailService.sendActivityAssignmentEmail(
+                    emp.getEmail(),
+                    emp.getName(),
+                    proj.getName(),
+                    a.getDescription(),
+                    a.getHoursWorked(),
+                    formattedDate
+            );
+        } catch (Exception e) {
+            System.err.println("⚠️ Email failed: " + e.getMessage());
+        }
+
+        // Create Trello card
+        try {
+            String cardId = TrelloService.createActivityCard(a, emp.getName(), proj.getName());
+            if (cardId != null) {
+                System.out.println("✅ Trello card created with ID: " + cardId);
+                // Optional: Store cardId in database for future updates
+                // saveTrelloMapping(a.getIdActivity(), cardId);
+            }
+        } catch (Exception e) {
+            System.err.println("⚠️ Trello card creation failed: " + e.getMessage());
+        }
+
         loadAllActivities();
         clear();
     }
@@ -381,6 +414,13 @@ public class ActivityController {
     }
     @FXML private void handleTrends() { talentospidev.utils.SceneUtil.switchScene("MarketTrendsView.fxml"); }
     @FXML private void handleInterviews() { talentospidev.utils.SceneUtil.switchScene("Interviews/InterviewView.fxml"); }
+    @javafx.fxml.FXML
+    private void handleCourses() {
+        talentospidev.models.User u = talentospidev.services.AuthService.getCurrentUser();
+        boolean isRecruiter = u != null && (u.getRole() == talentospidev.models.User.Role.HR || u.getRole() == talentospidev.models.User.Role.ADMIN);
+        talentospidev.utils.SceneUtil.switchScene(isRecruiter ? "Courses/CoursesRH.fxml" : "Courses/CoursesBrowse.fxml");
+    }
+
 
     @FXML
     private void handleToDo() {

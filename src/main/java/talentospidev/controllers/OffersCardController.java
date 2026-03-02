@@ -821,6 +821,13 @@ public class OffersCardController implements Initializable {
     private void handleInterviews() {
         talentospidev.utils.SceneUtil.switchScene("Interviews/InterviewView.fxml");
     }
+    @javafx.fxml.FXML
+    private void handleCourses() {
+        talentospidev.models.User u = talentospidev.services.AuthService.getCurrentUser();
+        boolean isRecruiter = u != null && (u.getRole() == talentospidev.models.User.Role.HR || u.getRole() == talentospidev.models.User.Role.ADMIN);
+        talentospidev.utils.SceneUtil.switchScene(isRecruiter ? "Courses/CoursesRH.fxml" : "Courses/CoursesBrowse.fxml");
+    }
+
 
     @FXML
     private void handleToDo() {

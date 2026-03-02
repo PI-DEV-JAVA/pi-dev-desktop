@@ -90,6 +90,8 @@ public class SidebarUtil {
                     setIcon(btn, FontAwesomeSolid.BELL, "Notifications", color);
                 } else if (text.contains("Trends")) {
                     setIcon(btn, FontAwesomeSolid.CHART_LINE, "Trends", color);
+                } else if (text.contains("Courses")) {
+                    setIcon(btn, FontAwesomeSolid.GRADUATION_CAP, "Courses", color);
                 } else if (text.contains("Interviews")) {
                     setIcon(btn, FontAwesomeSolid.MICROPHONE, "Interviews", color);
                 }
