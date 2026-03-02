@@ -91,19 +91,7 @@ public class AdminActivityDetailsController {
 
     @FXML
     private void initialize() {
-        // DEBUG: Check all FXML injections
-        System.out.println("=== Checking FXML injections in AdminActivityDetailsController ===");
-        System.out.println("trackedTimeLabel: " + (trackedTimeLabel != null ? "✓" : "❌"));
-        System.out.println("completionLabel: " + (completionLabel != null ? "✓" : "❌"));
-        System.out.println("sessionsLabel: " + (sessionsLabel != null ? "✓" : "❌"));
-        System.out.println("lastActiveLabel: " + (lastActiveLabel != null ? "✓" : "❌"));
-        System.out.println("currentStatusLabel: " + (currentStatusLabel != null ? "✓" : "❌"));
-        System.out.println("progressBar: " + (progressBar != null ? "✓" : "❌"));
-        System.out.println("trackingHistoryList: " + (trackingHistoryList != null ? "✓" : "❌"));
-        System.out.println("trackLiveToggle: " + (trackLiveToggle != null ? "✓" : "❌"));
-        System.out.println("liveTrackingPanel: " + (liveTrackingPanel != null ? "✓" : "❌"));
-        System.out.println("===================================");
-        
+        talentospidev.utils.SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
         int activityId = ViewContext.getSelectedActivityId();
         if (activityId > 0) {
             currentActivity = activityDAO.getById(activityId);
@@ -506,6 +494,7 @@ public class AdminActivityDetailsController {
         stopLiveRefresh();
         SceneUtil.switchScene("OffersCardView.fxml");
     }
+    @FXML private void handleTrends() { talentospidev.utils.SceneUtil.switchScene("MarketTrendsView.fxml"); }
 
     @FXML
     private void handleMyCircle() {

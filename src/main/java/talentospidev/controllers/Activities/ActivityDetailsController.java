@@ -550,6 +550,7 @@ public class ActivityDetailsController {
         stopTracking(); // Stop tracking before navigating away
         SceneUtil.switchScene("OffersCardView.fxml");
     }
+    @FXML private void handleTrends() { talentospidev.utils.SceneUtil.switchScene("MarketTrendsView.fxml"); }
 
     @FXML
     private void handleMyCircle() {
