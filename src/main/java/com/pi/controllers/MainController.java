@@ -3,8 +3,8 @@ package com.pi.controllers;
 import com.pi.utils.AlertUtil;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 
@@ -16,9 +16,11 @@ public class MainController {
 
     @FXML private BorderPane mainBorderPane;
 
-    // Boutons de la sidebar
+    // Tous les boutons de la sidebar
     @FXML private Button btnEvents;
+    @FXML private Button btnEvenementListe;
     @FXML private Button btnParticipations;
+    @FXML private Button btnParticipationListe;
     @FXML private Button btnPresences;
     @FXML private Button btnCalendrier;
     @FXML private Button btnFeedback;
@@ -27,20 +29,28 @@ public class MainController {
 
     @FXML
     public void initialize() {
-        // Liste des boutons pour faciliter la gestion du style
-        sidebarButtons = Arrays.asList(btnEvents, btnParticipations, btnPresences, btnCalendrier, btnFeedback);
+        // Liste de TOUS les boutons pour gérer le style actif
+        sidebarButtons = Arrays.asList(
+                btnEvents,
+                btnEvenementListe,
+                btnParticipations,
+                btnParticipationListe,
+                btnPresences,
+                btnCalendrier,
+                btnFeedback
+        );
 
         // Activer Events par défaut
         setActiveButton(btnEvents);
     }
 
     private void setActiveButton(Button activeButton) {
-        // Reset tous les boutons
+        // Reset tous les boutons au style normal
         for (Button btn : sidebarButtons) {
             btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-font-weight: 600; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand;");
         }
 
-        // Style pour le bouton actif
+        // Style pour le bouton actif (bleu)
         activeButton.setStyle("-fx-background-color: #eef2ff; -fx-text-fill: #6366f1; -fx-font-size: 13px; -fx-font-weight: 700; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-cursor: hand; -fx-border-color: transparent transparent transparent #6366f1; -fx-border-width: 0 0 0 3px;");
     }
 
@@ -52,7 +62,7 @@ public class MainController {
 
     @FXML
     private void openEvenementListe() {
-        setActiveButton(btnEvents);
+        setActiveButton(btnEvenementListe);
         loadPage("/com/pi/views/evenement/evenement_liste.fxml");
     }
 
@@ -64,7 +74,7 @@ public class MainController {
 
     @FXML
     private void openParticipationListe() {
-        setActiveButton(btnParticipations);
+        setActiveButton(btnParticipationListe);
         loadPage("/com/pi/views/participation/participation_liste.fxml");
     }
 
