@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="talentospidev.controllers.events.EventFormController"
+      stylesheets="@/style/app.css" style="-fx-background-color: #f0f2f5;">
+
+    <VBox fx:id="sidebar" styleClass="sidebar">
+        <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 1 1 1 1;">
+            <ImageView fitHeight="60" fitWidth="60" preserveRatio="true"><image><Image url="@/images/logo.png"/></image></ImageView>
+            <Label text="Talentos" styleClass="sidebar-logo"/>
+        </HBox>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="MAIN" styleClass="sidebar-section-label"/>
+        <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
+        <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
+        <Button text="📈  Trends" styleClass="sidebar-button" onAction="#handleTrends"/>
+        <Button text="🎤  Interviews" styleClass="sidebar-button" onAction="#handleInterviews"/>
+        <Button text="📚  Courses" styleClass="sidebar-button" onAction="#handleCourses"/>
+        <Button text="📅  Events" styleClass="sidebar-button-active" onAction="#handleEvents"/>
+        <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
+        <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
+        <Button fx:id="toDoTab" text="✅  To Do" styleClass="sidebar-button" onAction="#handleToDo" visible="false" managed="false"/>
+        <Button fx:id="activitiesTab" text="🎯  Activities" styleClass="sidebar-button" onAction="#handleActivities" visible="false" managed="false"/>
+        <Button fx:id="projectsTab" text="📁  Projects" styleClass="sidebar-button" onAction="#handleProjects" visible="false" managed="false"/>
+        <Region VBox.vgrow="ALWAYS"/>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
+        <Button text="👤  My Profile" styleClass="sidebar-button" onAction="#handleMyProfile"/>
+        <Button text="⚙  Settings" styleClass="sidebar-button" onAction="#handleSettings"/>
+        <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
+    </VBox>
+
+    <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+        <VBox spacing="20" style="-fx-padding: 28;" maxWidth="650">
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Button text="← Back" onAction="#onCancel" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 8 16; -fx-border-color: #e5e7eb; -fx-border-radius: 10; -fx-cursor: hand; -fx-font-weight: 600;"/>
+                <Label fx:id="pageTitleLbl" text="📅 Create Event" style="-fx-font-size: 22px; -fx-font-weight: 800; -fx-text-fill: #111827;"/>
+            </HBox>
+
+            <Label fx:id="errorLbl" text="" style="-fx-text-fill: #dc2626; -fx-font-size: 13px; -fx-font-weight: 600;" visible="false" managed="false"/>
+
+            <!-- Event Details Card -->
+            <VBox spacing="16" style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 24; -fx-border-color: #e5e7eb; -fx-border-radius: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);">
+                <Label text="Event Details" style="-fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: #6366f1;"/>
+
+                <VBox spacing="4">
+                    <Label text="Title *" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280;"/>
+                    <TextField fx:id="titleField" promptText="e.g. JavaFX Dev Meetup"/>
+                </VBox>
+                <VBox spacing="4">
+                    <Label text="Description" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280;"/>
+                    <TextArea fx:id="descField" promptText="What is this event about?" prefRowCount="3"/>
+                </VBox>
+                <HBox spacing="12">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Type *" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280;"/>
+                        <ComboBox fx:id="typeBox" maxWidth="Infinity"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Max Capacity" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280;"/>
+                        <TextField fx:id="capacityField" promptText="0 = unlimited" text="50"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Date & Time Card -->
+            <VBox spacing="16" style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 24; -fx-border-color: #e5e7eb; -fx-border-radius: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);">
+                <Label text="Schedule" style="-fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: #6366f1;"/>
+                <HBox spacing="12">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Start Date *" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280;"/>
+                        <DatePicker fx:id="startDatePicker"/>
+                    </VBox>
+                    <VBox spacing="4">
+                        <Label text="Start Time *" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280;"/>
+                        <TextField fx:id="startTimeField" promptText="14:00" text="14:00" prefWidth="100"/>
+                    </VBox>
+                </HBox>
+                <HBox spacing="12">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="End Date" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280;"/>
+                        <DatePicker fx:id="endDatePicker"/>
+                    </VBox>
+                    <VBox spacing="4">
+                        <Label text="End Time" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280;"/>
+                        <TextField fx:id="endTimeField" promptText="17:00" text="17:00" prefWidth="100"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Location Card -->
+            <VBox spacing="16" style="-fx-background-color: white; -fx-background-radius: 14; -fx-padding: 24; -fx-border-color: #e5e7eb; -fx-border-radius: 14; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 8, 0, 0, 2);">
+                <Label text="Location" style="-fx-font-size: 15px; -fx-font-weight: 700; -fx-text-fill: #6366f1;"/>
+                <CheckBox fx:id="onlineCheck" text="This is an online event"/>
+                <VBox fx:id="locationSection" spacing="4">
+                    <Label text="Address" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280;"/>
+                    <TextField fx:id="locationField" promptText="e.g. Convention Center, Tunis"/>
+                </VBox>
+                <VBox fx:id="onlineLinkSection" spacing="4" visible="false" managed="false">
+                    <Label text="Online Meeting Link" style="-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #6b7280;"/>
+                    <TextField fx:id="onlineLinkField" promptText="https://meet.google.com/..."/>
+                </VBox>
+            </VBox>
+
+            <!-- Actions -->
+            <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 8 0 20 0;">
+                <Button text="Cancel" onAction="#onCancel" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 10 24; -fx-border-color: #d1d5db; -fx-border-radius: 10; -fx-cursor: hand; -fx-font-weight: 600;"/>
+                <Button text="💾 Save Event" onAction="#onSave" style="-fx-background-color: linear-gradient(to right, #6366f1, #8b5cf6); -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10 28; -fx-font-weight: 700; -fx-cursor: hand; -fx-font-size: 14px;"/>
+            </HBox>
+        </VBox>
+    </ScrollPane>
+</HBox>

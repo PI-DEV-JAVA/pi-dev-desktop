@@ -94,6 +94,8 @@ public class SidebarUtil {
                     setIcon(btn, FontAwesomeSolid.GRADUATION_CAP, "Courses", color);
                 } else if (text.contains("Interviews")) {
                     setIcon(btn, FontAwesomeSolid.MICROPHONE, "Interviews", color);
+                } else if (text.contains("Events")) {
+                    setIcon(btn, FontAwesomeSolid.CALENDAR_ALT, "Events", color);
                 }
             }
         }

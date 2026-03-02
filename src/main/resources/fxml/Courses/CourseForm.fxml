@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
@@ -21,6 +21,7 @@
         <Button text="📈  Trends" styleClass="sidebar-button" onAction="#handleTrends"/>
         <Button text="🎤  Interviews" styleClass="sidebar-button" onAction="#handleInterviews"/>
         <Button text="📚  Courses" styleClass="sidebar-button-active" onAction="#handleCourses"/>
+        <Button text="ðŸ“…  Events" styleClass="sidebar-button" onAction="#handleEvents"/>
         <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
         <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
         <Button fx:id="toDoTab" text="✅  To Do" styleClass="sidebar-button" onAction="#handleToDo" visible="false" managed="false"/>

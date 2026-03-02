@@ -108,6 +108,20 @@ public class UserDao {
         return null;
     }
 
+    public User findById(int userId) {
+        String sql = "SELECT * FROM users WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return map(rs);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding user by id", e);
+        }
+        return null;
+    }
+
     public User findByProviderId(String providerId) {
         String sql = """
                     SELECT * FROM users

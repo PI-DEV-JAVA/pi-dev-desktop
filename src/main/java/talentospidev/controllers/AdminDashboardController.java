@@ -1,4 +1,4 @@
-package talentospidev.controllers;
+﻿package talentospidev.controllers;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -418,6 +418,13 @@ public class AdminDashboardController {
     }
     @FXML private void handleTrends() { talentospidev.utils.SceneUtil.switchScene("MarketTrendsView.fxml"); }
     @FXML private void handleInterviews() { talentospidev.utils.SceneUtil.switchScene("Interviews/InterviewView.fxml"); }
+    @javafx.fxml.FXML
+    private void handleEvents() {
+        talentospidev.models.User u = talentospidev.services.AuthService.getCurrentUser();
+        boolean isRecruiter = u != null && (u.getRole() == talentospidev.models.User.Role.HR || u.getRole() == talentospidev.models.User.Role.ADMIN);
+        talentospidev.utils.SceneUtil.switchScene(isRecruiter ? "Events/EventsFeed.fxml" : "Events/EventsBrowse.fxml");
+    }
+
     @javafx.fxml.FXML
     private void handleCourses() {
         talentospidev.models.User u = talentospidev.services.AuthService.getCurrentUser();

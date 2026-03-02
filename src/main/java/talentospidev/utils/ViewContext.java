@@ -13,12 +13,16 @@ public class ViewContext {
     private static int selectedFormationId = -1;
     private static int selectedQuizId = -1;
     private static int selectedSeanceId = -1;
+    private static int selectedEventId = -1;
 
     public static int getSelectedInterviewId() { return selectedInterviewId; }
     public static void setSelectedInterviewId(int id) { selectedInterviewId = id; }
 
     public static int getSelectedSeanceId() { return selectedSeanceId; }
     public static void setSelectedSeanceId(int id) { selectedSeanceId = id; }
+
+    public static int getSelectedEventId() { return selectedEventId; }
+    public static void setSelectedEventId(int id) { selectedEventId = id; }
 
     public static int getSelectedOfferId() { return selectedOfferId; }
     public static void setSelectedOfferId(int id) { selectedOfferId = id; }
@@ -42,5 +46,6 @@ public class ViewContext {
         selectedFormationId = -1;
         selectedQuizId = -1;
         selectedSeanceId = -1;
+        selectedEventId = -1;
     }
 }

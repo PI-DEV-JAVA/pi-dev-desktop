@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -24,6 +24,7 @@
         <Button text="📈  Trends" styleClass="sidebar-button" onAction="#handleTrends"/>
         <Button text="ðŸŽ¤  Interviews" styleClass="sidebar-button" onAction="#handleInterviews"/>
         <Button text="📚  Courses" styleClass="sidebar-button" onAction="#handleCourses" maxWidth="Infinity"/>
+        <Button text="ðŸ“…  Events" styleClass="sidebar-button" onAction="#handleEvents"/>
         <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
         <Button text="🔔  Notifications" styleClass="sidebar-button-active" onAction="#handleNotifications"/>
         <!-- Candidate only -->
