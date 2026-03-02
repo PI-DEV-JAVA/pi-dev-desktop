@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class HuggingFaceService {
 
-  
+xx
     private static final String MODEL = "katanemo/Arch-Router-1.5B:hf-inference";
 
     // System prompt — exact same as the working old version

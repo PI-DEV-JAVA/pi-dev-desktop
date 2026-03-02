@@ -92,7 +92,7 @@ public class UserDao {
     public User findByEmail(String email) {
         String sql = """
                     SELECT * FROM users
-                    WHERE email = ? AND active = true
+                    WHERE email = ?
                 """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -397,11 +397,38 @@ public class UserDao {
             user.setEmailVerified(false);
         }
 
+        // Read failed_attempts (may not exist in older schemas — default 0)
+        try {
+            user.setFailedAttempts(rs.getInt("failed_attempts"));
+        } catch (SQLException ignored) {
+            user.setFailedAttempts(0);
+        }
+
         Timestamp created = rs.getTimestamp("created_at");
         if (created != null) {
             user.setCreatedAt(created.toLocalDateTime());
         }
 
         return user;
+    }
+
+    public void incrementFailedAttempts(int userId) {
+        String sql = "UPDATE users SET failed_attempts = failed_attempts + 1 WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error incrementing failed attempts", e);
+        }
+    }
+
+    public void resetFailedAttempts(int userId) {
+        String sql = "UPDATE users SET failed_attempts = 0 WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error resetting failed attempts", e);
+        }
     }
 }

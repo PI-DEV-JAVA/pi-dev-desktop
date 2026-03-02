@@ -13,6 +13,7 @@ public class User {
     private LocalDateTime createdAt;
     private AuthProvider authProvider = AuthProvider.LOCAL;
     private String providerId;
+    private int failedAttempts = 0;
 
     // Roles in the system
     public enum Role {
@@ -122,5 +123,13 @@ public class User {
 
     public void setProviderId(String providerId) {
         this.providerId = providerId;
+    }
+
+    public int getFailedAttempts() {
+        return failedAttempts;
+    }
+
+    public void setFailedAttempts(int failedAttempts) {
+        this.failedAttempts = failedAttempts;
     }
 }

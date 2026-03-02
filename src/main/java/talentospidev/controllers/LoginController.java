@@ -75,19 +75,37 @@ public class LoginController {
             return;
         }
 
-        User user = AuthService.loginLocal(email.trim(), password);
+        AuthService.LoginResult result = AuthService.loginLocalSafe(email.trim(), password);
 
-        if (user == null) {
-            showError("Invalid credentials. Email not found or wrong password.");
-            emailField.getStyleClass().add("input-error");
-            passwordField.getStyleClass().add("input-error");
-            return;
+        switch (result.status) {
+            case SUCCESS:
+                emailField.getStyleClass().removeAll("input-error");
+                passwordField.getStyleClass().removeAll("input-error");
+                redirectAfterLogin(result.user);
+                break;
+
+            case INVALID:
+                showError("Invalid credentials. No account found with this email.");
+                emailField.getStyleClass().add("input-error");
+                break;
+
+            case LOCKED:
+                showError("🔒 Account locked after too many failed attempts. Please contact an administrator.");
+                emailField.getStyleClass().add("input-error");
+                passwordField.getStyleClass().add("input-error");
+                break;
+
+            case WRONG_PASSWORD:
+                if (result.attemptsRemaining <= 2) {
+                    showError("⚠ Wrong password! " + result.attemptsRemaining
+                            + " attempt" + (result.attemptsRemaining != 1 ? "s" : "")
+                            + " remaining before your account is locked.");
+                } else {
+                    showError("Wrong password. " + result.attemptsRemaining + " attempts remaining.");
+                }
+                passwordField.getStyleClass().add("input-error");
+                break;
         }
-
-        emailField.getStyleClass().removeAll("input-error");
-        passwordField.getStyleClass().removeAll("input-error");
-
-        redirectAfterLogin(user);
     }
 
     // ───────────────────────────────────────────────

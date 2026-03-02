@@ -220,14 +220,12 @@ public class CoursesBrowseController {
     @FXML private void handleJobOffers()     { SceneUtil.switchScene("OffersCardView.fxml"); }
     @FXML private void handleTrends()        { SceneUtil.switchScene("MarketTrendsView.fxml"); }
     @FXML private void handleInterviews()    { SceneUtil.switchScene("Interviews/InterviewView.fxml"); }
-    @FXML private 
-    @javafx.fxml.FXML
-    private void handleEvents() {
+    @FXML private void handleEvents() {
         talentospidev.models.User u = talentospidev.services.AuthService.getCurrentUser();
         boolean isRecruiter = u != null && (u.getRole() == talentospidev.models.User.Role.HR || u.getRole() == talentospidev.models.User.Role.ADMIN);
         talentospidev.utils.SceneUtil.switchScene(isRecruiter ? "Events/EventsFeed.fxml" : "Events/EventsBrowse.fxml");
     }
-    void handleCourses()       { /* already here */ }
+    @FXML private void handleCourses()       { /* already here */ }
     @FXML private void handleMyCircle()      { SceneUtil.switchScene("my_circle.fxml"); }
     @FXML private void handleNotifications() { SceneUtil.switchScene("notifications.fxml"); }
     @FXML private void handleToDo()          { SceneUtil.switchScene("todo.fxml"); }

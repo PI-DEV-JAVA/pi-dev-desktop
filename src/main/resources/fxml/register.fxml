@@ -86,6 +86,18 @@
                     <ComboBox fx:id="roleBox" maxWidth="Infinity"/>
                 </VBox>
 
+                <!-- CAPTCHA -->
+                <VBox spacing="4" style="-fx-background-color: #f9fafb; -fx-background-radius: 10; -fx-padding: 12;">
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Label text="🔒 Security Check" style="-fx-font-size: 12px; -fx-font-weight: 700; -fx-text-fill: #374151;"/>
+                        <Button fx:id="refreshCaptchaBtn" text="🔄" onAction="#refreshCaptcha"
+                                style="-fx-background-color: transparent; -fx-cursor: hand; -fx-padding: 0 4; -fx-font-size: 12px;"/>
+                    </HBox>
+                    <Label fx:id="captchaQuestion" text="" style="-fx-font-size: 14px; -fx-font-weight: 800; -fx-text-fill: #6366f1;"/>
+                    <TextField fx:id="captchaField" promptText="Enter your answer" styleClass="input-field"/>
+                    <Label fx:id="captchaError" styleClass="error-label" text="" visible="false" managed="false"/>
+                </VBox>
+
                 <Button text="REGISTER"
                         maxWidth="Infinity"
                         styleClass="primary-button"

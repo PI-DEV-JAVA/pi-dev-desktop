@@ -9,35 +9,34 @@ import talentospidev.utils.PasswordUtil;
 import talentospidev.utils.SceneUtil;
 import javafx.scene.paint.Color;
 
+import java.util.Random;
+
 public class RegisterController {
 
-    @FXML
-    private TextField emailField;
-    @FXML
-    private PasswordField passwordField;
-    @FXML
-    private PasswordField confirmPasswordField;
-    @FXML
-    private ComboBox<User.Role> roleBox;
+    @FXML private TextField emailField;
+    @FXML private PasswordField passwordField;
+    @FXML private PasswordField confirmPasswordField;
+    @FXML private ComboBox<User.Role> roleBox;
 
-    @FXML
-    private Label emailError;
-    @FXML
-    private Label passwordError;
-    @FXML
-    private Label confirmError;
+    @FXML private Label emailError;
+    @FXML private Label passwordError;
+    @FXML private Label confirmError;
 
     // Password toggle fields
-    @FXML
-    private TextField passwordVisible;
-    @FXML
-    private TextField confirmVisible;
-    @FXML
-    private Button togglePasswordBtn;
-    @FXML
-    private Button toggleConfirmBtn;
+    @FXML private TextField passwordVisible;
+    @FXML private TextField confirmVisible;
+    @FXML private Button togglePasswordBtn;
+    @FXML private Button toggleConfirmBtn;
     private boolean passwordShown = false;
     private boolean confirmShown = false;
+
+    // CAPTCHA fields
+    @FXML private Label captchaQuestion;
+    @FXML private TextField captchaField;
+    @FXML private Label captchaError;
+    @FXML private Button refreshCaptchaBtn;
+    private int captchaAnswer;
+    private final Random random = new Random();
 
     private final UserDao userDao = new UserDao();
     private final talentospidev.dao.ProfileDao profileDao = new talentospidev.dao.ProfileDao();
@@ -59,6 +58,32 @@ public class RegisterController {
         // Sync text between hidden/visible fields
         passwordVisible.textProperty().bindBidirectional(passwordField.textProperty());
         confirmVisible.textProperty().bindBidirectional(confirmPasswordField.textProperty());
+
+        // Generate initial CAPTCHA
+        generateCaptcha();
+    }
+
+    private void generateCaptcha() {
+        int a = random.nextInt(20) + 1;
+        int b = random.nextInt(10) + 1;
+        int op = random.nextInt(3); // 0=add, 1=subtract, 2=multiply
+        String symbol;
+        switch (op) {
+            case 0: captchaAnswer = a + b; symbol = "+"; break;
+            case 1: captchaAnswer = a - b; symbol = "−"; break;
+            default: a = random.nextInt(10) + 1; b = random.nextInt(10) + 1; captchaAnswer = a * b; symbol = "×"; break;
+        }
+        captchaQuestion.setText("What is " + a + " " + symbol + " " + b + " ?");
+        captchaField.clear();
+        if (captchaError != null) {
+            captchaError.setVisible(false);
+            captchaError.setManaged(false);
+        }
+    }
+
+    @FXML
+    private void refreshCaptcha() {
+        generateCaptcha();
     }
 
     private void setupEyeIcon(Button btn) {
@@ -75,10 +100,14 @@ public class RegisterController {
         // Trigger validation on all fields manually
         triggerValidation();
 
+        // Validate CAPTCHA
+        boolean captchaValid = validateCaptcha();
+
         // Check if any field is in error state or not yet validated
         boolean hasErrors = FormValidator.hasError(emailField) || !FormValidator.isValid(emailField)
                 || FormValidator.hasError(passwordField) || !FormValidator.isValid(passwordField)
-                || FormValidator.hasError(confirmPasswordField) || !FormValidator.isValid(confirmPasswordField);
+                || FormValidator.hasError(confirmPasswordField) || !FormValidator.isValid(confirmPasswordField)
+                || !captchaValid;
 
         if (hasErrors) {
             return;
@@ -102,6 +131,34 @@ public class RegisterController {
 
         new Alert(Alert.AlertType.INFORMATION, "Account created successfully! You can now login.").showAndWait();
         SceneUtil.switchScene("login.fxml");
+    }
+
+    private boolean validateCaptcha() {
+        String answer = captchaField.getText();
+        if (answer == null || answer.trim().isEmpty()) {
+            captchaError.setText("Please solve the security check.");
+            captchaError.setVisible(true);
+            captchaError.setManaged(true);
+            return false;
+        }
+        try {
+            int parsed = Integer.parseInt(answer.trim());
+            if (parsed != captchaAnswer) {
+                captchaError.setText("Wrong answer. Try again!");
+                captchaError.setVisible(true);
+                captchaError.setManaged(true);
+                generateCaptcha();
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            captchaError.setText("Please enter a valid number.");
+            captchaError.setVisible(true);
+            captchaError.setManaged(true);
+            return false;
+        }
+        captchaError.setVisible(false);
+        captchaError.setManaged(false);
+        return true;
     }
 
     /**

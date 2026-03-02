@@ -11,23 +11,62 @@ public class AuthService {
     private static final ProfileDao profileDao = new ProfileDao();
     private static User currentUser;
 
-    /**
-     * Local login: checks email + password.
-     */
-    public static User loginLocal(String email, String password) {
-        User user = userDao.findByEmail(email);
+    public static final int MAX_FAILED_ATTEMPTS = 5;
 
-        if (user == null)
-            return null;
-        if (!user.isActive())
-            return null;
+    /** Result of a login attempt — carries state for the UI to display. */
+    public static class LoginResult {
+        public enum Status { SUCCESS, INVALID, LOCKED, WRONG_PASSWORD }
+        public final Status status;
+        public final User user;
+        public final int attemptsRemaining;
 
-        if (!PasswordUtil.verifyPassword(password, user.getPasswordHash())) {
-            return null;
+        private LoginResult(Status status, User user, int attemptsRemaining) {
+            this.status = status;
+            this.user = user;
+            this.attemptsRemaining = attemptsRemaining;
         }
 
+        public static LoginResult success(User u)            { return new LoginResult(Status.SUCCESS, u, 0); }
+        public static LoginResult invalid()                   { return new LoginResult(Status.INVALID, null, 0); }
+        public static LoginResult locked()                    { return new LoginResult(Status.LOCKED, null, 0); }
+        public static LoginResult wrongPassword(int remaining){ return new LoginResult(Status.WRONG_PASSWORD, null, remaining); }
+    }
+
+    /**
+     * Local login with lockout: deactivates after 5 wrong passwords.
+     */
+    public static LoginResult loginLocalSafe(String email, String password) {
+        User user = userDao.findByEmail(email);
+        if (user == null) return LoginResult.invalid();
+
+        if (!user.isActive()) return LoginResult.locked();
+
+        if (!PasswordUtil.verifyPassword(password, user.getPasswordHash())) {
+            userDao.incrementFailedAttempts(user.getId());
+            int newCount = user.getFailedAttempts() + 1;
+            int remaining = MAX_FAILED_ATTEMPTS - newCount;
+
+            if (newCount >= MAX_FAILED_ATTEMPTS) {
+                userDao.setActive(user.getId(), false);
+                return LoginResult.locked();
+            }
+            return LoginResult.wrongPassword(remaining);
+        }
+
+        // Success — reset counter
+        if (user.getFailedAttempts() > 0) {
+            userDao.resetFailedAttempts(user.getId());
+        }
         currentUser = user;
-        return user;
+        return LoginResult.success(user);
+    }
+
+    /**
+     * Legacy local login (kept for backward compat).
+     */
+    public static User loginLocal(String email, String password) {
+        LoginResult r = loginLocalSafe(email, password);
+        return r.status == LoginResult.Status.SUCCESS ? r.user : null;
     }
 
     /**

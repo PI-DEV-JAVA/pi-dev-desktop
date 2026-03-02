@@ -1,12 +1,10 @@
 package talentospidev.controllers.courses;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
 import talentospidev.dao.coursesDAO.*;
 import talentospidev.models.User;
 import talentospidev.models.courses.*;
@@ -34,23 +32,9 @@ public class QuizPassageController {
     private final Map<Integer, ToggleGroup> answerGroups = new LinkedHashMap<>();
     private final Map<Integer, Integer> selectedChoices = new HashMap<>();
 
-    // =========================
-    // ✅ ANTI-CHEAT (Focus/Minimize)
-    // =========================
-    private Stage quizStage;
-    private int focusLostCount = 0;
-    private boolean quizSubmitted = false;
-
-    // change ça comme tu veux
-    private static final int MAX_FOCUS_LOST = 2;
-
     @FXML
     public void initialize() {
         talentospidev.utils.SidebarUtil.configure(toDoTab, activitiesTab, projectsTab);
-
-        // ✅ Attacher anti-cheat dès que la Scene/Window est prête
-        Platform.runLater(this::attachAntiCheatToCurrentWindow);
-
         int qId = ViewContext.getSelectedQuizId();
         if (qId > 0) {
             try {
@@ -62,56 +46,6 @@ public class QuizPassageController {
                 }
             } catch (Exception e) { e.printStackTrace(); }
         }
-    }
-
-    private void attachAntiCheatToCurrentWindow() {
-        // si le root est déjà attaché à une scène, on récupère la window
-        if (questionsContainer == null || questionsContainer.getScene() == null) return;
-        if (questionsContainer.getScene().getWindow() == null) return;
-
-        quizStage = (Stage) questionsContainer.getScene().getWindow();
-
-        // 1) perte de focus (Alt+Tab / clic ailleurs)
-        quizStage.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-            if (!isFocused) onFocusLost("Fenêtre quittée (Alt+Tab / clic ailleurs).");
-        });
-
-        // 2) minimisation
-        quizStage.iconifiedProperty().addListener((obs, wasIconified, isIconified) -> {
-            if (isIconified) onFocusLost("Fenêtre minimisée.");
-        });
-    }
-
-    private void onFocusLost(String reason) {
-        // si déjà soumis => ne rien faire
-        if (quizSubmitted) return;
-
-        focusLostCount++;
-
-        // Optionnel : afficher dans timerLbl (sans casser ton timer)
-        // timerLbl.setText("⏱ " + quiz.getDureeMinutes() + " min  |  ⚠ " + focusLostCount + "/" + MAX_FOCUS_LOST);
-
-        Platform.runLater(() -> {
-            // warning
-            if (focusLostCount < MAX_FOCUS_LOST) {
-                Alert a = new Alert(Alert.AlertType.WARNING);
-                a.setTitle("Anti-triche");
-                a.setHeaderText("Attention");
-                a.setContentText(reason + "\nTentatives: " + focusLostCount + " / " + MAX_FOCUS_LOST);
-                a.showAndWait();
-                return;
-            }
-
-            // sanction: auto-submit
-            Alert a = new Alert(Alert.AlertType.ERROR);
-            a.setTitle("Anti-triche");
-            a.setHeaderText("Quiz soumis automatiquement");
-            a.setContentText("Tu as quitté le quiz trop de fois.\nLe quiz sera soumis automatiquement.");
-            a.showAndWait();
-
-            // ✅ auto submit (force)
-            onSubmitForce();
-        });
     }
 
     private void loadQuestions() throws Exception {
@@ -157,6 +91,7 @@ public class QuizPassageController {
                     if (n) {
                         selectedChoices.put(q.getId(), c.getId());
                         updateProgress();
+                        // Highlight selected choice card
                         card.setStyle("-fx-background-color: #fafbff; -fx-background-radius: 14; " +
                                 "-fx-border-color: #6366f1; -fx-border-radius: 14; -fx-border-width: 2; " +
                                 "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.12), 8, 0, 0, 2);");
@@ -179,31 +114,15 @@ public class QuizPassageController {
 
     @FXML
     private void onSubmit() {
-        // ✅ soumission normale: exige que tout soit répondu
         if (quiz == null || questions == null) return;
         User u = AuthService.getCurrentUser();
         if (u == null) return;
 
+        // Check if all answered
         if (selectedChoices.size() < questions.size()) {
             new Alert(Alert.AlertType.WARNING, "⚠ Please answer all questions before submitting.").showAndWait();
             return;
         }
-
-        submitAndLock(true); // requireAllAnswered = true
-    }
-
-    // ✅ Soumission forcée (anti-cheat) : ne nécessite PAS toutes les réponses
-    private void onSubmitForce() {
-        if (quiz == null || questions == null) return;
-        User u = AuthService.getCurrentUser();
-        if (u == null) return;
-
-        submitAndLock(false); // requireAllAnswered = false
-    }
-
-    private void submitAndLock(boolean requireAllAnswered) {
-        if (quizSubmitted) return; // éviter double submit
-        quizSubmitted = true;
 
         try {
             int score = 0;
@@ -218,8 +137,6 @@ public class QuizPassageController {
                     }
                 }
             }
-
-            User u = AuthService.getCurrentUser();
 
             TentativeQuiz t = new TentativeQuiz();
             t.setQuizId(quiz.getId());
@@ -240,7 +157,7 @@ public class QuizPassageController {
             else if (pct >= 60) msg += "\nGood job! Keep it up!";
             else msg += "\nKeep studying and try again!";
 
-            // Highlight correct/wrong + disable
+            // Highlight correct/wrong
             for (Question q : questions) {
                 ToggleGroup tg = answerGroups.get(q.getId());
                 if (tg != null) {
@@ -264,18 +181,9 @@ public class QuizPassageController {
 
             quizProgressBar.setProgress(1.0);
             progressInfoLbl.setText("Quiz completed! Score: " + score + "/" + total);
-
-            // message différent si anti-cheat
-            if (focusLostCount >= MAX_FOCUS_LOST) {
-                msg = "⚠ Anti-triche : quiz soumis automatiquement.\n\n" + msg;
-            }
-
             new Alert(Alert.AlertType.INFORMATION, msg).showAndWait();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait();
-        }
+        } catch (Exception e) { e.printStackTrace(); new Alert(Alert.AlertType.ERROR, e.getMessage()).showAndWait(); }
     }
 
     @FXML private void onBack() { SceneUtil.switchScene("Courses/CourseDetailCandidat.fxml"); }
@@ -284,14 +192,12 @@ public class QuizPassageController {
     @FXML private void handleJobOffers()     { SceneUtil.switchScene("OffersCardView.fxml"); }
     @FXML private void handleTrends()        { SceneUtil.switchScene("MarketTrendsView.fxml"); }
     @FXML private void handleInterviews()    { SceneUtil.switchScene("Interviews/InterviewView.fxml"); }
-    @FXML private 
-    @javafx.fxml.FXML
-    private void handleEvents() {
+    @FXML private void handleEvents() {
         talentospidev.models.User u = talentospidev.services.AuthService.getCurrentUser();
         boolean isRecruiter = u != null && (u.getRole() == talentospidev.models.User.Role.HR || u.getRole() == talentospidev.models.User.Role.ADMIN);
         talentospidev.utils.SceneUtil.switchScene(isRecruiter ? "Events/EventsFeed.fxml" : "Events/EventsBrowse.fxml");
     }
-    void handleCourses()       { SceneUtil.switchScene("Courses/CoursesBrowse.fxml"); }
+    @FXML private void handleCourses()       { SceneUtil.switchScene("Courses/CoursesBrowse.fxml"); }
     @FXML private void handleMyCircle()      { SceneUtil.switchScene("my_circle.fxml"); }
     @FXML private void handleNotifications() { SceneUtil.switchScene("notifications.fxml"); }
     @FXML private void handleToDo()          { SceneUtil.switchScene("todo.fxml"); }
