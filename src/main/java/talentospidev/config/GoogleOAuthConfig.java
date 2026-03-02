@@ -7,7 +7,7 @@ package talentospidev.config;
 public class GoogleOAuthConfig {
 
     // ── Your credentials ──
-    public static final String CLIENT_ID = "XxX";
+    public static final String CLIENT_ID = "XxxX";
 
     public static final String CLIENT_SECRET = "XX";
 
