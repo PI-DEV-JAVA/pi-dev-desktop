@@ -216,7 +216,6 @@ public class EvenementController implements Initializable, BaseController {
     @FXML
     private void afficherPasses() {
         try {
-            // Vous devez implémenter cette méthode dans EvenementService
             evenementsComplets = evenementService.rechercherParStatut("Passé");
             mettreAJourListe();
         } catch (SQLException e) {
@@ -305,8 +304,8 @@ public class EvenementController implements Initializable, BaseController {
         if (index >= 0 && index < evenementsComplets.size()) {
             EvenementRh e = evenementsComplets.get(index);
             String details = String.format(
-                    "ID: %d\nTitre: %s\nType: %s\nDate: %s\nLieu: %s\nStatut: %s",
-                    e.getIdEvent(), e.getTitre(), e.getTypeEvent(),
+                    "Titre: %s\nType: %s\nDate: %s\nLieu: %s\nStatut: %s",
+                    e.getTitre(), e.getTypeEvent(),
                     e.getDateEvent(), e.getLieu(), e.getStatut()
             );
             detailField.setText(details);
@@ -341,11 +340,16 @@ public class EvenementController implements Initializable, BaseController {
         }
     }
 
+    // MÉTHODE MODIFIÉE - SANS ID DANS L'AFFICHAGE
     private void mettreAJourListe() {
         evenementsAffiches.clear();
         for (EvenementRh e : evenementsComplets) {
-            String affichage = String.format("%d - %s (%s) - %s - %s",
-                    e.getIdEvent(), e.getTitre(), e.getTypeEvent(), e.getDateEvent(), e.getStatut());
+            String affichage = String.format("%s - %s - %s - %s",
+                    e.getTitre(),
+                    e.getTypeEvent(),
+                    e.getDateEvent(),
+                    e.getStatut()
+            );
             evenementsAffiches.add(affichage);
         }
         if (totalEvenementsLabel != null) {

@@ -1,6 +1,7 @@
 package com.pi.controllers;
 
 import com.pi.models.Participation;
+import com.pi.models.EvenementRh;
 import com.pi.services.ParticipationService;
 import com.pi.services.EvenementService;
 import com.pi.utils.AlertUtil;
@@ -257,13 +258,30 @@ public class ParticipationController implements Initializable, BaseController {
         }
     }
 
+    // MÉTHODE MODIFIÉE - SANS ID DANS L'AFFICHAGE
     private void mettreAJourListe() {
         participationsAffichees.clear();
-        for (Participation p : participationsCompletes) {
-            String affichage = String.format("ID: %d | Événement: %d | Utilisateur: %d | %s",
-                    p.getIdParticipation(), p.getIdEvent(), p.getIdUser(), p.getStatut());
-            participationsAffichees.add(affichage);
+        try {
+            for (Participation p : participationsCompletes) {
+                EvenementRh event = evenementService.getEvenementById(p.getIdEvent());
+                String nomEvent = (event != null) ? event.getTitre() : "Événement #" + p.getIdEvent();
+
+                String affichage = String.format("%s - Utilisateur: %d - %s",
+                        nomEvent,
+                        p.getIdUser(),
+                        p.getStatut()
+                );
+                participationsAffichees.add(affichage);
+            }
+        } catch (SQLException e) {
+            // Fallback simple
+            for (Participation p : participationsCompletes) {
+                String affichage = String.format("Événement: %d | Utilisateur: %d | %s",
+                        p.getIdEvent(), p.getIdUser(), p.getStatut());
+                participationsAffichees.add(affichage);
+            }
         }
+
         if (totalParticipationsLabel != null) {
             totalParticipationsLabel.setText("Total: " + participationsAffichees.size() + " participations");
         }
@@ -274,8 +292,8 @@ public class ParticipationController implements Initializable, BaseController {
         if (index >= 0 && index < participationsCompletes.size()) {
             Participation p = participationsCompletes.get(index);
             String details = String.format(
-                    "ID Participation: %d\nID Événement: %d\nID Utilisateur: %d\nStatut: %s",
-                    p.getIdParticipation(), p.getIdEvent(), p.getIdUser(), p.getStatut()
+                    "Événement: %d\nUtilisateur: %d\nStatut: %s",
+                    p.getIdEvent(), p.getIdUser(), p.getStatut()
             );
             detailField.setText(details);
         }
