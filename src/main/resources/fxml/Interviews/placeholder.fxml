@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      alignment="CENTER"
+      spacing="12"
+      styleClass="placeholder">
+
+    <Label text="Work in Progress"
+           styleClass="placeholder-title"/>
+
+    <Label text="This section is not implemented yet."
+           styleClass="placeholder-subtitle"/>
+
+    <Label text="Use the sidebar to navigate between modules."
+           styleClass="placeholder-hint"/>
+
+</VBox>

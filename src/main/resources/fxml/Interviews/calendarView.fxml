@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="talentospidev.controllers.interviews.CalendarViewController"
+            prefHeight="800.0" prefWidth="1200.0"
+            style="-fx-background-color: #1a1a1a;">
+        <!-- ======= LEFT SIDEBAR ======= -->
+    <VBox fx:id="sidebar" styleClass="sidebar">
+       <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 1 1 1 1;">
+            <ImageView fitHeight="60" fitWidth="60" preserveRatio="true">
+                <image><Image url="@/images/logo.png"/></image>
+            </ImageView>
+            <Label text="Talentos" styleClass="sidebar-logo"/>
+        </HBox>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="MAIN" styleClass="sidebar-section-label"/>
+        <Button text="📊  Dashboard" styleClass="sidebar-button" onAction="#handleDashboard"/>
+        <Button text="💼  Job Offers" styleClass="sidebar-button" onAction="#handleJobOffers"/>
+        <Button text="⚡  My Circle" styleClass="sidebar-button" onAction="#handleMyCircle"/>
+        <Button text="🔔  Notifications" styleClass="sidebar-button" onAction="#handleNotifications"/>
+        <Button text="📋  Activities" styleClass="sidebar-button" onAction="#handleActivities"/>
+        <Button text="📂  Projects" styleClass="sidebar-button" onAction="#handleProjects"/>
+        <Region VBox.vgrow="ALWAYS"/>
+        <Separator style="-fx-opacity: 0.1;"/>
+        <Label text="ACCOUNT" styleClass="sidebar-section-label"/>
+        <Button text="👤  My Profile" styleClass="sidebar-button" onAction="#handleMyProfile"/>
+        <Button text="⚙  Settings" styleClass="sidebar-button" onAction="#handleSettings"/>
+        <Button text="🚪  Logout" styleClass="sidebar-button-danger" onAction="#handleLogout"/>
+    </VBox>
+    <top>
+        <Label text="Interview Schedule" 
+               style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;">
+            <padding>
+                <Insets top="10" bottom="10" left="20"/>
+            </padding>
+        </Label>
+    </top>
+
+    <center>
+        <StackPane fx:id="calendarContainer" />
+    </center>
+    
+</BorderPane>

@@ -6,7 +6,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="talentos.pidev.controllers.MainLayoutController"
+            fx:controller="talentospidev.controllers.interviews.MainLayoutController"
             prefWidth="1200"
             prefHeight="800"
             styleClass="root-layout">
