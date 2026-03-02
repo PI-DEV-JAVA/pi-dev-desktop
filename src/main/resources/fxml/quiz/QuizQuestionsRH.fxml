@@ -4,33 +4,50 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="talentos.pidev.controllers.quiz.QuizQuestionsRHController"
-            styleClass="content-card">
+            styleClass="content-pane">
 
+    <!-- TOP -->
     <top>
-        <VBox spacing="10">
+        <VBox spacing="14">
             <padding>
-                <Insets top="15" right="15" bottom="15" left="15"/>
+                <Insets top="22" right="22" bottom="14" left="22"/>
             </padding>
 
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Button text="← Retour" onAction="#onBack" styleClass="secondary-button"/>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Button text="← Retour" onAction="#onBack" styleClass="btn-secondary"/>
                 <Label fx:id="titleLabel" text="Questions" styleClass="page-title"/>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button text="+ Ajouter" onAction="#onAdd" styleClass="primary-button"/>
-                <Button text="Rafraîchir" onAction="#onRefresh" styleClass="secondary-button"/>
+                <Button text="+ Ajouter" onAction="#onAdd" styleClass="btn-success"/>
+                <Button text="Rafraîchir" onAction="#onRefresh" styleClass="btn-secondary"/>
             </HBox>
 
-            <TextField fx:id="searchField"
-                       promptText="Rechercher (énoncé, bonne réponse...)"
-                       onKeyReleased="#onSearch"/>
+            <!-- Search -->
+            <VBox spacing="6" styleClass="offer-card">
+                <padding>
+                    <Insets top="12" right="12" bottom="12" left="12"/>
+                </padding>
+                <Label text="Rechercher" styleClass="filter-label"/>
+                <TextField fx:id="searchField" promptText="Rechercher (énoncé, bonne réponse...)" />
+            </VBox>
         </VBox>
     </top>
 
+    <!-- CENTER -->
     <center>
-        <ListView fx:id="listView" styleClass="transparent-list"/>
+        <VBox styleClass="content-inner">
+            <padding>
+                <Insets top="0" right="22" bottom="22" left="22"/>
+            </padding>
+
+            <!-- LIST -->
+            <ListView fx:id="lvQuestions" VBox.vgrow="ALWAYS" styleClass="list-view"/>
+
+            <!-- Errors (optionnel) -->
+            <Label fx:id="errorLabel" text="" styleClass="error-label" wrapText="true"/>
+        </VBox>
     </center>
 
 </BorderPane>

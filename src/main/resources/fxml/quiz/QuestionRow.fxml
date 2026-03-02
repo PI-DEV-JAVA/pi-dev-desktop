@@ -12,23 +12,26 @@
       styleClass="list-row-card">
 
     <padding>
-        <Insets top="10" right="12" bottom="10" left="12"/>
+        <Insets top="12" right="14" bottom="12" left="14"/>
     </padding>
 
+    <!-- publish -->
     <CheckBox fx:id="publishedCheck" text="Afficher"/>
 
+    <!-- text -->
     <VBox spacing="4" HBox.hgrow="ALWAYS">
         <Label fx:id="enonceLabel" wrapText="true" styleClass="row-title"/>
-        <HBox spacing="10">
+        <HBox spacing="12">
             <Label fx:id="nbChoixLabel" styleClass="muted-label"/>
             <Label fx:id="correctLabel" styleClass="muted-label"/>
         </HBox>
     </VBox>
 
+    <!-- actions -->
     <HBox spacing="8" alignment="CENTER_RIGHT">
         <Button text="Choix" onAction="#onChoices" styleClass="btn-secondary"/>
         <Button text="Modifier" onAction="#onEdit" styleClass="btn-secondary"/>
-        <Button text="Supprimer" onAction="#onDelete" styleClass="btn-danger"/>
+        <Button text="Supprimer" onAction="#onDelete" styleClass="btn-secondary"/>
     </HBox>
 
 </HBox>

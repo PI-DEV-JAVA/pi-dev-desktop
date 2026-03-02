@@ -4,23 +4,28 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
+<HBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="talentos.pidev.controllers.quiz.ChoiceCardController"
-      spacing="10"
-      prefWidth="320"
-      styleClass="card">
+      spacing="12"
+      alignment="CENTER_LEFT"
+      prefWidth="520"
+      styleClass="list-row-card">
 
     <padding>
-        <Insets top="12" right="12" bottom="12" left="12"/>
+        <Insets top="12" right="14" bottom="12" left="14"/>
     </padding>
 
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <CheckBox fx:id="correctCheck" text="Correct" />
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button text="Modifier" onAction="#onEdit" styleClass="secondary-button"/>
-        <Button text="Supprimer" onAction="#onDelete" styleClass="danger-button"/>
+    <CheckBox fx:id="correctCheck" text="Correct"/>
+
+    <VBox spacing="4" HBox.hgrow="ALWAYS">
+        <Label fx:id="texteLabel" wrapText="true" styleClass="row-title"/>
+        <Label text="Cochez si c'est la bonne réponse" styleClass="muted-label"/>
+    </VBox>
+
+    <HBox spacing="8" alignment="CENTER_RIGHT">
+        <Button text="Modifier" onAction="#onEdit" styleClass="btn-secondary"/>
+        <Button text="Supprimer" onAction="#onDelete" styleClass="btn-danger"/>
     </HBox>
 
-    <Label fx:id="texteLabel" wrapText="true" styleClass="row-title"/>
-</VBox>
+</HBox>

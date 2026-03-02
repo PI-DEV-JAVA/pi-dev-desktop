@@ -4,23 +4,43 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="talentos.pidev.controllers.quiz.ChoicesRHController"
-      spacing="12"
-      styleClass="content-card">
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="talentos.pidev.controllers.quiz.ChoicesRHController"
+            styleClass="content-pane">
 
-    <padding>
-        <Insets top="16" right="16" bottom="16" left="16"/>
-    </padding>
+    <top>
+        <VBox spacing="14">
+            <padding>
+                <Insets top="22" right="22" bottom="14" left="22"/>
+            </padding>
 
-    <HBox alignment="CENTER_LEFT" spacing="12">
-        <Button text="← Retour" onAction="#onBack" styleClass="secondary-button"/>
-        <Label fx:id="titleLabel" text="Choix" styleClass="page-title"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button text="+ Ajouter" onAction="#onAdd" styleClass="primary-button"/>
-        <Button text="Rafraîchir" onAction="#onRefresh" styleClass="secondary-button"/>
-    </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Button text="← Retour" onAction="#onBack" styleClass="btn-secondary"/>
+                <Label fx:id="titleLabel" text="Choix" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="+ Ajouter" onAction="#onAdd" styleClass="btn-success"/>
+                <Button text="Rafraîchir" onAction="#onRefresh" styleClass="btn-secondary"/>
+            </HBox>
+        </VBox>
+    </top>
 
-    <FlowPane fx:id="cardsContainer" hgap="12" vgap="12" />
-</VBox>
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="card-scroll">
+            <content>
+                <VBox spacing="12" styleClass="content-inner">
+                    <padding>
+                        <Insets top="16" right="22" bottom="22" left="22"/>
+                    </padding>
+
+                    <!-- Zone cards -->
+                    <FlowPane fx:id="cardsContainer"
+                              hgap="12"
+                              vgap="12"
+                              prefWrapLength="1000"/>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

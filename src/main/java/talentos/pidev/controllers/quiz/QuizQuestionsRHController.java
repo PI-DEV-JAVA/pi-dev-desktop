@@ -17,7 +17,11 @@ public class QuizQuestionsRHController {
 
     @FXML private Label titleLabel;
     @FXML private TextField searchField;
-    @FXML private ListView<Question> listView;
+
+    // ✅ DOIT matcher fx:id="lvQuestions"
+    @FXML private ListView<Question> lvQuestions;
+
+    @FXML private Label errorLabel;
 
     private final QuizService quizService = new QuizService();
 
@@ -38,6 +42,7 @@ public class QuizQuestionsRHController {
         this.quizTitre = quizTitre;
 
         if (titleLabel != null) titleLabel.setText("Questions pour " + quizTitre);
+
         loadData();
     }
 
@@ -45,9 +50,14 @@ public class QuizQuestionsRHController {
 
     @FXML
     public void initialize() {
-        if (listView == null) return;
+        // ✅ Search live
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, o, n) -> onSearch());
+        }
 
-        listView.setCellFactory(lv -> new ListCell<>() {
+        if (lvQuestions == null) return;
+
+        lvQuestions.setCellFactory(lv -> new ListCell<>() {
             @Override
             protected void updateItem(Question item, boolean empty) {
                 super.updateItem(item, empty);
@@ -88,12 +98,15 @@ public class QuizQuestionsRHController {
         loadData();
     }
 
-    @FXML
     private void onSearch() {
-        String q = (searchField.getText() == null) ? "" : searchField.getText().trim().toLowerCase();
+        if (lvQuestions == null) return;
+
+        String q = (searchField == null || searchField.getText() == null)
+                ? ""
+                : searchField.getText().trim().toLowerCase();
 
         if (q.isEmpty()) {
-            listView.getItems().setAll(allQuestions);
+            lvQuestions.getItems().setAll(allQuestions);
             return;
         }
 
@@ -103,18 +116,26 @@ public class QuizQuestionsRHController {
             String cor = qu.getCorrectPreview() == null ? "" : qu.getCorrectPreview().toLowerCase();
             if (en.contains(q) || cor.contains(q)) filtered.add(qu);
         }
-        listView.getItems().setAll(filtered);
+        lvQuestions.getItems().setAll(filtered);
     }
 
     private void loadData() {
         if (quizId <= 0) return;
+        if (lvQuestions == null) return;
 
         try {
             allQuestions = quizService.getQuestionsByQuiz(quizId);
-            listView.getItems().setAll(allQuestions);
+            lvQuestions.getItems().setAll(allQuestions);
+
+            if (errorLabel != null) errorLabel.setText("");
+
         } catch (SQLException ex) {
             ex.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Erreur chargement questions: " + ex.getMessage()).show();
+            if (errorLabel != null) {
+                errorLabel.setText("Erreur chargement questions: " + ex.getMessage());
+            } else {
+                new Alert(Alert.AlertType.ERROR, "Erreur chargement questions: " + ex.getMessage()).show();
+            }
         }
     }
 
@@ -131,11 +152,8 @@ public class QuizQuestionsRHController {
             c.setQuizId(quizId);
             c.setQuestionToEdit(toEdit);
             c.setOnDone(() -> {
-                if (mainLayout != null) {
-                    mainLayout.setView(getSelfView());
-                } else {
-                    reload();
-                }
+                if (mainLayout != null) mainLayout.setView(getSelfView());
+                else reload();
             });
 
             if (mainLayout != null) {
@@ -162,11 +180,12 @@ public class QuizQuestionsRHController {
             c.set(quizId, quizTitre);
 
             return root;
+
         } catch (IOException e) {
             e.printStackTrace();
-            // fallback
             reload();
-            return listView.getScene().getRoot();
+            // fallback safe:
+            return (lvQuestions != null && lvQuestions.getScene() != null) ? lvQuestions.getScene().getRoot() : new Label("Erreur retour");
         }
     }
 
