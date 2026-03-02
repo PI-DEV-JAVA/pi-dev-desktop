@@ -30,23 +30,40 @@ public class AutoQuizGeneratorService {
 
             String theme = buildThemeFromQuiz(quiz);
 
+            // ✅ Prompt strict (diminue erreurs)
+            String strictRules = """
+                    IMPORTANT:
+                    - Réponds UNIQUEMENT avec un JSON valide.
+                    - Utilise des guillemets doubles " partout (pas de ').
+                    - Utilise true/false (pas True/False).
+                    - Aucun texte avant/après le JSON.
+                    - EXACTEMENT 5 questions.
+                    - EXACTEMENT 4 choix par question.
+                    - EXACTEMENT 1 seul choix correct par question.
+                    """;
+
             // ✅ 1) Génération HF
-            String out1 = hf.generateQuizJson(theme, 5);
+            String out1 = hf.generateQuizJson(theme + "\n" + strictRules, 5);
 
             QuizJsonParser.Result parsed;
             try {
                 parsed = QuizJsonParser.parse(out1);
             } catch (RuntimeException e) {
-                // ✅ Retry 1 fois si tronqué / invalide
-                String msg = e.getMessage() == null ? "" : e.getMessage();
-                if (msg.contains("tronqué") || msg.contains("Aucun objet JSON") || msg.contains("Champ 'questions'")) {
-                    String out2 = hf.generateQuizJson(
-                            theme + " IMPORTANT: renvoie le JSON COMPLET minifié sur une seule ligne, aucun texte.",
+                // ✅ Retry 1: demander JSON minifié 1 ligne
+                String out2 = hf.generateQuizJson(
+                        theme + "\n" + strictRules + "\nRENVOIE LE JSON MINIFIÉ SUR UNE SEULE LIGNE.",
+                        5
+                );
+                try {
+                    parsed = QuizJsonParser.parse(out2);
+                } catch (RuntimeException e2) {
+                    // ✅ Retry 2: ajouter instruction "pas d'apostrophes"
+                    String out3 = hf.generateQuizJson(
+                            theme + "\n" + strictRules +
+                                    "\nÉVITE les apostrophes dans le texte (remplace L' par Le ).",
                             5
                     );
-                    parsed = QuizJsonParser.parse(out2);
-                } else {
-                    throw e;
+                    parsed = QuizJsonParser.parse(out3);
                 }
             }
 
@@ -69,11 +86,7 @@ public class AutoQuizGeneratorService {
                     Choix c = new Choix();
                     c.setQuestionId(questionId);
                     c.setTexte(cdto.texte);
-
-                    // selon ton modèle: setEstCorrect / setCorrect / setCorrecte...
-                    // ici je suppose setEstCorrect(boolean)
                     c.setEstCorrect(cdto.correct);
-
                     choixDAO.add(c);
                 }
             }

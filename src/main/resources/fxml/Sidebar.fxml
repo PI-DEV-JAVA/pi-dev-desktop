@@ -32,7 +32,6 @@
     <!-- Quiz -->
     <Label text="QUIZ" styleClass="sidebar-section-label"/>
     <Button text="🧠 Gestion Quiz (RH)" onAction="#goQuizRH" styleClass="sidebar-button" maxWidth="Infinity"/>
-    <Button text="✅ Passer un Quiz" onAction="#goQuizPassage" styleClass="sidebar-button" maxWidth="Infinity"/>
 
     <Region VBox.vgrow="ALWAYS"/>
     <Separator/>

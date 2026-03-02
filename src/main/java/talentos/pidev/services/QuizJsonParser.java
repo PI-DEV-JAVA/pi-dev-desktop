@@ -21,6 +21,13 @@ public class QuizJsonParser {
         public boolean correct;
     }
 
+    /**
+     * Parse robuste:
+     * - supporte JSON strict (" ")
+     * - supporte sorties HF python-like (' ' + True/False)
+     * - gère apostrophes L'interface, etc.
+     * - extrait le premier objet JSON {...} même si texte avant/après
+     */
     public static Result parse(String text) {
         try {
             if (text == null || text.isBlank()) {
@@ -30,38 +37,66 @@ public class QuizJsonParser {
             String cleaned = stripMarkdownFences(text);
             String obj = extractFirstCompleteJsonObject(cleaned);
 
-            if (!obj.trim().startsWith("{")) {
+            if (obj == null || obj.isBlank()) {
                 throw new RuntimeException("Aucun objet JSON détecté.");
             }
-            if (!isBalancedJsonObject(obj)) {
+
+            // ✅ normaliser avant Gson (HF retourne parfois dict python)
+            String normalized = normalizeToValidJson(obj);
+
+            if (!normalized.trim().startsWith("{")) {
+                throw new RuntimeException("Aucun objet JSON détecté après normalisation.");
+            }
+            if (!isBalancedJsonObject(normalized)) {
                 throw new RuntimeException("JSON tronqué (accolades non équilibrées).");
             }
 
-            JsonObject root = JsonParser.parseString(obj).getAsJsonObject();
+            JsonObject root = JsonParser.parseString(normalized).getAsJsonObject();
             JsonArray qs = root.getAsJsonArray("questions");
             if (qs == null) throw new RuntimeException("Champ 'questions' manquant.");
 
             Result r = new Result();
 
             for (JsonElement qel : qs) {
+                if (!qel.isJsonObject()) continue;
                 JsonObject qo = qel.getAsJsonObject();
+
                 QuestionDTO q = new QuestionDTO();
                 q.enonce = getString(qo, "enonce");
 
                 JsonArray choices = qo.getAsJsonArray("choix");
-                if (choices == null || choices.size() != 4) {
-                    throw new RuntimeException("Chaque question doit avoir exactement 4 choix.");
+                if (choices == null) {
+                    throw new RuntimeException("Champ 'choix' manquant dans une question.");
                 }
 
+                // ✅ force exactement 4 choix (si HF en donne +/-, on ajuste)
+                List<ChoixDTO> temp = new ArrayList<>();
                 for (JsonElement cel : choices) {
+                    if (!cel.isJsonObject()) continue;
                     JsonObject co = cel.getAsJsonObject();
+
                     ChoixDTO c = new ChoixDTO();
                     c.texte = getString(co, "texte");
                     c.correct = co.has("correct") && !co.get("correct").isJsonNull() && co.get("correct").getAsBoolean();
-                    q.choix.add(c);
+                    temp.add(c);
                 }
 
-                // force: exactement 1 correct
+                if (temp.size() < 4) {
+                    // compléter avec choix vides si manque (rare)
+                    while (temp.size() < 4) {
+                        ChoixDTO fill = new ChoixDTO();
+                        fill.texte = "Choix " + (temp.size() + 1);
+                        fill.correct = false;
+                        temp.add(fill);
+                    }
+                } else if (temp.size() > 4) {
+                    // garder seulement 4
+                    temp = temp.subList(0, 4);
+                }
+
+                q.choix.addAll(temp);
+
+                // ✅ force: exactement 1 correct
                 int correctCount = (int) q.choix.stream().filter(ch -> ch.correct).count();
                 if (correctCount == 0) q.choix.get(0).correct = true;
                 if (correctCount > 1) {
@@ -101,9 +136,10 @@ public class QuizJsonParser {
         return t.trim();
     }
 
+    /** extrait le premier bloc JSON {...} complet */
     private static String extractFirstCompleteJsonObject(String s) {
         int start = s.indexOf('{');
-        if (start == -1) return s;
+        if (start == -1) return null;
 
         int depth = 0;
         boolean inString = false;
@@ -148,5 +184,54 @@ public class QuizJsonParser {
             }
         }
         return depth == 0;
+    }
+
+    /**
+     * HF retourne parfois:
+     * {'questions': [{'enonce': 'L'interface ...', 'correct': False}]}
+     * => on convertit en JSON valide.
+     */
+    private static String normalizeToValidJson(String s) {
+        String out = s.trim();
+
+        // 1) True/False (python) -> true/false (json)
+        out = out.replace(": True", ": true")
+                .replace(": False", ": false");
+
+        // 2) Convert single quotes to double quotes BUT keep apostrophes inside words (L'interface)
+        out = smartSingleQuotesToDouble(out);
+
+        return out;
+    }
+
+    private static String smartSingleQuotesToDouble(String s) {
+        StringBuilder sb = new StringBuilder();
+        boolean inSingle = false;
+
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+
+            if (c == '\'') {
+                char prev = (i > 0) ? s.charAt(i - 1) : '\0';
+                char next = (i + 1 < s.length()) ? s.charAt(i + 1) : '\0';
+
+                boolean apostropheInsideWord = Character.isLetter(prev) && Character.isLetter(next);
+
+                if (apostropheInsideWord) {
+                    // keep apostrophe
+                    sb.append(c);
+                } else {
+                    // toggle single-quote string region, and replace with "
+                    inSingle = !inSingle;
+                    sb.append('"');
+                }
+            } else {
+                // if we are inside converted string, escape double quotes
+                if (inSingle && c == '"') sb.append("\\\"");
+                else sb.append(c);
+            }
+        }
+
+        return sb.toString();
     }
 }
