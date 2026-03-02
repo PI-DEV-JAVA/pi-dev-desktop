@@ -19,7 +19,7 @@ public class WebRTCService {
     static Gson gson = new Gson();
     static HttpClient httpClient = HttpClient.newHttpClient();
 
-    public static void startScripts(long roomId) {
+    public static void startScripts(long roomId,String handle) {
         if (isAnyScriptRunning()) {
             System.out.println("Scripts already running. Skipping start.");
             return;
@@ -29,13 +29,13 @@ public class WebRTCService {
             File directory = new File(SCRIPTS_PATH);
 
             ProcessBuilder pubBuilder = new ProcessBuilder(
-                    "/home/speedweed/Desktop/PI_dev/webRTCHandler/venv/bin/python3", "publisher.py",Long.toString(roomId));
+                    "/home/speedweed/Desktop/PI_dev/webRTCHandler/venv/bin/python3", "publisher.py",Long.toString(roomId),handle);
             pubBuilder.directory(directory);
             pubBuilder.inheritIO();
             publisherProcess = pubBuilder.start();
 
             ProcessBuilder subBuilder = new ProcessBuilder(
-                    "/home/speedweed/Desktop/PI_dev/webRTCHandler/venv/bin/python3", "multi_subscribers.py",Long.toString(roomId));
+                    "/home/speedweed/Desktop/PI_dev/webRTCHandler/venv/bin/python3", "multi_subscribers.py",Long.toString(roomId),handle);
             subBuilder.directory(directory);
             subBuilder.inheritIO();
             subscriberProcess = subBuilder.start();

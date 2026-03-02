@@ -14,16 +14,19 @@ import java.net.URI;
 
 public class ChatService extends WebSocketClient {
     private final MediaController controller;
+    private final String Room,user;
     private final Gson gson = new Gson();
 
-    public ChatService(URI serverUri, MediaController controller) {
+    public ChatService(URI serverUri, MediaController controller,String Room,String user) {
         super(serverUri);
         this.controller = controller;
+        this.Room=Room;
+        this.user=user;
     }
 
     @Override
     public void onOpen(ServerHandshake handshakedata) {
-        sendMessage(new ChatMessage("join", "1234", "speedweed", ""));
+        sendMessage(new ChatMessage("join", Room, user, ""));
     }
 
     @Override

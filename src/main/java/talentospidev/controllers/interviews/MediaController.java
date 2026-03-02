@@ -8,8 +8,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import talentospidev.models.User;
 import talentospidev.models.interviews.ChatMessage;
 import talentospidev.models.interviews.InterviewMeet;
+import talentospidev.services.AuthService;
 import talentospidev.services.ChatService;
 // import talentos.pidev.models.schema.ChatMessage;
 // import talentos.pidev.models.schema.InterviewMeet;
@@ -48,18 +50,20 @@ public class MediaController {
     // private String currentRoom = "1234";
     private String username = "speedweed";
     private InterviewMeet meet;
+    private User user;
 
     private volatile boolean isDiscoveryActive = false;
 
     public void initData(InterviewMeet meet){
         this.meet=meet;
         this.username="speedweed";
+        this.user=AuthService.getCurrentUser();
         startDiscoveryListener();
-        WebRTCService.startScripts(meet.getId());
+        WebRTCService.startScripts(meet.getId(),user.getEmail());
         
 
         try {
-            client = new ChatService(new URI("ws://4.233.136.0:3000"), this);
+            client = new ChatService(new URI("ws://4.233.136.0:3000"), this,Long.toString(meet.getId()),user.getEmail());
             client.connect();
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,7 +115,7 @@ public class MediaController {
     private void sendMessage() {
         String text = messageInput.getText().trim();
         if (!text.isEmpty() && client != null && client.isOpen()) {
-            ChatMessage msg = new ChatMessage("chat", Long.toString(meet.getId()), username, text);
+            ChatMessage msg = new ChatMessage("chat", Long.toString(meet.getId()), user.getEmail(), text);
 
             client.sendMessage(msg);
 
